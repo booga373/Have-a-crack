@@ -716,6 +716,7 @@ button{cursor:pointer}
 .big.stop{background:var(--stop);color:var(--stop-ink);box-shadow:0 6px 0 #9c2418}
 .big:active:not(:disabled){transform:translateY(4px);box-shadow:none}
 .big:disabled{opacity:.28;filter:grayscale(.5);cursor:default;box-shadow:none}
+.awake-tip{margin:10px 0 0;text-align:center;font-size:.8rem;color:var(--muted)}
 .extras{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
 .mark{width:100%;justify-content:center;min-width:0}
 
@@ -913,6 +914,7 @@ button{cursor:pointer}
         <button class="big pause" type="button" id="b-pause" disabled><svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="5" height="16" rx="1.5" fill="currentColor"/><rect x="14" y="4" width="5" height="16" rx="1.5" fill="currentColor"/></svg>PAUSE</button>
         <button class="big stop" type="button" id="b-stop" disabled><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2.5" fill="currentColor"/></svg>STOP</button>
       </div>
+      <p class="awake-tip">Keep the screen on while you walk. GPS stops when the phone locks.</p>
       <div class="extras"><button class="btn mark" type="button" id="b-mark" disabled><span class="dot"></span>Mark a spot</button><button class="btn mark" type="button" id="b-voice"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.5 8.5a5 5 0 010 7M19 6a8.5 8.5 0 010 12"/></svg><span id="voice-lbl">Voice</span></button></div>
     </div>
   </section>
@@ -1251,12 +1253,12 @@ function updateUI(){if(!rec)return;const s=rec.state;
   else $("#r-left").textContent=rec.pins.length}
 function goPressed(){const first=rec.state==="idle";if(first){rec.acc=0;rec.nextKm=(voice.km||1)*1000;rec.nextMin=(voice.min||5)*60000}
   if(voice.km||voice.min)say(first?(follow?"Off you go on "+follow.name+". Have a crack!":"Walk started. Have a crack!"):"Back on the move.");rec.segStart=now();rec.newSeg=true;setState("running");
-  try{navigator.wakeLock&&navigator.wakeLock.request("screen").then(l=>wake=l).catch(()=>{})}catch(e){}
+  stayAwake(true);
   if(navigator.vibrate)try{navigator.vibrate(40)}catch(e){}
   if(!tick)tick=setInterval(onTick,250);if(lastFix&&!rec.demo)addPoint(lastFix[0],lastFix[1],lastFix[2],null)}
 function pausePressed(){rec.acc=elapsed();setState("paused");if(voice.km||voice.min)say("Paused.");if(navigator.vibrate)try{navigator.vibrate([30,60,30])}catch(e){}}
 function stopPressed(){if(rec.state==="running")rec.acc=elapsed();setState("stopped");
-  try{wake&&wake.release()}catch(e){}wake=null;
+  stayAwake(false);
   if((voice.km||voice.min)&&rec.pts.length>1)say(`Finished. ${spokenKm(rec.dist)} in ${spokenTime(rec.acc)}. Great walk.`);
   if(rec.pts.length<2){toast("Not enough of a track to save yet. Walk a little further.");setState("paused");return}
   const c=cumDist(rec.pts);$("#s-dist").textContent=(c[c.length-1]/1000).toFixed(2);$("#s-time").textContent=fmtClock(rec.acc);$("#s-climb").textContent=climb(rec.pts).gain;
@@ -1470,6 +1472,22 @@ function renderSettings(){const el=$("#view-settings");const todo=todoList();con
   el.querySelectorAll("[data-del]").forEach(b=>b.onclick=async()=>{try{await idb.del(b.dataset.del)}catch(e){}clips=clips.filter(x=>x.id!==b.dataset.del);renderSettings();toast("Line deleted")});
   el.querySelectorAll("[data-add]").forEach(b=>b.onclick=()=>openRecorder([{cat:b.dataset.add,sug:null,custom:true,text:""}]))}
 
+/* ---------- keep running with the screen off ----------
+   1) screen wake lock, re-requested every time the app comes back into view (phones drop it when the screen sleeps)
+   2) a silent looping sound while a walk or timer runs, which keeps the page alive in the background on most phones
+   3) lock-screen title showing the round or walk */
+let awake=false,wakeLock=null,keepAlive=null;
+function silentWav(){const n=8000,b=new ArrayBuffer(44+n),v=new DataView(b),w=(o,t)=>[...t].forEach((c,i)=>v.setUint8(o+i,c.charCodeAt(0)));
+  w(0,"RIFF");v.setUint32(4,36+n,true);w(8,"WAVEfmt ");v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);v.setUint32(24,8000,true);v.setUint32(28,8000,true);v.setUint16(32,1,true);v.setUint16(34,8,true);w(36,"data");v.setUint32(40,n,true);
+  for(let i=0;i<n;i++)v.setUint8(44+i,128);return URL.createObjectURL(new Blob([b],{type:"audio/wav"}))}
+function requestWake(){try{if(navigator.wakeLock&&document.visibilityState==="visible")navigator.wakeLock.request("screen").then(l=>{wakeLock=l}).catch(()=>{})}catch(e){}}
+function stayAwake(on){awake=on;if(on){requestWake();try{if(!keepAlive){keepAlive=new Audio(silentWav());keepAlive.loop=true;keepAlive.setAttribute("playsinline","")}keepAlive.play().catch(()=>{})}catch(e){}}
+  else{try{wakeLock&&wakeLock.release()}catch(e){}wakeLock=null;try{keepAlive&&keepAlive.pause()}catch(e){}try{navigator.mediaSession&&(navigator.mediaSession.playbackState="none")}catch(e){}}}
+function lockScreenInfo(){try{if(!("mediaSession" in navigator)||!window.MediaMetadata)return;const t=$("#view-box").hidden?(follow?follow.name:"Recording a walk"):(bt.phase==="rest"?`Rest before round ${bt.round+1}`:bt.phase==="prep"?"Get ready":`Round ${bt.round} of ${box.rounds}`);
+  navigator.mediaSession.metadata=new MediaMetadata({title:t,artist:"Have a Crack",artwork:[{src:$(".logo").src,sizes:"256x256",type:"image/jpeg"}]});navigator.mediaSession.playbackState="playing"}catch(e){}}
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState!=="visible"||!awake)return;requestWake();try{keepAlive&&keepAlive.paused&&keepAlive.play().catch(()=>{})}catch(e){}
+  if(audio())try{ac.resume()}catch(e){}if(typeof boxTick==="function")boxTick();if(rec)updateUI()});
+
 /* ---------- boxing timer ---------- */
 let box={round:180,rest:60,rounds:6,prep:10};try{const b=JSON.parse(localStorage.getItem("hac.box")||"null");if(b)box=Object.assign(box,b)}catch(e){}
 const LIM={round:[15,600],rest:[0,300],rounds:[1,30],prep:[0,30]};
@@ -1486,17 +1504,21 @@ function bell(times){for(let k=0;k<(times||1);k++){const t=k*.45;[[880,.5],[1320
 function clapper(){for(let k=0;k<6;k++)tone(1800,k*.13,.06,.5,"square")}
 function beep(){tone(1000,0,.15,.4,"square")}
 let bt={state:"idle",phase:"prep",round:1,endsAt:0,remaining:0,warned:false,lastSec:-1},bTick=null,bWake=null;
-const pnow=()=>performance.now();
-function startPhase(ph){bt.phase=ph;bt.warned=false;bt.mid=false;bt.lastSec=-1;const dur=ph==="prep"?box.prep:ph==="work"?box.round:box.rest;bt.endsAt=pnow()+dur*1000;
-  if(ph==="work"){bell(1);setTimeout(()=>{const last=bt.round===box.rounds&&box.rounds>1;coach([roundClip(bt.round),last?(rndClip("last")||rndClip("start")):rndClip("start")],last?`Last round! This is what you trained for. Come on, have a crack!`:`Round ${bt.round}! Come on, have a crack!`)},650)}
+const pnow=()=>Date.now();
+function startPhase(ph,base,quiet){bt.phase=ph;bt.warned=false;bt.mid=false;bt.lastSec=-1;const dur=ph==="prep"?box.prep:ph==="work"?box.round:box.rest;bt.endsAt=(base||pnow())+dur*1000;lockScreenInfo();
+  if(quiet){}else if(ph==="work"){bell(1);setTimeout(()=>{const last=bt.round===box.rounds&&box.rounds>1;coach([roundClip(bt.round),last?(rndClip("last")||rndClip("start")):rndClip("start")],last?`Last round! This is what you trained for. Come on, have a crack!`:`Round ${bt.round}! Come on, have a crack!`)},650)}
   else if(ph==="rest"){bell(2);setTimeout(()=>coach([rndClip("rest")],pick(["Great round. Breathe deep and recover.","Good work. Shake out the arms and slow your breathing.","That's the way. Drink some water and reset."])+` ${box.rounds-bt.round} ${box.rounds-bt.round===1?"round":"rounds"} to go!`),900)}
   else if(ph==="prep"){coach([rndClip("prep")],"Gloves on. Let's get to work!")}
   paintBox()}
-function nextPhase(){if(bt.phase==="prep")return startPhase("work");
-  if(bt.phase==="work"){if(bt.round>=box.rounds){finishBox();return}if(box.rest>0)return startPhase("rest");bt.round++;return startPhase("work")}
-  if(bt.phase==="rest"){bt.round++;return startPhase("work")}}
-function finishBox(){bt.state="done";bt.phase="done";clearInterval(bTick);bTick=null;bell(3);setTimeout(()=>coach([rndClip("done")],`That's ${box.rounds} ${box.rounds===1?"round":"rounds"} done! Brilliant effort. Be proud of that. That's having a crack!`),1400);try{bWake&&bWake.release()}catch(e){}bWake=null;paintBox()}
-function boxTick(){if(bt.state!=="running")return;const rem=bt.endsAt-pnow();if(rem<=0){nextPhase();return}
+function nextPhase(q){const b=bt.endsAt;if(bt.phase==="prep")return startPhase("work",b,q);
+  if(bt.phase==="work"){if(bt.round>=box.rounds){finishBox();return}if(box.rest>0)return startPhase("rest",b,q);bt.round++;return startPhase("work",b,q)}
+  if(bt.phase==="rest"){bt.round++;return startPhase("work",b,q)}}
+function finishBox(){bt.state="done";bt.phase="done";stayAwake(false);clearInterval(bTick);bTick=null;bell(3);setTimeout(()=>coach([rndClip("done")],`That's ${box.rounds} ${box.rounds===1?"round":"rounds"} done! Brilliant effort. Be proud of that. That's having a crack!`),1400);try{bWake&&bWake.release()}catch(e){}bWake=null;paintBox()}
+function boxTick(){if(bt.state!=="running")return;
+  /* if the phone froze the timer, step through the missed phases quietly and ring once for where we are now */
+  let missed=0;while(bt.state==="running"&&pnow()>=bt.endsAt){const late=pnow()-bt.endsAt>2500;nextPhase(late);if(late)missed++}
+  if(missed&&bt.state==="running"){bell(bt.phase==="rest"?2:1);bt.warned=bt.endsAt-pnow()<=10000;bt.mid=true;toast(bt.phase==="rest"?`Caught up: resting before round ${bt.round+1}`:`Caught up: round ${bt.round} of ${box.rounds}`)}
+  if(bt.state!=="running")return;const rem=bt.endsAt-pnow();
   const sec=Math.ceil(rem/1000);
   if(bt.phase==="work"&&!bt.warned&&rem<=10000&&box.round>15){bt.warned=true;clapper();setTimeout(()=>coach([rndClip("ten")],pick(["Ten seconds! Finish strong!","Ten seconds! Let your hands go!","Ten seconds! Big finish, you've got this!"])),700)}
   if(bt.phase==="work"&&!bt.mid&&box.round>=60&&rem<=box.round*500&&rem>12000){bt.mid=true;coach([rndClip("half")],pick(["Halfway there. Hands up, keep moving!","Looking good. Work that jab!","Stay light on your feet. You're doing great!","Keep breathing, keep punching. Good work!"]))}
@@ -1515,10 +1537,10 @@ function paintBox(){const v=$("#view-box"),idle=bt.state==="idle";$("#box-setup"
 $("#x-go").addEventListener("click",()=>{audio();
   if(bt.state==="paused"){bt.endsAt=pnow()+bt.remaining;bt.state="running";shout("Let's go. Back into it!")}
   else{bt={state:"running",phase:"prep",round:1,endsAt:0,remaining:0,warned:false,lastSec:-1};if(box.prep>0)startPhase("prep");else startPhase("work")}
-  try{navigator.wakeLock&&navigator.wakeLock.request("screen").then(l=>bWake=l).catch(()=>{})}catch(e){}
+  stayAwake(true);lockScreenInfo();
   if(!bTick)bTick=setInterval(boxTick,100);paintBox()});
 $("#x-pause").addEventListener("click",()=>{bt.remaining=bt.endsAt-pnow();bt.state="paused";coach([rndClip("pause")],pick(["Take a moment. We go again when you're ready.","Paused. Catch your breath."]));paintBox()});
-$("#x-stop").addEventListener("click",()=>{clearInterval(bTick);bTick=null;try{bWake&&bWake.release()}catch(e){}bWake=null;try{speechSynthesis.cancel()}catch(e){}const was=bt;bt={state:"idle",phase:"prep",round:1};paintBox();if(was.state!=="done")toast(`Stopped in round ${was.round} of ${box.rounds}`)});
+$("#x-stop").addEventListener("click",()=>{clearInterval(bTick);bTick=null;stayAwake(false);try{bWake&&bWake.release()}catch(e){}bWake=null;try{speechSynthesis.cancel()}catch(e){}const was=bt;bt={state:"idle",phase:"prep",round:1};paintBox();if(was.state!=="done")toast(`Stopped in round ${was.round} of ${box.rounds}`)});
 $("#box-close").addEventListener("click",()=>{if(bt.state==="running"||bt.state==="paused"){toast("Tap STOP to end the workout first");return}bt={state:"idle",phase:"prep",round:1};go("")});
 $("#box-test").addEventListener("click",()=>{audio();bell(1);setTimeout(()=>coach([roundClip(1),rndClip("start")],"Round 1! Come on, have a crack!"),650)});
 function openBox(){renderBox();paintBox()}
