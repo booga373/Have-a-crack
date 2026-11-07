@@ -1022,6 +1022,7 @@ button{cursor:pointer}
       <div class="pickchips" id="v-km"></div>
       <span class="label">Every time</span>
       <div class="pickchips" id="v-min"></div>
+      <p class="sub" style="margin:4px 0 12px">Want your own voice? Record it in Settings → Coach voice.</p>
       <div class="sheet-actions"><button class="btn" type="button" id="v-test">Play a test</button><button class="btn primary" type="button" data-close>Done</button></div>
     </div>
   </div>
@@ -1055,7 +1056,7 @@ const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const IN_CLAUDE=!!(window.claude&&window.claude.use);
 const KEY="walkies.v1";
-let SET={walkKmh:4.5,runKmh:9,coach:"mine"};try{Object.assign(SET,JSON.parse(localStorage.getItem("hac.settings")||"{}"))}catch(e){}
+let SET={walkKmh:4.5,runKmh:9,coach:"mine",stats:true};try{Object.assign(SET,JSON.parse(localStorage.getItem("hac.settings")||"{}"))}catch(e){}
 let WALK_KMH=SET.walkKmh, RUN_KMH=SET.runKmh;
 function saveSet(){WALK_KMH=SET.walkKmh;RUN_KMH=SET.runKmh;try{localStorage.setItem("hac.settings",JSON.stringify(SET))}catch(e){}}
 const TERRAIN=["Grass paddock","Farm track","Gravel","Bush","Creek crossing","Steep hills","Shade"];
@@ -1252,14 +1253,14 @@ function updateUI(){if(!rec)return;const s=rec.state;
     const frac=Math.min(1,done/(fs.dist||1));$("#follow-fill").style.width=(frac*100).toFixed(1)+"%";$("#r-left").textContent=Math.max(0,Math.round(fs.walkMin*(1-frac)))}
   else $("#r-left").textContent=rec.pins.length}
 function goPressed(){const first=rec.state==="idle";if(first){rec.acc=0;rec.nextKm=(voice.km||1)*1000;rec.nextMin=(voice.min||5)*60000}
-  if(voice.km||voice.min)say(first?(follow?"Off you go on "+follow.name+". Have a crack!":"Walk started. Have a crack!"):"Back on the move.");rec.segStart=now();rec.newSeg=true;setState("running");
+  if(voice.km||voice.min)coach(first?[rndClip("wstart")]:[rndClip("wresume")],first?(follow?"Off you go on "+follow.name+". Have a crack!":"Walk started. Have a crack!"):"Back on the move.",null,talk);rec.segStart=now();rec.newSeg=true;setState("running");
   stayAwake(true);
   if(navigator.vibrate)try{navigator.vibrate(40)}catch(e){}
   if(!tick)tick=setInterval(onTick,250);if(lastFix&&!rec.demo)addPoint(lastFix[0],lastFix[1],lastFix[2],null)}
-function pausePressed(){rec.acc=elapsed();setState("paused");if(voice.km||voice.min)say("Paused.");if(navigator.vibrate)try{navigator.vibrate([30,60,30])}catch(e){}}
+function pausePressed(){rec.acc=elapsed();setState("paused");if(voice.km||voice.min)coach([rndClip("wpause")],"Paused.",null,talk);if(navigator.vibrate)try{navigator.vibrate([30,60,30])}catch(e){}}
 function stopPressed(){if(rec.state==="running")rec.acc=elapsed();setState("stopped");
   stayAwake(false);
-  if((voice.km||voice.min)&&rec.pts.length>1)say(`Finished. ${spokenKm(rec.dist)} in ${spokenTime(rec.acc)}. Great walk.`);
+  if((voice.km||voice.min)&&rec.pts.length>1)coach([rndClip("wdone")],`Finished. ${spokenKm(rec.dist)} in ${spokenTime(rec.acc)}. Great walk.`,SET.stats?`${spokenKm(rec.dist)} in ${spokenTime(rec.acc)}.`:null,talk);
   if(rec.pts.length<2){toast("Not enough of a track to save yet. Walk a little further.");setState("paused");return}
   const c=cumDist(rec.pts);$("#s-dist").textContent=(c[c.length-1]/1000).toFixed(2);$("#s-time").textContent=fmtClock(rec.acc);$("#s-climb").textContent=climb(rec.pts).gain;
   $("#save-name").value=follow?follow.name+" (my time)":"";let lw="";try{lw=localStorage.getItem("walkies.by")||""}catch(e){}$("#save-by").value=lw;$("#walkers").innerHTML=[...new Set(store.walks.map(w=>w.by).filter(Boolean))].map(n=>`<option value="${esc(n)}">`).join("");$("#save-desc").value=follow?follow.desc||"":"";
@@ -1290,7 +1291,7 @@ function renderVoice(){const mk=(sel,opts,key)=>{const el=$(sel);el.innerHTML=op
   el.onclick=e=>{const b=e.target.closest(".chip");if(!b)return;voice[key]=+b.dataset.v;try{localStorage.setItem("walkies.voice",JSON.stringify(voice))}catch(e){}renderVoice();voiceLabel()}};
   mk("#v-km",KM_OPTS,"km");mk("#v-min",MIN_OPTS,"min")}
 $("#b-voice").addEventListener("click",()=>{renderVoice();openSheet("#sheet-voice")});
-$("#v-test").addEventListener("click",()=>say("You've just completed 1 kilometre. Time, 11 minutes 20. Pace, 11 minutes 20 per kilometre."));
+$("#v-test").addEventListener("click",()=>{audio();coach([kmClip(1),rndClip("wcheer")],"You've just completed 1 kilometre. Time, 11 minutes 20. Pace, 11 minutes 20 per kilometre.",SET.stats?"Time, 11 minutes 20. Pace, 11 minutes 20 per kilometre.":null,talk)});
 let auVoice=null;function pickVoice(){try{const vs=speechSynthesis.getVoices();auVoice=vs.find(v=>/en-AU/i.test(v.lang))||vs.find(v=>/^en/i.test(v.lang))||null}catch(e){}}
 if(window.speechSynthesis){pickVoice();try{speechSynthesis.onvoiceschanged=pickVoice}catch(e){}}
 function say(t,o){if(!window.speechSynthesis){toast(t);return}try{const u=new SpeechSynthesisUtterance(t);const v=(o&&o.voice)||auVoice;if(v)u.voice=v;u.lang=v?v.lang:"en-AU";u.rate=(o&&o.rate)||1;u.pitch=(o&&o.pitch)||1;u.volume=1;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){toast(t)}}
@@ -1300,15 +1301,17 @@ let coachVoice=null;function pickCoach(){try{const vs=speechSynthesis.getVoices(
 if(window.speechSynthesis){pickCoach();try{speechSynthesis.addEventListener("voiceschanged",pickCoach)}catch(e){}}
 const pick=a=>a[Math.floor(Math.random()*a.length)];
 function shout(t){say(t,{voice:coachVoice,pitch:.8,rate:1.05})}
+function talk(t){say(t,{voice:coachVoice,pitch:.92,rate:1})}
 function spokenTime(ms){const s=Math.round(ms/1000),h=Math.floor(s/3600),m=Math.floor(s/60)%60,ss=s%60;return(h?h+(h>1?" hours ":" hour "):"")+m+(m===1?" minute":" minutes")+(h?"":" "+ss+(ss===1?" second":" seconds"))}
 function spokenPace(ms){if(!isFinite(ms)||ms<=0)return"";const s=Math.round(ms/1000);return Math.floor(s/60)+" minutes "+(s%60)+" per kilometre"}
 function spokenKm(m){const k=Math.round(m/100)/10;return(k%1?k.toFixed(1):String(k))+(k===1?" kilometre":" kilometres")}
-function checkVoice(){if(!rec||rec.state!=="running")return;const el=elapsed();let msg="";
+function checkVoice(){if(!rec||rec.state!=="running")return;const el=elapsed();let msg="",statsMsg="",kmDone=0;
   if(voice.km&&rec.dist>=rec.nextKm){const d=rec.nextKm;rec.nextKm=(Math.floor(rec.dist/(voice.km*1000))+1)*voice.km*1000;
-    msg=`You've just completed ${spokenKm(d)}. Time, ${spokenTime(el)}. Pace, ${spokenPace(el/(rec.dist/1000))}.`;
-    if(follow){const left=Math.max(0,stats(follow).dist-rec.dist);if(left>100)msg+=` ${spokenKm(left)} to go.`}}
-  else if(voice.min&&el>=rec.nextMin){rec.nextMin=(Math.floor(el/(voice.min*60000))+1)*voice.min*60000;msg=`${spokenTime(el)} done. You've covered ${spokenKm(rec.dist)}.`}
-  if(msg){say(msg);toast(msg.split(". ")[0])}}
+    kmDone=Math.round(d);msg=`You've just completed ${spokenKm(d)}. Time, ${spokenTime(el)}. Pace, ${spokenPace(el/(rec.dist/1000))}.`;statsMsg=`${kmClip(Math.round(d/1000))&&d%1000===0?"":spokenKm(d)+". "}Time, ${spokenTime(el)}. Pace, ${spokenPace(el/(rec.dist/1000))}.`;
+    if(follow){const left=Math.max(0,stats(follow).dist-rec.dist);if(left>100){msg+=` ${spokenKm(left)} to go.`;statsMsg+=` ${spokenKm(left)} to go.`}}}
+  else if(voice.min&&el>=rec.nextMin){rec.nextMin=(Math.floor(el/(voice.min*60000))+1)*voice.min*60000;msg=`${spokenTime(el)} done. You've covered ${spokenKm(rec.dist)}.`;statsMsg=msg}
+  if(msg){const whole=kmDone&&kmDone%1000===0?kmClip(kmDone/1000):null;
+    coach(kmDone?[whole,rndClip("wcheer")]:[rndClip("wcheer")],msg,SET.stats?statsMsg:null,talk);toast(msg.split(". ")[0])}}
 
 /* time / map toggle */
 let recView="map";try{recView=localStorage.getItem("walkies.rv")||"map"}catch(e){}
@@ -1385,15 +1388,21 @@ $("#btn-share-all").addEventListener("click",()=>{const ws=store.walks.filter(w=
 /* ---------- coach voice clips (kept in IndexedDB on this phone) ---------- */
 const NUMW=["one","two","three","four","five","six","seven","eight","nine","ten","eleven","twelve"];
 const CATS=[
- {k:"prep",t:"Get ready",when:"Before the first round",sug:["Gloves on. Let's get to work!"]},
- {k:"round",t:"Round numbers",when:"Straight after the bell",fixed:true,sug:NUMW.map(n=>"Round "+n+"!")},
- {k:"start",t:"Start of a round",when:"After the round number. One plays at random.",sug:["Come on, have a crack!","Come on, have a crack!","Come on, have a crack!"]},
- {k:"last",t:"Last round",when:"Start of the final round",sug:["Last round! Everything you've got. Come on, have a crack!"]},
- {k:"half",t:"Halfway",when:"Midway through each round. One plays at random.",sug:["Hands up! Keep moving!","Work that jab!","Stay on your toes. Keep punching!"]},
- {k:"ten",t:"10-second warning",when:"10 seconds before the bell",sug:["Ten seconds! Finish strong!","Ten seconds! Let your hands go!"]},
- {k:"rest",t:"The break",when:"Between rounds",sug:["Good round. Breathe. Get ready for the next one.","Shake it out. Recover. You're not done yet."]},
- {k:"pause",t:"Pause",when:"When you tap PAUSE",sug:["Take a breather. We go again when you're ready."]},
- {k:"done",t:"Finished",when:"After the last round",sug:["That's it, workout done! Now that's having a crack!"]}];
+ {k:"prep",g:"box",t:"Get ready",when:"Before the first round",sug:["Gloves on. Let's get to work!"]},
+ {k:"round",g:"box",t:"Round numbers",when:"Straight after the bell",fixed:true,sug:NUMW.map(n=>"Round "+n+"!")},
+ {k:"start",g:"box",t:"Start of a round",when:"After the round number. One plays at random.",sug:["Come on, have a crack!","Come on, have a crack!","Come on, have a crack!"]},
+ {k:"last",g:"box",t:"Last round",when:"Start of the final round",sug:["Last round! Everything you've got. Come on, have a crack!"]},
+ {k:"half",g:"box",t:"Halfway",when:"Midway through each round. One plays at random.",sug:["Hands up! Keep moving!","Work that jab!","Stay on your toes. Keep punching!"]},
+ {k:"ten",g:"box",t:"10-second warning",when:"10 seconds before the bell",sug:["Ten seconds! Finish strong!","Ten seconds! Let your hands go!"]},
+ {k:"rest",g:"box",t:"The break",when:"Between rounds",sug:["Good round. Breathe. Get ready for the next one.","Shake it out. Recover. You're not done yet."]},
+ {k:"pause",g:"box",t:"Pause",when:"When you tap PAUSE",sug:["Take a breather. We go again when you're ready."]},
+ {k:"done",g:"box",t:"Finished",when:"After the last round",sug:["That's it, workout done! Now that's having a crack!"]},
+ {k:"wstart",g:"walk",t:"Start of a walk",when:"When you tap GO",sug:["Right, let's go. Have a crack!"]},
+ {k:"wkm",g:"walk",t:"Kilometre numbers",when:"Each time you finish a whole kilometre",fixed:true,sug:NUMW.slice(0,10).map((n,i)=>`That's ${n} kilometre${i?"s":""} done!`)},
+ {k:"wcheer",g:"walk",t:"Encouragement",when:"With each distance or time update. One plays at random.",sug:["Good work, keep it going!","Looking strong. Keep that pace up!","You're flying. Keep having a crack!"]},
+ {k:"wpause",g:"walk",t:"Pause",when:"When you tap PAUSE on a walk",sug:["Quick breather. Hit GO when you're ready."]},
+ {k:"wresume",g:"walk",t:"Back on the move",when:"When you tap GO after a pause",sug:["Back on the move. Let's go!"]},
+ {k:"wdone",g:"walk",t:"Finished",when:"When you tap STOP",sug:["Walk done! Now that's having a crack!"]}];
 let clips=[];const bufCache=new Map();
 const idb={db:null,open(){return this.db?Promise.resolve(this.db):new Promise((res,rej)=>{try{const r=indexedDB.open("hac",1);r.onupgradeneeded=()=>r.result.createObjectStore("clips",{keyPath:"id"});r.onsuccess=()=>{this.db=r.result;res(this.db)};r.onerror=()=>rej(r.error)}catch(e){rej(e)}})},
  async tx(mode,fn){const db=await this.open();return new Promise((res,rej)=>{const t=db.transaction("clips",mode),st=t.objectStore("clips");const out=fn(st);t.oncomplete=()=>res(out&&out.result);t.onerror=()=>rej(t.error)})},
@@ -1404,9 +1413,10 @@ const roundClip=n=>clips.find(c=>c.cat==="round"&&c.sug===n-1);
 async function bufFor(c){if(bufCache.has(c.id))return bufCache.get(c.id);const a=audio();if(!a)throw 0;const b=await a.decodeAudioData(await c.blob.arrayBuffer());bufCache.set(c.id,b);return b}
 async function playClip(c){const a=audio();const b=await bufFor(c);return new Promise(res=>{const src=a.createBufferSource(),g=a.createGain();g.gain.value=1.6;src.buffer=b;src.connect(g).connect(a.destination);src.onended=res;src.start()})}
 let coachQueue=Promise.resolve();
-function coach(list,fallback){if(SET.coach==="off")return;const cl=SET.coach==="mine"?list.filter(Boolean):[];
-  if(cl.length){try{speechSynthesis.cancel()}catch(e){}coachQueue=coachQueue.then(()=>cl.reduce((p,c)=>p.then(()=>playClip(c).catch(()=>{})),Promise.resolve()));return}
-  if(fallback)shout(fallback)}
+function coach(list,fallback,after,speak){speak=speak||shout;if(SET.coach==="off")return;const cl=SET.coach==="mine"?list.filter(Boolean):[];
+  if(cl.length){try{speechSynthesis.cancel()}catch(e){}coachQueue=coachQueue.then(()=>cl.reduce((p,c)=>p.then(()=>playClip(c).catch(()=>{})),Promise.resolve())).then(()=>{if(after)speak(after)});return}
+  if(fallback)speak(fallback)}
+const kmClip=n=>clips.find(c=>c.cat==="wkm"&&c.sug===n-1);
 const rndClip=k=>{const a=clipsIn(k);return a.length?pick(a):null};
 
 /* recorder */
@@ -1438,18 +1448,20 @@ $("#rc-keep").addEventListener("click",async()=>{const c=rc.cur;if(!rc.blob||!c)
   bufCache.delete(rec.id);clips=clips.filter(x=>x.id!==rec.id).concat(rec);toast("Saved: "+text);nextRec()});
 $("#rc-skip").addEventListener("click",nextRec);
 $("#rc-close").addEventListener("click",()=>{rc.queue=[];stopStream();$("#sheet-rec").hidden=true;renderSettings()});
-function todoList(){const q=[];CATS.forEach(c=>c.sug.forEach((t,i)=>{if(!clips.some(x=>x.cat===c.k&&x.sug===i&&!x.custom))q.push({cat:c.k,sug:i,text:t})}));return q}
+function todoList(g){const q=[];CATS.filter(c=>!g||c.g===g).forEach(c=>c.sug.forEach((t,i)=>{if(!clips.some(x=>x.cat===c.k&&x.sug===i&&!x.custom))q.push({cat:c.k,sug:i,text:t})}));return q}
 
-function renderSettings(){const el=$("#view-settings");const todo=todoList();const ic={play:'<svg width="16" height="16" viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z" fill="currentColor"/></svg>',rec:'<svg width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7" fill="currentColor"/></svg>',del:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>'};
+function renderSettings(){const el=$("#view-settings");const ic={play:'<svg width="16" height="16" viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z" fill="currentColor"/></svg>',rec:'<svg width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7" fill="currentColor"/></svg>',del:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>'};
   const chipRow=(id,opts,val)=>`<div class="pickchips" id="${id}">${opts.map(([v,l])=>`<button type="button" class="chip" data-v="${v}" aria-pressed="${String(val)===String(v)}">${l}</button>`).join("")}</div>`;
   el.innerHTML=`<div class="topbar"><a class="back" href="#" aria-label="Back to home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></a><h1 class="detail-title" style="margin:0">Settings</h1></div>
-  <section class="set-sec"><h2>Coach voice</h2><p>Record the call-outs for the boxing timer in your own voice. Fire it up, angry or encouraging, whatever gets people going. Anyone using the app can record their own, and add extra lines.</p>
-    <div class="set-row"><span class="label">Which voice the timer uses</span>${chipRow("s-coach",[["mine","My recordings"],["phone","Phone voice"],["off","Bell only"]],SET.coach)}</div>
-    ${todo.length?`<button class="big go" type="button" id="s-recall" style="width:100%;min-height:68px;font-size:1.25rem;margin-bottom:12px;letter-spacing:.02em"><svg width="22" height="22" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="currentColor"/></svg>Record the lines · ${todo.length} to go</button>`:`<p class="set-row" style="color:var(--ink);margin:0 0 12px"><strong>All suggested lines recorded.</strong> Add your own below to mix it up.</p>`}
-    ${CATS.map(c=>{const mine=clipsIn(c.k);return`<div class="cat"><div class="cat-h"><strong>${c.t}</strong><small>${c.when}</small></div><ul class="lines">
+  <section class="set-sec"><h2>Coach voice</h2><p>Record the call-outs in your own voice, for walks and the boxing timer. Fire it up, angry or encouraging, whatever gets people going. Anyone using the app can record their own and add extra lines.</p>
+    <div class="set-row"><span class="label">Which voice to use</span>${chipRow("s-coach",[["mine","My recordings"],["phone","Phone voice"],["off","Sounds only"]],SET.coach)}</div>
+    <div class="set-row"><span class="label">On walks, read out time and pace after my clip</span>${chipRow("s-stats",[["1","Yes"],["0","No, just my voice"]],SET.stats?1:0)}</div>
+    ${["walk","box"].map(g=>{const todo=todoList(g);return`<h3 style="font-family:var(--f-display);font-weight:800;font-size:1.15rem;margin:18px 0 8px">${g==="walk"?"Walks":"Boxing timer"}</h3>
+    ${todo.length?`<button class="big go" type="button" data-recall="${g}" style="width:100%;min-height:68px;font-size:1.2rem;margin-bottom:12px;letter-spacing:.02em"><svg width="22" height="22" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="currentColor"/></svg>Record the ${g==="walk"?"walk":"boxing"} lines · ${todo.length} to go</button>`:`<p class="set-row" style="color:var(--ink);margin:0 0 12px"><strong>All suggested ${g==="walk"?"walk":"boxing"} lines recorded.</strong> Add your own below to mix it up.</p>`}
+    ${CATS.filter(c=>c.g===g).map(c=>{const mine=clipsIn(c.k);return`<div class="cat"><div class="cat-h"><strong>${c.t}</strong><small>${c.when}</small></div><ul class="lines">
       ${c.sug.map((t,i)=>{const cl=mine.find(x=>x.sug===i&&!x.custom);return`<li class="${cl?"":"todo"}"><span>${esc(t)}</span>${cl?`<button class="ib ok" type="button" data-play="${cl.id}" aria-label="Play">${ic.play}</button><button class="ib" type="button" data-rec="${c.k}:${i}" aria-label="Record again">${ic.rec}</button>`:`<button class="ib rec" type="button" data-rec="${c.k}:${i}" aria-label="Record">${ic.rec}</button>`}</li>`}).join("")}
       ${mine.filter(x=>x.custom).map(x=>`<li><span>${esc(x.text)} <small style="color:var(--accent);font-weight:700">Your line</small></span><button class="ib ok" type="button" data-play="${x.id}" aria-label="Play">${ic.play}</button><button class="ib" type="button" data-del="${x.id}" aria-label="Delete">${ic.del}</button></li>`).join("")}
-      </ul>${c.fixed?"":`<button class="btn small add-line" type="button" data-add="${c.k}">+ Add your own line</button>`}</div>`}).join("")}
+      </ul>${c.fixed?"":`<button class="btn small add-line" type="button" data-add="${c.k}">+ Add your own line</button>`}</div>`}).join("")}`}).join("")}
   </section>
   <section class="set-sec"><h2>Walks</h2><p>These set the walking and running times shown on every walk, and the spoken updates while you record.</p>
     <div class="set-row"><span class="label">Walking pace for time estimates</span>${chipRow("s-walk",[[3.5,"Easy 3.5 km/h"],[4.5,"Steady 4.5 km/h"],[5.5,"Brisk 5.5 km/h"]],SET.walkKmh)}</div>
@@ -1466,7 +1478,8 @@ function renderSettings(){const el=$("#view-settings");const todo=todoList();con
   bind("#s-coach",v=>{SET.coach=v;saveSet()});bind("#s-walk",v=>{SET.walkKmh=+v;saveSet()});bind("#s-run",v=>{SET.runKmh=+v;saveSet()});
   bind("#s-vkm",v=>{voice.km=+v;try{localStorage.setItem("walkies.voice",JSON.stringify(voice))}catch(e){}});bind("#s-vmin",v=>{voice.min=+v;try{localStorage.setItem("walkies.voice",JSON.stringify(voice))}catch(e){}});
   bind("#s-map",v=>{if(window.L)setTiles(v);else{tileMode=v;try{localStorage.setItem("walkies.tiles",v)}catch(e){}}});
-  const ra=$("#s-recall");if(ra)ra.onclick=()=>openRecorder(todoList());
+  el.querySelectorAll("[data-recall]").forEach(b=>b.onclick=()=>openRecorder(todoList(b.dataset.recall)));
+  bind("#s-stats",v=>{SET.stats=v==="1";saveSet()});
   el.querySelectorAll("[data-rec]").forEach(b=>b.onclick=()=>{const[k,i]=b.dataset.rec.split(":");const c=CATS.find(x=>x.k===k);openRecorder([{cat:k,sug:+i,text:c.sug[+i]}])});
   el.querySelectorAll("[data-play]").forEach(b=>b.onclick=()=>{const c=clips.find(x=>x.id===b.dataset.play);if(c)playClip(c).catch(()=>toast("Couldn't play that clip"))});
   el.querySelectorAll("[data-del]").forEach(b=>b.onclick=async()=>{try{await idb.del(b.dataset.del)}catch(e){}clips=clips.filter(x=>x.id!==b.dataset.del);renderSettings();toast("Line deleted")});
