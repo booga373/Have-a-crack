@@ -1754,9 +1754,15 @@ function chime(ph){if(!SET.medChime)return;if(ph==="in"){tone(523.25,0,1.4,.14);
 let calmVoice=null;function pickCalm(){try{const vs=speechSynthesis.getVoices().filter(v=>/^en/i.test(v.lang));const fem=/(female|karen|samantha|catherine|kate|serena|moira|tessa|fiona|victoria|zoe|allison|ava|susan|nicky|libby|sonia|natasha|hazel|emma|olivia|amy|joanna|aria|jenny|clara|isla|matilda)/i;
   const score=v=>(fem.test(v.name)?20:0)-(/\b(male|daniel|lee|gordon|fred|alex|thomas|oliver|arthur|james|guy|ryan|william)\b/i.test(v.name)?30:0)+(/en-AU/i.test(v.lang)?4:/en-GB|en-IE|en-NZ/i.test(v.lang)?3:0)+(/enhanced|premium|neural|natural/i.test(v.name)?5:0);calmVoice=vs.sort((a,b)=>score(b)-score(a))[0]||null}catch(e){}}
 if(window.speechSynthesis){pickCalm();try{speechSynthesis.addEventListener("voiceschanged",pickCalm)}catch(e){}}
-function calm(t){if(!SET.medVoice)return;say(t,{voice:calmVoice,rate:.82,pitch:1.03})}
+/* calm voice: slower, a touch lower, softer, with a pause between sentences, and the background dips while she speaks */
+let calmQ=0;
+function calm(t){if(!SET.medVoice||!t)return;if(!window.speechSynthesis){toast(t);return}const id=++calmQ;try{speechSynthesis.cancel()}catch(e){}
+  const parts=String(t).replace(/\.\.\./g,"…").split(/(?<=[.!?…])\s+/).filter(x=>x.trim());let i=0;
+  const next=()=>{if(id!==calmQ||i>=parts.length){if(id===calmQ)duck(false);return}const u=new SpeechSynthesisUtterance(parts[i++]);if(calmVoice)u.voice=calmVoice;u.lang=calmVoice?calmVoice.lang:"en-AU";u.rate=.72;u.pitch=.94;u.volume=.75;
+    u.onend=()=>setTimeout(next,/…$/.test(parts[i-1])?1100:650);u.onerror=()=>{if(id===calmQ)duck(false)};duck(true);try{speechSynthesis.speak(u)}catch(e){duck(false)}};next()}
+function duck(on){try{if(amb&&amb.out&&ac){const g=amb.out.gain,now=ac.currentTime;g.cancelScheduledValues(now);g.setValueAtTime(g.value,now);g.linearRampToValueAtTime(amb.level*(on?.45:1),now+(on?.4:1.2))}}catch(e){}}
 function bowl(){[[196,.35],[392,.18],[588,.1],[784,.05]].forEach(([f,v])=>tone(f,0,6,v))}
-let amb=null;function ambient(kind){try{if(amb){amb.stop();amb=null}if(kind==="none")return;const a=audio();if(!a)return;const out=a.createGain();out.gain.value=0;out.connect(a.destination);out.gain.linearRampToValueAtTime(kind==="theta"||kind==="alpha"?.07:kind==="birds"?.2:.16,a.currentTime+3);const nodes=[];let alive=true;
+let amb=null;function ambient(kind){try{if(amb){amb.stop();amb=null}if(kind==="none")return;const a=audio();if(!a)return;const out=a.createGain();out.gain.value=0;out.connect(a.destination);const level=kind==="theta"||kind==="alpha"?.07:kind==="birds"?.2:.16;out.gain.linearRampToValueAtTime(level,a.currentTime+3);const nodes=[];let alive=true;
   const noise=type=>{const len=a.sampleRate*4,b=a.createBuffer(1,len,a.sampleRate),d=b.getChannelData(0);let l=0,p0=0,p1=0,p2=0;for(let i=0;i<len;i++){const w=Math.random()*2-1;if(type==="brown"){l=(l+.02*w)/1.02;d[i]=l*3.5}else{p0=.99765*p0+w*.099046;p1=.963*p1+w*.2965164;p2=.57*p2+w*1.0526913;d[i]=(p0+p1+p2+w*.1848)*.11}}
     const s=a.createBufferSource();s.buffer=b;s.loop=true;s.start();nodes.push(s);return s};
   if(kind==="rain"){const n=noise("pink"),hp=a.createBiquadFilter();hp.type="highpass";hp.frequency.value=400;const lp=a.createBiquadFilter();lp.type="lowpass";lp.frequency.value=6000;n.connect(hp).connect(lp).connect(out)}
@@ -1771,7 +1777,7 @@ let amb=null;function ambient(kind){try{if(amb){amb.stop();amb=null}if(kind==="n
       for(let i=0;i<notes;i++){const o=a.createOscillator(),g=a.createGain(),st=t+i*(.11+Math.random()*.06),f=f0*(.9+Math.random()*.25);o.frequency.setValueAtTime(f,st);o.frequency.exponentialRampToValueAtTime(f*(Math.random()<.5?1.25:.8),st+.08);
         g.gain.setValueAtTime(0,st);g.gain.linearRampToValueAtTime(.22,st+.015);g.gain.exponentialRampToValueAtTime(.001,st+.1);o.connect(g).connect(pan||out);o.start(st);o.stop(st+.12)}
       setTimeout(call,600+Math.random()*2600)};setTimeout(call,800)}
-  amb={stop(){alive=false;try{out.gain.cancelScheduledValues(a.currentTime);out.gain.setValueAtTime(out.gain.value,a.currentTime);out.gain.linearRampToValueAtTime(0,a.currentTime+1.5);setTimeout(()=>nodes.forEach(n=>{try{n.stop()}catch(e){}}),1700)}catch(e){}}}}catch(e){}}
+  amb={out,level,stop(){alive=false;try{out.gain.cancelScheduledValues(a.currentTime);out.gain.setValueAtTime(out.gain.value,a.currentTime);out.gain.linearRampToValueAtTime(0,a.currentTime+1.5);setTimeout(()=>nodes.forEach(n=>{try{n.stop()}catch(e){}}),1700)}catch(e){}}}}catch(e){}}
 function medEntries(){return(store.medLog||[]).concat((store.medLocal||[]).filter(x=>!x.synced))}
 const dayKey=t=>new Date(t).toLocaleDateString("en-CA");
 function medStats(name){const k=String(name||"").toLowerCase();const mine=medEntries().filter(e=>String(e.by).toLowerCase()===k);const days=new Set(mine.map(e=>dayKey(e.at)));
@@ -1912,7 +1918,7 @@ document.querySelectorAll(".map-toggle").forEach(b=>b.textContent=tileMode==="sa
 route();
 idb.all().catch(()=>{}).then(()=>setTimeout(sync,400));
 /* auto-update: GitHub lets phones keep an old copy for ~10 minutes, so check for a newer build and reload when it's safe */
-const BUILD="20261108153223";
+const BUILD="20261108153421";
 async function checkUpdate(){if(IN_CLAUDE||BUILD==="BUILD_ID")return;try{const t=await(await fetch(location.pathname+"?v="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);
   if(m&&m[1]!==BUILD){const busy=(rec&&(rec.state==="running"||rec.state==="paused"))||bt.state==="running"||bt.state==="paused"||!$("#sheet-save").hidden||!$("#sheet-rec").hidden;
     if(busy){setTimeout(checkUpdate,60000);return}toast("Updating Have a Crack…");setTimeout(()=>location.reload(),800)}}catch(e){}}
