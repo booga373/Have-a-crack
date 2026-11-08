@@ -12,7 +12,7 @@ Matt Bailey's phone web app: farm walks and runs (GPS map, GO/PAUSE/STOP, spots 
 - Time/Map toggle on the recorder; voice updates each km; "Come on, have a crack!" at the start of each boxing round; 10-second warning.
 - Matt's Have a Crack picture as the logo and home-screen icon (`src/icon.jpg`).
 - Settings: coach voice recording for walks and boxing, walk paces, map style.
-- Meditate: breathing patterns with the animated circle, guided sessions, quiet timer, background sounds (rain, ocean, wind, birdsong, binaural beats 6 Hz and 10 Hz for headphones), calm FEMALE guide voice, slow, soft and low with pauses between sentences and the background ducking under it (Matt asked for a calming lady's voice, not his), soft breath chimes on every phase change (rising = in, single = hold, falling = out) so people can breathe with eyes closed, shared mindful-minutes streak board.
+- Meditate: breathing patterns with the animated circle, guided sessions (after the bell, body scan, sit at the dam, gratitude, sleep), quiet timer, background sounds (rain, ocean, wind, birdsong, binaural beats 6 Hz and 10 Hz for headphones), calm FEMALE guide voice, slow, soft and low with pauses between sentences and the background ducking under it (Matt asked for a calming lady's voice, not his), soft breath chimes on every phase change (rising = in, single = hold, falling = out) so people can breathe with eyes closed, shared mindful-minutes streak board.
 - Share links (`#share=`) stay backward compatible with older links.
 - Australian English, km and metres, plain friendly copy.
 
