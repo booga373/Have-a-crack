@@ -11,7 +11,8 @@ root = pathlib.Path(__file__).parent
 src = (root / "src/app.html").read_text()
 css = (root / "src/leaflet.css").read_text()
 icon = "data:image/jpeg;base64," + base64.b64encode((root / "src/icon.jpg").read_bytes()).decode()
-body = src.replace("/*LEAFLET_CSS*/", css).replace("ICON_DATA", icon)
+import time
+body = src.replace("/*LEAFLET_CSS*/", css).replace("ICON_DATA", icon).replace('const BUILD="BUILD_ID"', 'const BUILD="' + time.strftime("%Y%m%d%H%M%S") + '"')
 head = f"""<!doctype html>
 <html lang="en">
 <head>

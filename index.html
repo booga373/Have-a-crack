@@ -1685,6 +1685,12 @@ load();if(store.initialised)delete store.initialised;dropSamples();saveQuiet();
 document.querySelectorAll(".map-toggle").forEach(b=>b.textContent=tileMode==="sat"?"Map view":"Satellite");
 route();
 idb.all().catch(()=>{}).then(()=>setTimeout(sync,400));
+/* auto-update: GitHub lets phones keep an old copy for ~10 minutes, so check for a newer build and reload when it's safe */
+const BUILD="20261108134345";
+async function checkUpdate(){if(IN_CLAUDE||BUILD==="BUILD_ID")return;try{const t=await(await fetch(location.pathname+"?v="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);
+  if(m&&m[1]!==BUILD){const busy=(rec&&(rec.state==="running"||rec.state==="paused"))||bt.state==="running"||bt.state==="paused"||!$("#sheet-save").hidden||!$("#sheet-rec").hidden;
+    if(busy){setTimeout(checkUpdate,60000);return}toast("Updating Have a Crack…");setTimeout(()=>location.reload(),800)}}catch(e){}}
+setTimeout(checkUpdate,1500);document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")checkUpdate()});
 })();
 </script>
 
