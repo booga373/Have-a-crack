@@ -35,10 +35,12 @@ button{cursor:pointer}
 .num{font-variant-numeric:tabular-nums}
 
 /* header */
-.brand{display:flex;align-items:center;gap:12px;padding-block:20px 8px}
+.brand{display:grid;grid-template-columns:58px 1fr 58px;align-items:center;gap:8px;padding-block:22px 10px}
+.brand-title{text-align:center;min-width:0}
+.brand .gear{justify-self:end}
 .logo{width:58px;height:58px;flex:none;border-radius:16px;object-fit:cover;box-shadow:var(--shadow);border:2px solid var(--surface)}
-.brand h1{font-family:var(--f-display);font-weight:800;font-size:2.1rem;letter-spacing:-.02em;line-height:1;margin:0}
-.brand p{margin:2px 0 0;color:var(--muted);font-size:.9rem}
+.brand h1{font-family:var(--f-display);font-weight:800;font-size:clamp(1.9rem,8.4vw,3rem);letter-spacing:-.025em;line-height:1;margin:0;white-space:nowrap}
+.brand p{margin:6px 0 0;color:var(--muted);font-size:clamp(.85rem,3.2vw,1rem)}
 
 .start-grid{display:grid;grid-template-columns:1fr;grid-auto-rows:1fr;gap:12px;margin-top:14px}
 @media (min-width:760px){.start-grid{grid-template-columns:repeat(2,1fr)}}
@@ -335,7 +337,7 @@ button{cursor:pointer}
   <main id="view-home" class="wrap">
     <header class="brand">
       <img class="logo" src="ICON_DATA" alt="Have a Crack">
-      <div style="flex:1;min-width:0"><h1>Have a Crack</h1><p>Farm walks, runs and boxing rounds</p></div>
+      <div class="brand-title"><h1>Have a Crack</h1><p>Walks, runs, boxing and meditation</p></div>
       <a class="back gear" href="#settings" aria-label="Settings"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg></a>
     </header>
     <div id="shared-slot"></div>
