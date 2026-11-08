@@ -1,0 +1,1626 @@
+<title>Have a Crack</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="theme-color" content="#2f6b3a">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+.leaflet-pane,
+.leaflet-tile,
+.leaflet-marker-icon,
+.leaflet-marker-shadow,
+.leaflet-tile-container,
+.leaflet-pane > svg,
+.leaflet-pane > canvas,
+.leaflet-zoom-box,
+.leaflet-image-layer,
+.leaflet-layer {
+position: absolute;
+left: 0;
+top: 0;
+}
+.leaflet-container {
+overflow: hidden;
+}
+.leaflet-tile,
+.leaflet-marker-icon,
+.leaflet-marker-shadow {
+-webkit-user-select: none;
+-moz-user-select: none;
+user-select: none;
+-webkit-user-drag: none;
+}
+.leaflet-tile::selection {
+background: transparent;
+}
+.leaflet-safari .leaflet-tile {
+image-rendering: -webkit-optimize-contrast;
+}
+.leaflet-safari .leaflet-tile-container {
+width: 1600px;
+height: 1600px;
+-webkit-transform-origin: 0 0;
+}
+.leaflet-marker-icon,
+.leaflet-marker-shadow {
+display: block;
+}
+.leaflet-container .leaflet-overlay-pane svg {
+max-width: none !important;
+max-height: none !important;
+}
+.leaflet-container .leaflet-marker-pane img,
+.leaflet-container .leaflet-shadow-pane img,
+.leaflet-container .leaflet-tile-pane img,
+.leaflet-container img.leaflet-image-layer,
+.leaflet-container .leaflet-tile {
+max-width: none !important;
+max-height: none !important;
+width: auto;
+padding: 0;
+}
+.leaflet-container img.leaflet-tile {
+mix-blend-mode: plus-lighter;
+}
+.leaflet-container.leaflet-touch-zoom {
+-ms-touch-action: pan-x pan-y;
+touch-action: pan-x pan-y;
+}
+.leaflet-container.leaflet-touch-drag {
+-ms-touch-action: pinch-zoom;
+touch-action: none;
+touch-action: pinch-zoom;
+}
+.leaflet-container.leaflet-touch-drag.leaflet-touch-zoom {
+-ms-touch-action: none;
+touch-action: none;
+}
+.leaflet-container {
+-webkit-tap-highlight-color: transparent;
+}
+.leaflet-container a {
+-webkit-tap-highlight-color: rgba(51, 181, 229, 0.4);
+}
+.leaflet-tile {
+filter: inherit;
+visibility: hidden;
+}
+.leaflet-tile-loaded {
+visibility: inherit;
+}
+.leaflet-zoom-box {
+width: 0;
+height: 0;
+-moz-box-sizing: border-box;
+box-sizing: border-box;
+z-index: 800;
+}
+.leaflet-overlay-pane svg {
+-moz-user-select: none;
+}
+.leaflet-pane         { z-index: 400; }
+.leaflet-tile-pane    { z-index: 200; }
+.leaflet-overlay-pane { z-index: 400; }
+.leaflet-shadow-pane  { z-index: 500; }
+.leaflet-marker-pane  { z-index: 600; }
+.leaflet-tooltip-pane   { z-index: 650; }
+.leaflet-popup-pane   { z-index: 700; }
+.leaflet-map-pane canvas { z-index: 100; }
+.leaflet-map-pane svg    { z-index: 200; }
+.leaflet-vml-shape {
+width: 1px;
+height: 1px;
+}
+.lvml {
+behavior: url(#default#VML);
+display: inline-block;
+position: absolute;
+}
+.leaflet-control {
+position: relative;
+z-index: 800;
+pointer-events: visiblePainted;
+pointer-events: auto;
+}
+.leaflet-top,
+.leaflet-bottom {
+position: absolute;
+z-index: 1000;
+pointer-events: none;
+}
+.leaflet-top {
+top: 0;
+}
+.leaflet-right {
+right: 0;
+}
+.leaflet-bottom {
+bottom: 0;
+}
+.leaflet-left {
+left: 0;
+}
+.leaflet-control {
+float: left;
+clear: both;
+}
+.leaflet-right .leaflet-control {
+float: right;
+}
+.leaflet-top .leaflet-control {
+margin-top: 10px;
+}
+.leaflet-bottom .leaflet-control {
+margin-bottom: 10px;
+}
+.leaflet-left .leaflet-control {
+margin-left: 10px;
+}
+.leaflet-right .leaflet-control {
+margin-right: 10px;
+}
+.leaflet-fade-anim .leaflet-popup {
+opacity: 0;
+-webkit-transition: opacity 0.2s linear;
+-moz-transition: opacity 0.2s linear;
+transition: opacity 0.2s linear;
+}
+.leaflet-fade-anim .leaflet-map-pane .leaflet-popup {
+opacity: 1;
+}
+.leaflet-zoom-animated {
+-webkit-transform-origin: 0 0;
+-ms-transform-origin: 0 0;
+transform-origin: 0 0;
+}
+svg.leaflet-zoom-animated {
+will-change: transform;
+}
+.leaflet-zoom-anim .leaflet-zoom-animated {
+-webkit-transition: -webkit-transform 0.25s cubic-bezier(0,0,0.25,1);
+-moz-transition:    -moz-transform 0.25s cubic-bezier(0,0,0.25,1);
+transition:         transform 0.25s cubic-bezier(0,0,0.25,1);
+}
+.leaflet-zoom-anim .leaflet-tile,
+.leaflet-pan-anim .leaflet-tile {
+-webkit-transition: none;
+-moz-transition: none;
+transition: none;
+}
+.leaflet-zoom-anim .leaflet-zoom-hide {
+visibility: hidden;
+}
+.leaflet-interactive {
+cursor: pointer;
+}
+.leaflet-grab {
+cursor: -webkit-grab;
+cursor:    -moz-grab;
+cursor:         grab;
+}
+.leaflet-crosshair,
+.leaflet-crosshair .leaflet-interactive {
+cursor: crosshair;
+}
+.leaflet-popup-pane,
+.leaflet-control {
+cursor: auto;
+}
+.leaflet-dragging .leaflet-grab,
+.leaflet-dragging .leaflet-grab .leaflet-interactive,
+.leaflet-dragging .leaflet-marker-draggable {
+cursor: move;
+cursor: -webkit-grabbing;
+cursor:    -moz-grabbing;
+cursor:         grabbing;
+}
+.leaflet-marker-icon,
+.leaflet-marker-shadow,
+.leaflet-image-layer,
+.leaflet-pane > svg path,
+.leaflet-tile-container {
+pointer-events: none;
+}
+.leaflet-marker-icon.leaflet-interactive,
+.leaflet-image-layer.leaflet-interactive,
+.leaflet-pane > svg path.leaflet-interactive,
+svg.leaflet-image-layer.leaflet-interactive path {
+pointer-events: visiblePainted;
+pointer-events: auto;
+}
+.leaflet-container {
+background: #ddd;
+outline-offset: 1px;
+}
+.leaflet-container a {
+color: #0078A8;
+}
+.leaflet-zoom-box {
+border: 2px dotted #38f;
+background: rgba(255,255,255,0.5);
+}
+.leaflet-container {
+font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+font-size: 12px;
+font-size: 0.75rem;
+line-height: 1.5;
+}
+.leaflet-bar {
+box-shadow: 0 1px 5px rgba(0,0,0,0.65);
+border-radius: 4px;
+}
+.leaflet-bar a {
+background-color: #fff;
+border-bottom: 1px solid #ccc;
+width: 26px;
+height: 26px;
+line-height: 26px;
+display: block;
+text-align: center;
+text-decoration: none;
+color: black;
+}
+.leaflet-bar a,
+.leaflet-control-layers-toggle {
+background-position: 50% 50%;
+background-repeat: no-repeat;
+display: block;
+}
+.leaflet-bar a:hover,
+.leaflet-bar a:focus {
+background-color: #f4f4f4;
+}
+.leaflet-bar a:first-child {
+border-top-left-radius: 4px;
+border-top-right-radius: 4px;
+}
+.leaflet-bar a:last-child {
+border-bottom-left-radius: 4px;
+border-bottom-right-radius: 4px;
+border-bottom: none;
+}
+.leaflet-bar a.leaflet-disabled {
+cursor: default;
+background-color: #f4f4f4;
+color: #bbb;
+}
+.leaflet-touch .leaflet-bar a {
+width: 30px;
+height: 30px;
+line-height: 30px;
+}
+.leaflet-touch .leaflet-bar a:first-child {
+border-top-left-radius: 2px;
+border-top-right-radius: 2px;
+}
+.leaflet-touch .leaflet-bar a:last-child {
+border-bottom-left-radius: 2px;
+border-bottom-right-radius: 2px;
+}
+.leaflet-control-zoom-in,
+.leaflet-control-zoom-out {
+font: bold 18px 'Lucida Console', Monaco, monospace;
+text-indent: 1px;
+}
+.leaflet-touch .leaflet-control-zoom-in, .leaflet-touch .leaflet-control-zoom-out  {
+font-size: 22px;
+}
+.leaflet-control-layers {
+box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+background: #fff;
+border-radius: 5px;
+}
+.leaflet-control-layers-toggle {
+background-image: url(images/layers.png);
+width: 36px;
+height: 36px;
+}
+.leaflet-retina .leaflet-control-layers-toggle {
+background-image: url(images/layers-2x.png);
+background-size: 26px 26px;
+}
+.leaflet-touch .leaflet-control-layers-toggle {
+width: 44px;
+height: 44px;
+}
+.leaflet-control-layers .leaflet-control-layers-list,
+.leaflet-control-layers-expanded .leaflet-control-layers-toggle {
+display: none;
+}
+.leaflet-control-layers-expanded .leaflet-control-layers-list {
+display: block;
+position: relative;
+}
+.leaflet-control-layers-expanded {
+padding: 6px 10px 6px 6px;
+color: #333;
+background: #fff;
+}
+.leaflet-control-layers-scrollbar {
+overflow-y: scroll;
+overflow-x: hidden;
+padding-right: 5px;
+}
+.leaflet-control-layers-selector {
+margin-top: 2px;
+position: relative;
+top: 1px;
+}
+.leaflet-control-layers label {
+display: block;
+font-size: 13px;
+font-size: 1.08333em;
+}
+.leaflet-control-layers-separator {
+height: 0;
+border-top: 1px solid #ddd;
+margin: 5px -10px 5px -6px;
+}
+.leaflet-default-icon-path {
+background-image: url(images/marker-icon.png);
+}
+.leaflet-container .leaflet-control-attribution {
+background: #fff;
+background: rgba(255, 255, 255, 0.8);
+margin: 0;
+}
+.leaflet-control-attribution,
+.leaflet-control-scale-line {
+padding: 0 5px;
+color: #333;
+line-height: 1.4;
+}
+.leaflet-control-attribution a {
+text-decoration: none;
+}
+.leaflet-control-attribution a:hover,
+.leaflet-control-attribution a:focus {
+text-decoration: underline;
+}
+.leaflet-attribution-flag {
+display: inline !important;
+vertical-align: baseline !important;
+width: 1em;
+height: 0.6669em;
+}
+.leaflet-left .leaflet-control-scale {
+margin-left: 5px;
+}
+.leaflet-bottom .leaflet-control-scale {
+margin-bottom: 5px;
+}
+.leaflet-control-scale-line {
+border: 2px solid #777;
+border-top: none;
+line-height: 1.1;
+padding: 2px 5px 1px;
+white-space: nowrap;
+-moz-box-sizing: border-box;
+box-sizing: border-box;
+background: rgba(255, 255, 255, 0.8);
+text-shadow: 1px 1px #fff;
+}
+.leaflet-control-scale-line:not(:first-child) {
+border-top: 2px solid #777;
+border-bottom: none;
+margin-top: -2px;
+}
+.leaflet-control-scale-line:not(:first-child):not(:last-child) {
+border-bottom: 2px solid #777;
+}
+.leaflet-touch .leaflet-control-attribution,
+.leaflet-touch .leaflet-control-layers,
+.leaflet-touch .leaflet-bar {
+box-shadow: none;
+}
+.leaflet-touch .leaflet-control-layers,
+.leaflet-touch .leaflet-bar {
+border: 2px solid rgba(0,0,0,0.2);
+background-clip: padding-box;
+}
+.leaflet-popup {
+position: absolute;
+text-align: center;
+margin-bottom: 20px;
+}
+.leaflet-popup-content-wrapper {
+padding: 1px;
+text-align: left;
+border-radius: 12px;
+}
+.leaflet-popup-content {
+margin: 13px 24px 13px 20px;
+line-height: 1.3;
+font-size: 13px;
+font-size: 1.08333em;
+min-height: 1px;
+}
+.leaflet-popup-content p {
+margin: 17px 0;
+margin: 1.3em 0;
+}
+.leaflet-popup-tip-container {
+width: 40px;
+height: 20px;
+position: absolute;
+left: 50%;
+margin-top: -1px;
+margin-left: -20px;
+overflow: hidden;
+pointer-events: none;
+}
+.leaflet-popup-tip {
+width: 17px;
+height: 17px;
+padding: 1px;
+margin: -10px auto 0;
+pointer-events: auto;
+-webkit-transform: rotate(45deg);
+-moz-transform: rotate(45deg);
+-ms-transform: rotate(45deg);
+transform: rotate(45deg);
+}
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+background: white;
+color: #333;
+box-shadow: 0 3px 14px rgba(0,0,0,0.4);
+}
+.leaflet-container a.leaflet-popup-close-button {
+position: absolute;
+top: 0;
+right: 0;
+border: none;
+text-align: center;
+width: 24px;
+height: 24px;
+font: 16px/24px Tahoma, Verdana, sans-serif;
+color: #757575;
+text-decoration: none;
+background: transparent;
+}
+.leaflet-container a.leaflet-popup-close-button:hover,
+.leaflet-container a.leaflet-popup-close-button:focus {
+color: #585858;
+}
+.leaflet-popup-scrolled {
+overflow: auto;
+}
+.leaflet-oldie .leaflet-popup-content-wrapper {
+-ms-zoom: 1;
+}
+.leaflet-oldie .leaflet-popup-tip {
+width: 24px;
+margin: 0 auto;
+-ms-filter: "progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678, M12=0.70710678, M21=-0.70710678, M22=0.70710678)";
+filter: progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678, M12=0.70710678, M21=-0.70710678, M22=0.70710678);
+}
+.leaflet-oldie .leaflet-control-zoom,
+.leaflet-oldie .leaflet-control-layers,
+.leaflet-oldie .leaflet-popup-content-wrapper,
+.leaflet-oldie .leaflet-popup-tip {
+border: 1px solid #999;
+}
+.leaflet-div-icon {
+background: #fff;
+border: 1px solid #666;
+}
+.leaflet-tooltip {
+position: absolute;
+padding: 6px;
+background-color: #fff;
+border: 1px solid #fff;
+border-radius: 3px;
+color: #222;
+white-space: nowrap;
+-webkit-user-select: none;
+-moz-user-select: none;
+-ms-user-select: none;
+user-select: none;
+pointer-events: none;
+box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+}
+.leaflet-tooltip.leaflet-interactive {
+cursor: pointer;
+pointer-events: auto;
+}
+.leaflet-tooltip-top:before,
+.leaflet-tooltip-bottom:before,
+.leaflet-tooltip-left:before,
+.leaflet-tooltip-right:before {
+position: absolute;
+pointer-events: none;
+border: 6px solid transparent;
+background: transparent;
+content: "";
+}
+.leaflet-tooltip-bottom {
+margin-top: 6px;
+}
+.leaflet-tooltip-top {
+margin-top: -6px;
+}
+.leaflet-tooltip-bottom:before,
+.leaflet-tooltip-top:before {
+left: 50%;
+margin-left: -6px;
+}
+.leaflet-tooltip-top:before {
+bottom: 0;
+margin-bottom: -12px;
+border-top-color: #fff;
+}
+.leaflet-tooltip-bottom:before {
+top: 0;
+margin-top: -12px;
+margin-left: -6px;
+border-bottom-color: #fff;
+}
+.leaflet-tooltip-left {
+margin-left: -6px;
+}
+.leaflet-tooltip-right {
+margin-left: 6px;
+}
+.leaflet-tooltip-left:before,
+.leaflet-tooltip-right:before {
+top: 50%;
+margin-top: -6px;
+}
+.leaflet-tooltip-left:before {
+right: 0;
+margin-right: -12px;
+border-left-color: #fff;
+}
+.leaflet-tooltip-right:before {
+left: 0;
+margin-left: -12px;
+border-right-color: #fff;
+}
+@media print {
+.leaflet-control {
+-webkit-print-color-adjust: exact;
+print-color-adjust: exact;
+}
+}
+/* Layout: one phone-first column; home is a library of walk cards, record is a full-height map over a stat panel and three huge control buttons. */
+:root{
+  --bg:#edf2e8; --surface:#ffffff; --surface-2:#f5f8f2; --ink:#16231a; --muted:#5a6a5e; --line:#d3dccf;
+  --accent:#2f6b3a; --accent-ink:#ffffff; --route:#f5c518; --route-case:#1b2a1f; --pin:#ff7a2e;
+  --go:#1d9a4a; --go-ink:#ffffff; --pause:#f2a20d; --pause-ink:#2a1d00; --stop:#d63a2a; --stop-ink:#ffffff;
+  --easy:#1d9a4a; --mod:#e0900a; --hard:#c8352a;
+  --shadow:0 1px 2px rgba(22,35,26,.06),0 8px 24px rgba(22,35,26,.08);
+  --f-display:"Bricolage Grotesque","Avenir Next","Segoe UI",system-ui,sans-serif;
+  --f-body:"Figtree","Segoe UI",system-ui,-apple-system,sans-serif;
+  --contour:rgba(47,107,58,.13);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e1611; --surface:#17221a; --surface-2:#1d2a20; --ink:#e6eee5; --muted:#9aab9d; --line:#2b3b2f;
+  --accent:#7cc58a; --accent-ink:#0e1611; --route-case:#0b120d;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35); --contour:rgba(124,197,138,.12); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1611; --surface:#17221a; --surface-2:#1d2a20; --ink:#e6eee5; --muted:#9aab9d; --line:#2b3b2f;
+  --accent:#7cc58a; --accent-ink:#0e1611; --route-case:#0b120d;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35); --contour:rgba(124,197,138,.12); color-scheme:dark}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5;-webkit-tap-highlight-color:transparent}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:2000;background:var(--bg)}
+*{box-sizing:border-box}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.wrap{max-width:720px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.num{font-variant-numeric:tabular-nums}
+
+/* header */
+.brand{display:flex;align-items:center;gap:12px;padding-block:20px 8px}
+.logo{width:58px;height:58px;flex:none;border-radius:16px;object-fit:cover;box-shadow:var(--shadow);border:2px solid var(--surface)}
+.brand h1{font-family:var(--f-display);font-weight:800;font-size:2.1rem;letter-spacing:-.02em;line-height:1;margin:0}
+.brand p{margin:2px 0 0;color:var(--muted);font-size:.9rem}
+
+.start-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.start-grid .hero-go{grid-column:1/-1}
+.box-tile svg{color:var(--stop)}
+@media (max-width:520px){.start-grid{grid-template-columns:1fr}}
+.hero-pick{display:flex;align-items:center;gap:14px;padding:18px 20px;border-radius:20px;background:var(--surface);border:2px solid var(--line);color:var(--ink);text-decoration:none;box-shadow:var(--shadow)}
+.hero-pick:hover{border-color:var(--accent)}
+.hero-pick svg{flex:none;color:var(--accent)}
+.hero-pick strong{display:block;font-family:var(--f-display);font-size:1.3rem;font-weight:800;line-height:1.1}
+.hero-pick span{font-size:.88rem;color:var(--muted)}
+.hero-go{display:flex;align-items:center;gap:14px;width:100%;padding:18px 20px;border:0;border-radius:20px;background:var(--go);color:var(--go-ink);box-shadow:0 6px 0 #127336,var(--shadow);text-align:left;transition:transform .08s}
+.hero-go:active{transform:translateY(3px);box-shadow:0 3px 0 #127336}
+.hero-go strong{display:block;font-family:var(--f-display);font-size:1.45rem;font-weight:800;line-height:1.1}
+.hero-go span{font-size:.9rem;opacity:.9}
+.hero-go svg{flex:none}
+
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin:22px 0 10px}
+.toolbar h2{font-family:var(--f-display);font-weight:800;font-size:1.3rem;margin:0}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;font-size:.85rem;font-weight:600;color:var(--muted)}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+
+.list{display:grid;gap:10px}
+.card{display:grid;grid-template-columns:96px 1fr;gap:14px;align-items:center;width:100%;padding:10px;border:1px solid var(--line);border-radius:18px;background:var(--surface);text-align:left;box-shadow:var(--shadow)}
+.card:hover{border-color:var(--accent)}
+.thumb{width:96px;height:96px;border-radius:12px;background:var(--surface-2);overflow:hidden;position:relative}
+.thumb svg{width:100%;height:100%;display:block}
+.card-body{min-width:0}
+.card h3{margin:0 0 2px;font-family:var(--f-display);font-weight:800;font-size:1.12rem;line-height:1.2;text-wrap:balance}
+.by{font-size:.84rem;font-weight:600;color:var(--accent);margin:-1px 0 3px}
+.meta{display:flex;flex-wrap:wrap;gap:4px 12px;color:var(--muted);font-size:.86rem}
+.meta b{color:var(--ink);font-weight:700}
+.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.tag{font-size:.72rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:6px;background:var(--surface-2);color:var(--muted);border:1px solid var(--line)}
+.diff{color:#fff;border:0}
+.diff.easy{background:var(--easy)} .diff.mod{background:var(--mod)} .diff.hard{background:var(--hard)}
+.tag.sample{background:transparent;border-style:dashed}
+
+.empty{padding:28px 18px;text-align:center;color:var(--muted);border:2px dashed var(--line);border-radius:18px}
+.foot-actions{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 40px}
+.btn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:10px 14px;font-weight:600}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.danger{color:var(--stop)}
+.btn.small{padding:7px 11px;font-size:.88rem}
+.etiquette{margin:6px 0 0;padding:14px 16px;border-radius:16px;background:var(--surface-2);border:1px solid var(--line);font-size:.9rem;color:var(--muted)}
+.etiquette strong{color:var(--ink)}
+
+/* record */
+#view-record{position:fixed;inset:0;z-index:1000;background:var(--bg);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+#view-record[hidden]{display:none}
+.rec-top{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.rec-top h2{margin:0;font-family:var(--f-display);font-weight:800;font-size:1.15rem;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.status{font-size:.75rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:4px 10px;border-radius:999px;background:var(--surface-2);color:var(--muted);flex:none}
+.status.running{background:var(--go);color:var(--go-ink)} .status.paused{background:var(--pause);color:var(--pause-ink)}
+.rec-map{flex:1 1 auto;min-height:180px;position:relative}
+.seg{display:flex;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:3px;flex:none}
+.seg button{border:0;background:transparent;padding:7px 14px;border-radius:9px;font-weight:700;font-size:.9rem;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.locate{position:absolute;z-index:500;top:52px;right:10px;width:40px;height:40px;border:0;border-radius:10px;background:var(--surface);color:#2b7cff;box-shadow:var(--shadow);display:grid;place-items:center}
+#view-record[data-rv="time"] .rec-map{display:none}
+#view-record[data-rv="time"] .rec-panel{flex:1 1 auto;display:flex;flex-direction:column;justify-content:center;border-top:0}
+#view-record[data-rv="time"] .clock{font-size:clamp(4.2rem,21vw,8rem);margin-bottom:12px}
+#view-record[data-rv="time"] .stat b{font-size:clamp(1.5rem,7vw,2.2rem)}
+#view-record[data-rv="time"] .stats{margin:14px 0 auto;padding-bottom:24px}
+#view-record[data-rv="map"] .clock{font-size:clamp(2.4rem,11vw,3.2rem)}
+.rec-top h2{flex:1}
+.map{position:absolute;inset:0;background-color:var(--surface-2);background-image:repeating-radial-gradient(circle at 30% 40%,transparent 0 22px,var(--contour) 22px 23px),repeating-radial-gradient(circle at 75% 70%,transparent 0 28px,var(--contour) 28px 29px)}
+.map-wrap{position:relative;height:300px;border-radius:18px;overflow:hidden;border:1px solid var(--line)}
+.map-toggle{position:absolute;z-index:500;top:10px;right:10px;border:0;border-radius:10px;padding:7px 10px;font-size:.8rem;font-weight:700;background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+.gps-note{position:absolute;z-index:500;left:10px;right:10px;bottom:10px;display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:10px 12px;border-radius:12px;background:var(--surface);box-shadow:var(--shadow);font-size:.86rem}
+.gps-note p{margin:0;flex:1 1 200px;min-width:0}
+.rec-panel{padding-block:12px 14px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));background:var(--surface);border-top:1px solid var(--line)}
+.clock{font-family:var(--f-display);font-weight:800;font-size:clamp(2.8rem,13vw,4.2rem);line-height:1;text-align:center;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:10px 0 12px}
+.stat{text-align:center;min-width:0}
+.stat b{display:block;font-size:1.25rem;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.2}
+.stat span{font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.follow-bar{height:8px;border-radius:99px;background:var(--surface-2);overflow:hidden;margin:-4px 0 10px;border:1px solid var(--line)}
+.follow-bar i{display:block;height:100%;width:0;background:var(--go);transition:width .4s}
+.controls{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.big{border:0;border-radius:22px;font-family:var(--f-display);font-weight:800;letter-spacing:.06em;display:flex;align-items:center;justify-content:center;gap:12px;transition:transform .08s,opacity .2s,filter .2s;min-height:76px;font-size:1.6rem}
+.big.go{grid-column:1/-1;min-height:104px;font-size:2.6rem;background:var(--go);color:var(--go-ink);box-shadow:0 7px 0 #127336}
+.big.pause{background:var(--pause);color:var(--pause-ink);box-shadow:0 6px 0 #b77800}
+.big.stop{background:var(--stop);color:var(--stop-ink);box-shadow:0 6px 0 #9c2418}
+.big:active:not(:disabled){transform:translateY(4px);box-shadow:none}
+.big:disabled{opacity:.28;filter:grayscale(.5);cursor:default;box-shadow:none}
+.awake-tip{margin:10px 0 0;text-align:center;font-size:.8rem;color:var(--muted)}
+.extras{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.mark{width:100%;justify-content:center;min-width:0}
+
+/* boxing */
+#view-box{position:fixed;inset:0;z-index:1000;background:var(--bg);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);transition:background-color .3s}
+#view-box[hidden]{display:none}
+.box-body{flex:1 1 auto;overflow:auto;display:flex;flex-direction:column;justify-content:center;padding-block:8px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.box-setup{max-width:560px;width:100%;margin:0 auto}
+.presets{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.steppers{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stepper{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:12px;display:grid;gap:6px;text-align:center}
+.stepper>div{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.stepper button{width:46px;height:46px;border-radius:14px;border:1px solid var(--line);background:var(--surface-2);font-size:1.5rem;font-weight:700;line-height:1;flex:none}
+.stepper b{font-family:var(--f-display);font-weight:800;font-size:clamp(1.6rem,7vw,2.1rem);min-width:0}
+.box-total{text-align:center;color:var(--muted);margin:14px 0 0}
+.box-total b{color:var(--ink);font-size:1.15rem}
+.box-run{text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px}
+.phase{font-family:var(--f-display);font-weight:800;font-size:clamp(1.6rem,8vw,2.6rem);letter-spacing:.04em;text-transform:uppercase}
+.box-clock{font-family:var(--f-display);font-weight:800;font-size:clamp(5.5rem,30vw,11rem);line-height:.95;letter-spacing:-.03em}
+.box-round{font-size:1.2rem;font-weight:700}
+.pips{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;max-width:340px;margin-top:6px}
+.pips i{width:14px;height:14px;border-radius:50%;border:2px solid currentColor;opacity:.5}
+.pips i.done{background:currentColor;opacity:.9}.pips i.now{opacity:1;transform:scale(1.25)}
+.box-next{color:inherit;opacity:.8;font-size:.95rem;min-height:1.4em}
+#view-box[data-phase="work"]{background:var(--go);color:#fff}
+#view-box[data-phase="rest"]{background:var(--pause);color:#2a1d00}
+#view-box[data-phase="prep"]{background:#2b5fb8;color:#fff}
+#view-box[data-phase="warn"]{background:var(--stop);color:#fff}
+#view-box[data-phase="done"]{background:var(--accent);color:var(--accent-ink)}
+#view-box:not([data-phase="idle"]) .rec-panel{background:transparent;border-top-color:rgba(255,255,255,.25)}
+#view-box:not([data-phase="idle"]) .back{background:rgba(255,255,255,.2);border-color:transparent;color:inherit}
+#view-box:not([data-phase="idle"]) .status{background:rgba(0,0,0,.2);color:inherit}
+#view-box .big{box-shadow:none;border:3px solid rgba(255,255,255,.35)}
+#view-box[data-phase="idle"] .big.go{box-shadow:0 7px 0 #127336;border:0}
+@media (max-width:360px){.steppers{grid-template-columns:1fr}}
+
+/* settings */
+.set-sec{margin-top:22px}
+.set-sec>h2{font-family:var(--f-display);font-weight:800;font-size:1.35rem;margin:0 0 4px}
+.set-sec>p{margin:0 0 12px;color:var(--muted);max-width:60ch}
+.set-row{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 14px;margin-bottom:10px}
+.set-row .label{display:block;margin-bottom:6px}
+.set-row .pickchips{margin:0}
+.cat{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 14px;margin-bottom:10px}
+.cat-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.cat-h strong{font-family:var(--f-display);font-weight:800;font-size:1.05rem}
+.cat-h small{color:var(--muted)}
+.lines{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:6px}
+.lines li{display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid var(--line);min-width:0}
+.lines li span{flex:1;min-width:0;font-size:.92rem}
+.lines li.todo span{color:var(--muted)}
+.ib{width:38px;height:38px;flex:none;border-radius:10px;border:1px solid var(--line);background:var(--surface-2);display:grid;place-items:center;color:var(--ink)}
+.ib.rec{color:var(--stop)}
+.ib.ok{background:var(--go);border-color:var(--go);color:#fff}
+.add-line{margin-top:8px}
+.rc{text-align:center}
+.rc-prompt{font-size:clamp(1.5rem,6vw,2.1rem)!important;line-height:1.15;text-wrap:balance;margin:6px 0 4px!important}
+.rc-btn{width:140px;height:140px;border-radius:50%;border:6px solid var(--stop);background:var(--surface);margin:14px auto 6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font-weight:700;font-size:.85rem;color:var(--ink)}
+.rc-dot{width:54px;height:54px;border-radius:50%;background:var(--stop);transition:all .2s}
+.rc-btn.on .rc-dot{width:40px;height:40px;border-radius:8px;animation:pulse 1s infinite}
+@keyframes pulse{50%{opacity:.5}}
+.rc-msg{min-height:1.4em;color:var(--muted);margin:0 0 10px}
+.rc .sheet-actions{justify-content:center}
+
+/* leaderboard */
+.medal-chip{display:inline-flex;align-items:center;gap:6px;margin:2px 0 4px;padding:3px 10px 3px 4px;border-radius:999px;background:#fff4cc;color:#5c4300;font-size:.82rem;font-weight:700;border:1px solid #f0d36b;cursor:pointer;max-width:100%}
+.medal-chip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.medal-chip:hover,.medal-chip:focus-visible{background:#ffe999}
+.medal{flex:none;display:block}
+.ladder{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:6px}
+.ladder li{display:grid;grid-template-columns:34px 1fr auto;align-items:center;gap:10px;padding:9px 12px;border-radius:14px;background:var(--surface-2);border:1px solid var(--line)}
+.ladder li.top{background:var(--surface);border-width:2px}
+.ladder li.g{border-color:#e2b93b}.ladder li.s{border-color:#a9b4bf}.ladder li.b{border-color:#c98a4b}
+.ladder .rank{font-weight:800;text-align:center;color:var(--muted);font-variant-numeric:tabular-nums}
+.ladder .who{min-width:0}.ladder .who strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ladder .who small{color:var(--muted)}
+.ladder .t{font-family:var(--f-display);font-weight:800;font-size:1.15rem;font-variant-numeric:tabular-nums}
+.ladder li.me{outline:3px solid var(--go);outline-offset:1px}
+.ladder-box{padding:12px 14px;border-radius:14px;background:#fff4cc;color:#5c4300;border:1px solid #f0d36b;margin-bottom:12px;font-weight:600}
+.ladder-box.miss{background:var(--surface-2);color:var(--muted);border-color:var(--line);font-weight:500}
+
+/* detail */
+.topbar{display:flex;align-items:center;gap:10px;padding-block:14px 6px}
+.gear{color:var(--ink);width:46px;height:46px}
+.back{border:1px solid var(--line);background:var(--surface);border-radius:12px;width:42px;height:42px;display:grid;place-items:center;flex:none}
+.detail-title{font-family:var(--f-display);font-weight:800;font-size:clamp(1.7rem,6vw,2.3rem);letter-spacing:-.02em;line-height:1.05;margin:4px 0 8px;text-wrap:balance}
+.statgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:16px;overflow:hidden;margin:14px 0}
+.statgrid div{background:var(--surface);padding:12px 8px;text-align:center;min-width:0}
+.statgrid b{display:block;font-family:var(--f-display);font-weight:800;font-size:1.3rem;font-variant-numeric:tabular-nums;line-height:1.15}
+.statgrid span{font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.walk-it{width:100%;min-height:72px;font-size:1.5rem}
+.section{margin-top:22px}
+.section h3{font-family:var(--f-display);font-weight:800;font-size:1.1rem;margin:0 0 8px}
+.desc{white-space:pre-wrap;margin:0;max-width:65ch}
+.spots{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.spots li{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:12px;background:var(--surface);border:1px solid var(--line)}
+.dot{width:12px;height:12px;border-radius:50%;background:var(--pin);flex:none;box-shadow:0 0 0 2px var(--surface),0 0 0 3px var(--pin)}
+.spots small{margin-left:auto;color:var(--muted)}
+.profile{width:100%;height:auto;display:block;background:var(--surface);border:1px solid var(--line);border-radius:16px}
+.splits{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;background:var(--surface);border-radius:12px;overflow:hidden}
+.splits th,.splits td{padding:7px 10px;text-align:left;border-bottom:1px solid var(--line);font-size:.9rem}
+.splits th{font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.splits td:last-child,.splits th:last-child{text-align:right}
+.bar{display:inline-block;height:6px;border-radius:3px;background:var(--accent);vertical-align:middle}
+.shared-banner{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-top:12px;padding:12px 14px;border-radius:14px;background:var(--surface);border:2px solid var(--accent)}
+
+/* sheets */
+.scrim{position:fixed;inset:0;z-index:3000;background:rgba(10,18,12,.45);display:flex;align-items:flex-end;justify-content:center}
+.scrim[hidden]{display:none}
+.sheet{width:100%;max-width:560px;max-height:92%;overflow:auto;background:var(--surface);border-radius:22px 22px 0 0;padding-block:18px calc(18px + env(safe-area-inset-bottom,0px));padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px));box-shadow:0 -10px 40px rgba(0,0,0,.2)}
+.sheet h2{font-family:var(--f-display);font-weight:800;font-size:1.4rem;margin:0 0 4px}
+.sheet .sub{color:var(--muted);margin:0 0 14px;font-size:.9rem}
+.field{display:grid;gap:5px;margin-bottom:12px}
+.field label,.label{font-size:.75rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.field input,.field textarea{width:100%;border:1px solid var(--line);border-radius:12px;padding:11px 12px;background:var(--surface-2)}
+.field textarea{min-height:76px;resize:vertical}
+.photo-pick{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:6px 0 14px}
+.photo-prev{position:relative;width:96px;height:96px;border-radius:12px;overflow:hidden;border:1px solid var(--line)}
+.photo-prev img{width:100%;height:100%;object-fit:cover;display:block}
+.photo-x{position:absolute;top:4px;right:4px;width:26px;height:26px;border-radius:50%;border:0;background:rgba(0,0,0,.65);color:#fff;font-size:18px;line-height:1}
+.spot-photo{width:64px;height:64px;border-radius:10px;object-fit:cover;flex:none;border:0;padding:0;cursor:zoom-in}
+.spot-photo img{width:100%;height:100%;object-fit:cover;border-radius:10px;display:block}
+.spots li{align-items:flex-start}
+.spot-txt{min-width:0;flex:1}
+.spot-txt strong{display:block}
+.spot-txt p{margin:2px 0 0;color:var(--muted);font-size:.9rem;white-space:pre-wrap}
+.pop{max-width:200px}.pop img{width:100%;border-radius:8px;display:block;margin-bottom:6px}.pop p{margin:4px 0 0;font-size:.82rem}
+.lightbox{position:fixed;inset:0;z-index:3500;background:rgba(0,0,0,.9);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.lightbox[hidden]{display:none}
+.lightbox img{max-width:100%;max-height:75vh;border-radius:12px}
+.lightbox p{color:#fff;margin:0;text-align:center;max-width:60ch}
+.pickchips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 14px}
+.sheet-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.sheet-actions .btn{flex:1 1 auto;justify-content:center}
+.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.summary div{background:var(--surface-2);border-radius:12px;padding:10px;text-align:center}
+.summary b{display:block;font-family:var(--f-display);font-weight:800;font-size:1.3rem;font-variant-numeric:tabular-nums}
+.summary span{font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.linkbox{width:100%;border:1px solid var(--line);border-radius:12px;padding:10px;background:var(--surface-2);font-size:.8rem;word-break:break-all;min-height:70px;resize:none}
+.toast{position:fixed;z-index:4000;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-weight:600;font-size:.9rem;max-width:calc(100% - 32px);box-shadow:var(--shadow)}
+.leaflet-container{font-family:var(--f-body);background:transparent}
+.leaflet-tooltip.spot-tip{font-weight:700;font-size:.75rem;padding:2px 7px;border-radius:7px}
+.km-icon{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#fff;color:#16231a;font:800 11px/1 var(--f-body);border:2px solid #16231a}
+.me-dot{width:18px;height:18px;border-radius:50%;background:#2b7cff;border:3px solid #fff;box-shadow:0 0 0 6px rgba(43,124,255,.25)}
+.fallback-route{position:absolute;inset:0;width:100%;height:100%}
+@media (max-width:420px){.stat b{font-size:1.08rem}.statgrid b{font-size:1.1rem}.card{grid-template-columns:80px 1fr}.thumb{width:80px;height:80px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div id="app">
+  <main id="view-home" class="wrap">
+    <header class="brand">
+      <img class="logo" src="data:image/jpeg;base64,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" alt="Have a Crack">
+      <div style="flex:1;min-width:0"><h1>Have a Crack</h1><p>Farm walks, runs and boxing rounds</p></div>
+      <a class="back gear" href="#settings" aria-label="Settings"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg></a>
+    </header>
+    <div id="shared-slot"></div>
+    <div class="start-grid">
+      <button class="hero-go" id="btn-new" type="button">
+        <svg width="46" height="46" viewBox="0 0 54 54" aria-hidden="true"><circle cx="27" cy="27" r="25" fill="rgba(255,255,255,.2)"/><path d="M27 15v24M15 27h24" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg>
+        <div><strong>Create a new walk</strong><span>Tap GO, walk it, tap STOP. Then name the walk and say who walked it.</span></div>
+      </button>
+      <a class="hero-pick" href="#list-top"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4l-6 2v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/></svg><div><strong>Pick a walk</strong><span>Browse the farm's walks, times and maps.</span></div></a>
+      <a class="hero-pick box-tile" href="#boxing"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M10 2h4M12 2v3"/></svg><div><strong>Boxing timer</strong><span>Set rounds, rest and length. Bell, 10-second warning and a shout to have a crack.</span></div></a>
+    </div>
+    <div class="toolbar" id="list-top">
+      <h2>Pick a walk</h2>
+      <div class="chips" role="group" aria-label="Filter by length">
+        <button class="chip" type="button" data-f="all" aria-pressed="true">All</button>
+        <button class="chip" type="button" data-f="short" aria-pressed="false">Under 3 km</button>
+        <button class="chip" type="button" data-f="mid" aria-pressed="false">3–7 km</button>
+        <button class="chip" type="button" data-f="long" aria-pressed="false">7 km +</button>
+      </div>
+    </div>
+    <div class="list" id="list"></div>
+    <p class="etiquette"><strong>On the farm:</strong> leave every gate as you find it, give stock a wide berth, keep dogs on a lead near sheep and cattle, and tell someone at the house which walk you're doing.</p>
+    <div class="foot-actions">
+      <button class="btn" type="button" id="btn-share-all"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 12v7a1 1 0 001 1h14a1 1 0 001-1v-7M16 6l-4-4-4 4M12 2v13"/></svg>Share all walks</button>
+      <label class="btn" for="gpx-in"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v12M7 10l5 5 5-5M4 19h16"/></svg>Import GPX file</label>
+      <input type="file" id="gpx-in" accept=".gpx,application/gpx+xml,application/xml,text/xml" hidden>
+      <button class="btn" type="button" id="btn-clear-samples" hidden>Remove sample walks</button>
+    </div>
+  </main>
+
+  <main id="view-detail" class="wrap" hidden></main>
+  <main id="view-settings" class="wrap" hidden></main>
+
+  <section id="view-record" hidden aria-label="Recording">
+    <div class="rec-top">
+      <button class="back" type="button" id="rec-close" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <h2 id="rec-title">New walk</h2>
+      <div class="seg" role="group" aria-label="Show"><button type="button" data-rv="time" aria-pressed="false">Time</button><button type="button" data-rv="map" aria-pressed="true">Map</button></div>
+      <span class="status" id="rec-status">Ready</span>
+    </div>
+    <div class="rec-map">
+      <div class="map" id="rec-map"></div>
+      <button class="map-toggle" type="button" data-map="rec">Map view</button>
+      <button class="locate" type="button" id="b-locate" aria-label="Centre the map on me"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button>
+      <div class="gps-note" id="gps-note" hidden><p id="gps-msg"></p><button class="btn small primary" type="button" id="btn-demo">Play a demo walk</button></div>
+    </div>
+    <div class="rec-panel">
+      <div class="clock" id="r-clock">0:00:00</div>
+      <div class="stats">
+        <div class="stat"><b id="r-dist">0.00</b><span>km</span></div>
+        <div class="stat"><b id="r-pace">–</b><span>min/km</span></div>
+        <div class="stat"><b id="r-climb">0</b><span>m climb</span></div>
+        <div class="stat"><b id="r-left">–</b><span id="r-left-l">spots</span></div>
+      </div>
+      <div class="follow-bar" id="follow-bar" hidden><i id="follow-fill"></i></div>
+      <div class="controls">
+        <button class="big go" type="button" id="b-go"><svg width="34" height="34" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4l13 8-13 8z" fill="currentColor"/></svg>GO</button>
+        <button class="big pause" type="button" id="b-pause" disabled><svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="5" height="16" rx="1.5" fill="currentColor"/><rect x="14" y="4" width="5" height="16" rx="1.5" fill="currentColor"/></svg>PAUSE</button>
+        <button class="big stop" type="button" id="b-stop" disabled><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2.5" fill="currentColor"/></svg>STOP</button>
+      </div>
+      <p class="awake-tip">Keep the screen on while you walk. GPS stops when the phone locks.</p>
+      <div class="extras"><button class="btn mark" type="button" id="b-mark" disabled><span class="dot"></span>Mark a spot</button><button class="btn mark" type="button" id="b-voice"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.5 8.5a5 5 0 010 7M19 6a8.5 8.5 0 010 12"/></svg><span id="voice-lbl">Voice</span></button></div>
+    </div>
+  </section>
+
+  <section id="view-box" hidden aria-label="Boxing timer" data-phase="idle">
+    <div class="rec-top">
+      <button class="back" type="button" id="box-close" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <h2>Boxing timer</h2>
+      <span class="status" id="box-status">Ready</span>
+    </div>
+    <div class="box-body">
+      <div class="box-setup" id="box-setup">
+        <div class="presets" role="group" aria-label="Presets">
+          <button type="button" class="chip" data-p="180,60,12">Pro · 12 × 3:00</button>
+          <button type="button" class="chip" data-p="180,60,3">Amateur · 3 × 3:00</button>
+          <button type="button" class="chip" data-p="120,30,6">Fitness · 6 × 2:00</button>
+          <button type="button" class="chip" data-p="60,20,10">Sprint · 10 × 1:00</button>
+        </div>
+        <div class="steppers">
+          <div class="stepper"><span class="label">Round length</span><div><button type="button" data-s="round" data-d="-15" aria-label="Shorter rounds">−</button><b id="v-round" class="num">3:00</b><button type="button" data-s="round" data-d="15" aria-label="Longer rounds">+</button></div></div>
+          <div class="stepper"><span class="label">Break between rounds</span><div><button type="button" data-s="rest" data-d="-15" aria-label="Shorter break">−</button><b id="v-rest" class="num">1:00</b><button type="button" data-s="rest" data-d="15" aria-label="Longer break">+</button></div></div>
+          <div class="stepper"><span class="label">Number of rounds</span><div><button type="button" data-s="rounds" data-d="-1" aria-label="Fewer rounds">−</button><b id="v-rounds" class="num">6</b><button type="button" data-s="rounds" data-d="1" aria-label="More rounds">+</button></div></div>
+          <div class="stepper"><span class="label">Get ready</span><div><button type="button" data-s="prep" data-d="-5" aria-label="Less get-ready time">−</button><b id="v-prep" class="num">0:10</b><button type="button" data-s="prep" data-d="5" aria-label="More get-ready time">+</button></div></div>
+        </div>
+        <p class="box-total">Total workout <b id="v-total" class="num">23:00</b></p>
+        <p style="text-align:center;margin:10px 0 0"><button class="btn small" type="button" id="box-test">Hear the coach</button> <a class="btn small" href="#settings">Record coach voice</a></p>
+      </div>
+      <div class="box-run" id="box-run" hidden>
+        <div class="phase" id="b-phase">Get ready</div>
+        <div class="box-clock num" id="b-clock">0:10</div>
+        <div class="box-round num" id="b-round">Round 1 of 6</div>
+        <div class="pips" id="b-pips"></div>
+        <div class="box-next" id="b-next"></div>
+      </div>
+    </div>
+    <div class="rec-panel">
+      <div class="controls">
+        <button class="big go" type="button" id="x-go"><svg width="34" height="34" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4l13 8-13 8z" fill="currentColor"/></svg><span>GO</span></button>
+        <button class="big pause" type="button" id="x-pause" disabled><svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="5" height="16" rx="1.5" fill="currentColor"/><rect x="14" y="4" width="5" height="16" rx="1.5" fill="currentColor"/></svg>PAUSE</button>
+        <button class="big stop" type="button" id="x-stop" disabled><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2.5" fill="currentColor"/></svg>STOP</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="scrim" id="sheet-save" hidden>
+    <form class="sheet" id="save-form">
+      <h2>Nice walk!</h2>
+      <p class="sub">Name it so visitors can pick it from the list.</p>
+      <div class="summary"><div><b id="s-dist">0</b><span>km</span></div><div><b id="s-time">0</b><span>time</span></div><div><b id="s-climb">0</b><span>m climb</span></div></div>
+      <div class="ladder-box" id="save-ladder" hidden></div>
+      <div class="field"><label for="save-by">Who did the walk</label><input id="save-by" maxlength="60" list="walkers" placeholder="e.g. Matt and Jo" autocomplete="name"><datalist id="walkers"></datalist></div>
+      <div id="save-newfields">
+      <div class="field"><label for="save-name">Walk name</label><input id="save-name" required maxlength="60" placeholder="e.g. Dam loop"></div>
+      <div class="field"><label for="save-desc">What to expect</label><textarea id="save-desc" maxlength="600" placeholder="Where it starts, what you'll see, anything to watch for"></textarea></div>
+      <span class="label">Terrain</span>
+      <div class="pickchips" id="save-tags"></div>
+      <span class="label">Good for</span>
+      <div class="pickchips" id="save-good"></div>
+      </div>
+      <div class="sheet-actions">
+        <button class="btn primary" type="button" id="save-ladder-btn" hidden>Add my time to the ladder</button>
+        <button class="btn primary" type="submit" id="save-submit">Save walk</button>
+        <button class="btn" type="button" id="save-resume">Keep going</button>
+        <button class="btn danger" type="button" id="save-discard">Discard</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="scrim" id="sheet-mark" hidden>
+    <form class="sheet" id="mark-form">
+      <h2>Mark this spot</h2>
+      <p class="sub">Shows on the map for anyone doing this walk.</p>
+      <div class="pickchips" id="mark-quick"></div>
+      <div class="field"><label for="mark-label">Label</label><input id="mark-label" maxlength="40" placeholder="e.g. Gate, keep closed"></div>
+      <div class="field"><label for="mark-note">Comment</label><textarea id="mark-note" maxlength="400" placeholder="e.g. Best view of the valley at sunset. Gate sticks, lift it as you push."></textarea></div>
+      <span class="label">Photo</span>
+      <div class="photo-pick">
+        <label class="btn" for="mark-photo"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><span id="photo-btn-l">Take or add a photo</span></label>
+        <input type="file" id="mark-photo" accept="image/*" capture="environment" hidden>
+        <div class="photo-prev" id="photo-prev" hidden><img id="photo-img" alt="Photo for this spot"><button type="button" class="photo-x" id="photo-x" aria-label="Remove photo">×</button></div>
+      </div>
+      <div class="sheet-actions"><button class="btn primary" type="submit">Add spot</button><button class="btn" type="button" data-close>Cancel</button></div>
+    </form>
+  </div>
+
+  <div class="scrim" id="sheet-share" hidden>
+    <div class="sheet">
+      <h2 id="share-h">Share this walk</h2>
+      <p class="sub" id="share-sub">Send this link. It opens the walk with its map, distance and times.</p>
+      <textarea class="linkbox" id="share-link" readonly aria-label="Share link"></textarea>
+      <p class="sub" id="share-note" hidden></p>
+      <div class="sheet-actions"><button class="btn primary" type="button" id="share-copy">Copy link</button><button class="btn" type="button" data-close>Done</button></div>
+    </div>
+  </div>
+
+  <div class="scrim" id="sheet-confirm" hidden>
+    <div class="sheet">
+      <h2 id="confirm-h">Delete this walk?</h2>
+      <p class="sub" id="confirm-sub">This removes it from this phone.</p>
+      <div class="sheet-actions"><button class="btn primary" type="button" id="confirm-yes" style="background:var(--stop);border-color:var(--stop);color:#fff">Delete</button><button class="btn" type="button" data-close>Cancel</button></div>
+    </div>
+  </div>
+
+  <div class="scrim" id="sheet-voice" hidden>
+    <div class="sheet">
+      <h2>Voice updates</h2>
+      <p class="sub">Have a Crack reads out your progress, so you can keep the phone in your pocket.</p>
+      <span class="label">Every distance</span>
+      <div class="pickchips" id="v-km"></div>
+      <span class="label">Every time</span>
+      <div class="pickchips" id="v-min"></div>
+      <p class="sub" style="margin:4px 0 12px">Want your own voice? Record it in Settings → Coach voice.</p>
+      <div class="sheet-actions"><button class="btn" type="button" id="v-test">Play a test</button><button class="btn primary" type="button" data-close>Done</button></div>
+    </div>
+  </div>
+
+  <div class="scrim" id="sheet-rec" hidden>
+    <div class="sheet rc">
+      <p class="label" id="rc-step">Coach voice</p>
+      <h2 class="rc-prompt" id="rc-prompt"></h2>
+      <p class="sub" id="rc-when"></p>
+      <div class="field" id="rc-custom" hidden><label for="rc-text">Your line</label><input id="rc-text" maxlength="80" placeholder="e.g. Nobody's coming to save you. Throw!"></div>
+      <button class="rc-btn" type="button" id="rc-btn" aria-label="Record"><span class="rc-dot"></span><span id="rc-btn-l">Tap to record</span></button>
+      <p class="rc-msg" id="rc-msg"></p>
+      <div class="sheet-actions">
+        <button class="btn" type="button" id="rc-play" hidden>Play it back</button>
+        <button class="btn primary" type="button" id="rc-keep" hidden>Keep it</button>
+        <button class="btn" type="button" id="rc-skip" hidden>Skip</button>
+        <label class="btn" for="rc-file">Upload a clip</label><input type="file" id="rc-file" accept="audio/*" hidden>
+        <button class="btn" type="button" id="rc-close">Close</button>
+      </div>
+    </div>
+  </div>
+  <div class="scrim" id="sheet-ladder" hidden>
+    <div class="sheet">
+      <p class="label">Leaderboard</p>
+      <h2 id="ld-title">Ladder</h2>
+      <p class="sub" id="ld-sub">Best time for each person on the full route.</p>
+      <ol class="ladder" id="ld-list"></ol>
+      <div class="sheet-actions"><button class="btn primary" type="button" id="ld-walk">Have a crack at it</button><button class="btn" type="button" id="ld-share">Share the ladder</button><button class="btn" type="button" data-close>Close</button></div>
+    </div>
+  </div>
+  <div class="lightbox" id="lightbox" hidden role="dialog" aria-label="Photo"><img id="lb-img" alt=""><p id="lb-cap"></p><button class="btn" type="button" id="lb-close">Close</button></div>
+  <div class="toast" id="toast" hidden role="status"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script>
+(function(){
+"use strict";
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const IN_CLAUDE=!!(window.claude&&window.claude.use);
+const KEY="walkies.v1";
+let SET={walkKmh:4.5,runKmh:9,coach:"mine",stats:true};try{Object.assign(SET,JSON.parse(localStorage.getItem("hac.settings")||"{}"))}catch(e){}
+let WALK_KMH=SET.walkKmh, RUN_KMH=SET.runKmh;
+function saveSet(){WALK_KMH=SET.walkKmh;RUN_KMH=SET.runKmh;try{localStorage.setItem("hac.settings",JSON.stringify(SET))}catch(e){}}
+const TERRAIN=["Grass paddock","Farm track","Gravel","Bush","Creek crossing","Steep hills","Shade"];
+const GOOD=["Dogs on lead","Kids","Runners","Prams","Sunset"];
+const QUICK=["Gate","Dam","Lookout","Creek","Stock here","Shed","Fence stile","Picnic spot"];
+
+/* ---------- geo ---------- */
+const R=6371000, rad=d=>d*Math.PI/180;
+function hav(a,b){const dLa=rad(b[0]-a[0]),dLo=rad(b[1]-a[1]);const h=Math.sin(dLa/2)**2+Math.cos(rad(a[0]))*Math.cos(rad(b[0]))*Math.sin(dLo/2)**2;return 2*R*Math.asin(Math.min(1,Math.sqrt(h)))}
+function cumDist(pts){const c=[0];for(let i=1;i<pts.length;i++)c.push(c[i-1]+(pts[i][4]?0:hav(pts[i-1],pts[i])));return c}
+function climb(pts){const e=pts.map(p=>p[2]).filter(v=>v!=null&&isFinite(v));if(e.length<3)return{gain:0,loss:0,has:false};
+  const s=e.map((_,i)=>{let a=0,n=0;for(let k=Math.max(0,i-2);k<=Math.min(e.length-1,i+2);k++){a+=e[k];n++}return a/n});
+  let gain=0,loss=0,ref=s[0];for(const v of s){if(v-ref>=2){gain+=v-ref;ref=v}else if(ref-v>=2){loss+=ref-v;ref=v}}return{gain:Math.round(gain),loss:Math.round(loss),has:true}}
+function simplify(pts,tol){if(pts.length<=2)return pts;
+  const keep=new Uint8Array(pts.length);keep[0]=keep[pts.length-1]=1;
+  pts.forEach((p,i)=>{if(p[4])keep[i]=keep[Math.max(0,i-1)]=1});
+  const lat0=rad(pts[0][0]),xy=pts.map(p=>[rad(p[1])*Math.cos(lat0)*R,rad(p[0])*R]);
+  const st=[[0,pts.length-1]];
+  while(st.length){const[a,b]=st.pop();let md=0,mi=-1;const[x1,y1]=xy[a],[x2,y2]=xy[b],dx=x2-x1,dy=y2-y1,L=dx*dx+dy*dy||1e-9;
+    for(let i=a+1;i<b;i++){let t=((xy[i][0]-x1)*dx+(xy[i][1]-y1)*dy)/L;t=Math.max(0,Math.min(1,t));const d=Math.hypot(xy[i][0]-(x1+t*dx),xy[i][1]-(y1+t*dy));if(d>md){md=d;mi=i}}
+    if(md>tol&&mi>0){keep[mi]=1;st.push([a,mi],[mi,b])}}
+  return pts.filter((_,i)=>keep[i])}
+function stats(w){const c=cumDist(w.pts),dist=c[c.length-1]||0,cl=climb(w.pts);
+  const walkMin=dist/1000/WALK_KMH*60+cl.gain/100*10, runMin=dist/1000/RUN_KMH*60+cl.gain/100*5;
+  const score=dist/1000+cl.gain/120;const diff=score<3?"easy":score<7?"mod":"hard";
+  const loop=w.pts.length>2&&hav(w.pts[0],w.pts[w.pts.length-1])<120;
+  return{dist,c,gain:cl.gain,hasEle:cl.has,walkMin,runMin,diff,loop}}
+const DIFF={easy:"Easy",mod:"Moderate",hard:"Hard"};
+function fmtKm(m){return (m/1000).toFixed(m<10000?1:0)}
+function fmtMin(min){min=Math.round(min);if(min<60)return min+" min";const h=Math.floor(min/60),m=min%60;return h+" h"+(m?" "+m:"")}
+function fmtClock(ms){const s=Math.floor(ms/1000),h=Math.floor(s/3600),m=Math.floor(s/60)%60,ss=s%60;return h+":"+String(m).padStart(2,"0")+":"+String(ss).padStart(2,"0")}
+function fmtPace(msPerKm){if(!isFinite(msPerKm)||msPerKm<=0||msPerKm>3.6e6)return "–";const s=Math.round(msPerKm/1000);return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")}
+
+/* ---------- sample walks (clearly marked) ---------- */
+function rnd(seed){return()=>{seed=(seed*16807)%2147483647;return(seed-1)/2147483646}}
+function makeLoop(c,rM,seed,n,startT,hill){const r=rnd(seed),pts=[];const k1=1+Math.floor(r()*3),k2=3+Math.floor(r()*3),p1=r()*6,p2=r()*6;
+  const mLat=1/111320,mLon=1/(111320*Math.cos(rad(c[0])));
+  for(let i=0;i<=n;i++){const a=i/n*Math.PI*2;const rr=rM*(1+.22*Math.sin(k1*a+p1)+.09*Math.sin(k2*a+p2));
+    const x=Math.cos(a)*rr*1.25,y=Math.sin(a)*rr;const lat=c[0]+(y-rM*.0)*mLat,lon=c[1]+(x-rM*1.25)*mLon;
+    const ele=210+hill*(.5+.5*Math.sin(a*1+p1))+hill*.25*Math.sin(a*3+p2);pts.push([+lat.toFixed(6),+lon.toFixed(6),+ele.toFixed(1),null,0])}
+  pts[pts.length-1]=[pts[0][0],pts[0][1],pts[0][2],null,0];
+  let t=startT,cum=0;for(let i=0;i<pts.length;i++){if(i)cum=hav(pts[i-1],pts[i]);t+=cum/1.3*1000;pts[i][3]=Math.round(t)}
+  return pts}
+function samples(){const c=[-37.1505,145.3402],t0=Date.UTC(2026,9,4,21,0);
+  const mk=(id,name,desc,rM,seed,n,hill,tags,good,pinsAt)=>{const pts=makeLoop(c,rM,seed,n,t0,hill);const D=pts[pts.length-1][3]-pts[0][3];const res=[[.78,"Sample runner"],[.93,"Sample walker"],[1.12,"Sample family"]].map(([f,b],i)=>({by:b,ms:Math.round(D*f),at:t0+86400000*(i+2)}));
+    return{id,name,by:"Sample",results:res,desc,tags,good,sample:true,created:t0,pts,dur:pts[pts.length-1][3]-pts[0][3],pins:pinsAt.map(([i,l,n])=>({lat:pts[i][0],lon:pts[i][1],label:l,note:n||""}))}};
+  return[
+    mk("dam-loop","Dam Loop","Sample walk. Shows how a short, flat loop appears to visitors. Starts at the house gate, follows the fence line down to the dam and back past the shearing shed.",290,7,120,14,["Grass paddock","Farm track"],["Dogs on lead","Kids"],[[30,"Gate","Sample comment. Close it behind you, the sheep are in the next paddock."],[62,"Dam","Sample comment. Ducks most mornings."],[95,"Shed"]]),
+    mk("ridge-track","Ridge Track","Sample walk. A longer loop with a proper climb to the lookout. Bring water on warm days.",640,19,200,70,["Farm track","Steep hills","Bush"],["Runners"],[[18,"Gate"],[80,"Lookout"],[140,"Creek"]]),
+    mk("boundary-run","Boundary Run","Sample walk. The full boundary fence, good for a long run.",1050,41,260,45,["Farm track","Gravel","Creek crossing"],["Runners","Dogs on lead"],[[60,"Stock here"],[130,"Creek"],[210,"Fence stile"]])]}
+
+/* ---------- storage ---------- */
+let store={walks:[],initialised:false};
+function load(){try{const s=JSON.parse(localStorage.getItem(KEY)||"null");if(s&&Array.isArray(s.walks)){store=s;return}}catch(e){}
+  store={walks:samples(),initialised:true}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){toast("Couldn't save on this phone. Storage may be full or blocked.")}}
+const byId=id=>store.walks.find(w=>w.id===id);
+function uid(name){const b=(name||"walk").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,24)||"walk";let id=b,i=2;while(byId(id))id=b+"-"+i++;return id}
+
+/* ---------- toast & sheets ---------- */
+let tt;function toast(m){const t=$("#toast");t.textContent=m;t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>t.hidden=true,2800)}
+function openSheet(id){$(id).hidden=false}
+function closeSheets(){document.querySelectorAll(".scrim").forEach(s=>{if(s.id!=="sheet-save")s.hidden=true})}
+document.querySelectorAll("[data-close]").forEach(b=>b.addEventListener("click",()=>b.closest(".scrim").hidden=true));
+document.querySelectorAll(".scrim").forEach(s=>s.addEventListener("click",e=>{if(e.target===s&&s.id!=="sheet-save")s.hidden=true}));
+
+/* ---------- thumbnails & profile ---------- */
+function project(pts,W,H,pad){const lat0=rad(pts[0][0]);let xs=pts.map(p=>p[1]*Math.cos(lat0)),ys=pts.map(p=>-p[0]);
+  const mnx=Math.min(...xs),mxx=Math.max(...xs),mny=Math.min(...ys),mxy=Math.max(...ys);const s=Math.min((W-2*pad)/((mxx-mnx)||1e-9),(H-2*pad)/((mxy-mny)||1e-9));
+  const ox=(W-(mxx-mnx)*s)/2,oy=(H-(mxy-mny)*s)/2;return pts.map((p,i)=>[ox+(xs[i]-mnx)*s,oy+(ys[i]-mny)*s])}
+function thumbSVG(w){if(!w.pts.length)return"";const xy=project(w.pts,100,100,14);const d="M"+xy.map(p=>p[0].toFixed(1)+" "+p[1].toFixed(1)).join("L");const a=xy[0],b=xy[xy.length-1];
+  return`<svg viewBox="0 0 100 100" aria-hidden="true"><g fill="none" stroke="var(--contour)" stroke-width="1"><circle cx="30" cy="40" r="20"/><circle cx="30" cy="40" r="34"/><circle cx="74" cy="72" r="16"/><circle cx="74" cy="72" r="30"/></g><path d="${d}" fill="none" stroke="var(--route-case)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/><path d="${d}" fill="none" stroke="var(--route)" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${b[0]}" cy="${b[1]}" r="4.5" fill="var(--stop)" stroke="#fff" stroke-width="1.5"/><circle cx="${a[0]}" cy="${a[1]}" r="4.5" fill="var(--go)" stroke="#fff" stroke-width="1.5"/></svg>`}
+function profileSVG(w,st){const pts=w.pts,c=st.c;const e=pts.map(p=>p[2]);if(!st.hasEle)return"";
+  const W=640,H=180,L=44,Rr=14,T=14,B=30;let mn=Infinity,mx=-Infinity;e.forEach(v=>{if(v!=null){mn=Math.min(mn,v);mx=Math.max(mx,v)}});
+  const span=Math.max(20,mx-mn),lo=Math.floor((mn-span*.1)/10)*10,hi=Math.ceil((mx+span*.1)/10)*10;const D=st.dist||1;
+  const X=d=>L+d/D*(W-L-Rr),Y=v=>T+(hi-v)/(hi-lo)*(H-T-B);let line="";pts.forEach((p,i)=>{if(p[2]==null)return;line+=(line?"L":"M")+X(c[i]).toFixed(1)+" "+Y(p[2]).toFixed(1)});
+  const area=line+`L${X(D).toFixed(1)} ${H-B}L${L} ${H-B}Z`;let grid="",step=(hi-lo)/3;
+  for(let k=0;k<=3;k++){const v=Math.round(lo+k*step),y=Y(v);grid+=`<line x1="${L}" x2="${W-Rr}" y1="${y}" y2="${y}" stroke="var(--line)"/><text x="${L-6}" y="${y+4}" text-anchor="end" font-size="11" fill="var(--muted)">${v} m</text>`}
+  const km=D/1000,stepKm=km<=4?.5:km<=10?1:2;for(let k=0;k<=km+1e-6;k+=stepKm){const x=X(k*1000);grid+=`<text x="${x}" y="${H-10}" text-anchor="middle" font-size="11" fill="var(--muted)">${+k.toFixed(1)} km</text>`}
+  const li=pts.length-1,lx=X(c[li]),ly=Y(pts[li][2]??lo);
+  return`<svg class="profile" viewBox="0 0 ${W} ${H}" role="img" aria-label="Elevation profile, ${Math.round(mn)} to ${Math.round(mx)} metres"><defs><linearGradient id="pg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="var(--accent)" stop-opacity=".45"/><stop offset="1" stop-color="var(--accent)" stop-opacity=".04"/></linearGradient></defs>${grid}<path d="${area}" fill="url(#pg)"/><path d="${line}" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round"/><circle cx="${lx}" cy="${ly}" r="4" fill="var(--stop)" stroke="var(--surface)" stroke-width="2"/></svg>`}
+function splits(w,st){if(!w.pts.every(p=>p[3]))return[];const out=[];let next=1000,prevT=w.pts[0][3],prevD=0;
+  for(let i=1;i<w.pts.length;i++){if(w.pts[i][4]){prevT+=w.pts[i][3]-w.pts[i-1][3]}
+    while(st.c[i]>=next){const f=(next-st.c[i-1])/((st.c[i]-st.c[i-1])||1),t=w.pts[i-1][3]+f*(w.pts[i][3]-w.pts[i-1][3]);out.push({km:next/1000,ms:t-prevT});prevT=t;prevD=next;next+=1000}}
+  const rest=st.dist-prevD;if(rest>150)out.push({km:+(st.dist/1000).toFixed(2),ms:(w.pts[w.pts.length-1][3]-prevT)/rest*1000,partial:true});return out}
+
+/* ---------- maps ---------- */
+const TILES={sat:["https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}","Imagery © Esri"],map:["https://tile.openstreetmap.org/{z}/{x}/{y}.png","© OpenStreetMap contributors"]};
+let tileMode="sat";try{tileMode=localStorage.getItem("walkies.tiles")||"sat"}catch(e){}
+const maps={};
+function makeMap(el,key){if(!window.L)return null;if(maps[key])return maps[key];
+  const m=L.map(el,{zoomControl:false,attributionControl:true});L.control.zoom({position:"bottomright"}).addTo(m);
+  m._tl=L.tileLayer(TILES[tileMode][0],{maxZoom:19,attribution:TILES[tileMode][1]}).addTo(m);m._over=L.layerGroup().addTo(m);maps[key]=m;return m}
+function setTiles(mode){tileMode=mode;try{localStorage.setItem("walkies.tiles",mode)}catch(e){}
+  Object.values(maps).forEach(m=>{m.removeLayer(m._tl);m._tl=L.tileLayer(TILES[mode][0],{maxZoom:19,attribution:TILES[mode][1]}).addTo(m);m._tl.bringToBack()});
+  document.querySelectorAll(".map-toggle").forEach(b=>b.textContent=mode==="sat"?"Map view":"Satellite")}
+document.addEventListener("click",e=>{const b=e.target.closest(".map-toggle");if(b&&window.L)setTiles(tileMode==="sat"?"map":"sat")});
+function drawRoute(m,w,st,opts={}){const g=m._over;const ll=w.pts.map(p=>[p[0],p[1]]);if(!ll.length)return;
+  L.polyline(ll,{color:getCss("--route-case"),weight:opts.faint?7:9,opacity:opts.faint?.35:.9,lineJoin:"round"}).addTo(g);
+  L.polyline(ll,{color:opts.faint?"#ffffff":getCss("--route"),weight:opts.faint?3:5,opacity:opts.faint?.75:1,lineJoin:"round",dashArray:opts.faint?"6 8":null}).addTo(g);
+  if(!opts.faint&&st){for(let k=1000,i=1;k<st.dist-200;k+=1000){while(i<st.c.length&&st.c[i]<k)i++;if(i>=w.pts.length)break;const p=w.pts[i];
+      L.marker([p[0],p[1]],{icon:L.divIcon({className:"",html:`<div class="km-icon">${k/1000}</div>`,iconSize:[22,22]}),interactive:false}).addTo(g)}}
+  const end=ll[ll.length-1];
+  if(!st||!st.loop)L.circleMarker(end,{radius:9,color:"#fff",weight:3,fillColor:getCss("--stop"),fillOpacity:1}).addTo(g).bindTooltip("Finish");
+  L.circleMarker(ll[0],{radius:10,color:"#fff",weight:3,fillColor:getCss("--go"),fillOpacity:1}).addTo(g).bindTooltip(st&&st.loop?"Start & finish":"Start");
+  (w.pins||[]).forEach(p=>L.circleMarker([p.lat,p.lon],{radius:7,color:"#fff",weight:2.5,fillColor:getCss("--pin"),fillOpacity:1}).addTo(g).bindTooltip(esc(p.label)+(p.photo?" 📷":""),{permanent:(w.pins.length<=8)&&!opts.faint,direction:"top",offset:[0,-6],className:"spot-tip"}).bindPopup(pinPopup(p)));
+  if(!opts.noFit)m.fitBounds(L.latLngBounds(ll).pad(.12))}
+function fallbackRoute(el,w){el.innerHTML=`<div class="fallback-route">${thumbSVG(w).replace('viewBox="0 0 100 100"','viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" width="100%" height="100%"')}</div>`}
+function getCss(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim()||"#000"}
+
+/* ---------- home ---------- */
+let filter="all";
+document.querySelectorAll("[data-f]").forEach(b=>b.addEventListener("click",()=>{filter=b.dataset.f;document.querySelectorAll("[data-f]").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));renderList()}));
+function renderList(){const list=$("#list");const ws=store.walks.map(w=>({w,st:stats(w)})).filter(({st})=>{const k=st.dist/1000;return filter==="all"||(filter==="short"&&k<3)||(filter==="mid"&&k>=3&&k<7)||(filter==="long"&&k>=7)}).sort((a,b)=>a.st.dist-b.st.dist);
+  $("#btn-clear-samples").hidden=!store.walks.some(w=>w.sample);
+  if(!store.walks.length){list.innerHTML=`<div class="empty"><strong>No walks yet.</strong><br>Tap “Record a new walk”, or import a GPX file from Strava, Apple Watch or Garmin.</div>`;return}
+  if(!ws.length){list.innerHTML=`<div class="empty">No walks in this length range yet.</div>`;return}
+  list.innerHTML=ws.map(({w,st})=>`<button class="card" type="button" data-id="${esc(w.id)}"><div class="thumb">${thumbSVG(w)}</div><div class="card-body"><h3>${esc(w.name)}</h3>${(lb=>lb.length?`<span class="medal-chip" data-ladder="${esc(w.id)}" role="button" tabindex="0" aria-label="See the ladder for ${esc(w.name)}">${medalSvg(1,20)}<span>${esc(lb[0].by)} · ${fmtClock(lb[0].ms)}</span></span>`:(w.by?`<div class="by">Walked by ${esc(w.by)}</div>`:""))(ladder(w))}
+    <div class="meta"><span><b class="num">${fmtKm(st.dist)}</b> km</span><span>Walk <b class="num">${fmtMin(st.walkMin)}</b></span><span>Run <b class="num">${fmtMin(st.runMin)}</b></span>${st.hasEle?`<span><b class="num">${st.gain}</b> m climb</span>`:""}</div>
+    <div class="tags"><span class="tag diff ${st.diff}">${DIFF[st.diff]}</span>${st.loop?'<span class="tag">Loop</span>':""}${(w.good||[]).slice(0,2).map(t=>`<span class="tag">${esc(t)}</span>`).join("")}${w.sample?'<span class="tag sample">Sample</span>':""}</div></div></button>`).join("")}
+$("#list").addEventListener("click",e=>{const m=e.target.closest("[data-ladder]");if(m){e.stopPropagation();openLadder(byId(m.dataset.ladder));return}const c=e.target.closest(".card");if(c)go("walk-"+c.dataset.id)});
+$("#list").addEventListener("keydown",e=>{const m=e.target.closest("[data-ladder]");if(m&&(e.key==="Enter"||e.key===" ")){e.preventDefault();e.stopPropagation();openLadder(byId(m.dataset.ladder))}});
+$("#btn-new").addEventListener("click",()=>{follow=null;go("record")});
+$("#btn-clear-samples").addEventListener("click",()=>{store.walks=store.walks.filter(w=>!w.sample);save();renderList();toast("Sample walks removed")});
+
+/* ---------- leaderboard ---------- */
+function medalSvg(rank,size){size=size||22;const c=rank===1?["#f5c518","#b8860b"]:rank===2?["#d6dde4","#7b8794"]:["#e0a46a","#8a5426"];
+  return`<svg class="medal" width="${size}" height="${size}" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 1h4l2 6H9zM13 1h4l-2 6h-4z" fill="${rank===1?"#2f6b3a":rank===2?"#3a6fb8":"#c8352a"}"/><circle cx="12" cy="15" r="7.5" fill="${c[0]}" stroke="${c[1]}" stroke-width="1.6"/><text x="12" y="18.6" text-anchor="middle" font-size="9.5" font-weight="800" font-family="system-ui,sans-serif" fill="${c[1]}">${rank}</text></svg>`}
+function ladder(w){const all=[...(w.dur&&w.by?[{by:w.by,ms:w.dur,at:w.created}]:[]),...(w.results||[])].filter(r=>r.by&&r.ms>0);const best=new Map();
+  all.forEach(r=>{const k=r.by.trim().toLowerCase();const b=best.get(k);if(!b){best.set(k,{by:r.by.trim(),ms:r.ms,at:r.at,n:1})}else{b.n++;if(r.ms<b.ms){b.ms=r.ms;b.at=r.at}}});
+  return[...best.values()].sort((a,b)=>a.ms-b.ms)}
+function mergeResults(t,src){t.results=t.results||[];(src.results||[]).forEach(r=>{if(!t.results.some(x=>x.by===r.by&&Math.abs(x.ms-r.ms)<1000))t.results.push(r)})}
+let ladderWalk=null,ladderMe=null;
+function openLadder(w,me){ladderWalk=w;ladderMe=me||null;const lb=ladder(w);$("#ld-title").textContent=w.name;
+  $("#ld-sub").textContent=lb.length?`Best time for each person on the full ${fmtKm(stats(w).dist)} km route.`:"No times yet. Tap “Walk this route”, finish the loop and your time goes up here.";
+  $("#ld-list").innerHTML=lb.map((r,i)=>`<li class="${i<3?"top "+["g","s","b"][i]:""}${me&&r.by.toLowerCase()===me.toLowerCase()?" me":""}"><span class="rank">${i<3?medalSvg(i+1,30):i+1}</span><span class="who"><strong>${esc(r.by)}</strong><small>${r.n>1?r.n+" attempts · ":""}${r.at?new Date(r.at).toLocaleDateString("en-AU",{day:"numeric",month:"short"}):""}</small></span><span class="t">${fmtClock(r.ms)}</span></li>`).join("");
+  $("#ld-share").hidden=!lb.length;openSheet("#sheet-ladder")}
+$("#ld-walk").addEventListener("click",()=>{$("#sheet-ladder").hidden=true;follow=ladderWalk;go("record")});
+$("#ld-share").addEventListener("click",()=>{$("#sheet-ladder").hidden=true;shareWalks([ladderWalk])});
+function coverage(route,pts){if(!pts.length)return 0;const step=Math.max(1,Math.floor(route.pts.length/150));let hit=0,n=0;
+  for(let i=0;i<route.pts.length;i+=step){n++;const q=route.pts[i];for(let j=0;j<pts.length;j+=1){if(hav(q,pts[j])<45){hit++;break}}}return hit/n}
+
+/* ---------- detail ---------- */
+let sharedPending=null;
+function renderDetail(w,shared){const st=stats(w);const el=$("#view-detail");const sp=splits(w,st);const maxMs=Math.max(...sp.map(s=>s.ms),1);
+  el.innerHTML=`<div class="topbar"><button class="back" type="button" id="d-back" aria-label="Back to all walks"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button><span class="tags" style="margin:0"><span class="tag diff ${st.diff}">${DIFF[st.diff]}</span>${st.loop?'<span class="tag">Loop</span>':'<span class="tag">One way</span>'}${w.sample?'<span class="tag sample">Sample</span>':""}</span></div>
+  ${shared?`<div class="shared-banner"><span><strong>Shared with you.</strong> Add it to keep it in your list.</span><button class="btn primary small" type="button" id="d-keep">Add to my walks</button></div>`:""}
+  <h1 class="detail-title">${esc(w.name)}</h1>${w.by?`<p class="by" style="font-size:1rem;margin:-2px 0 12px">Walked by ${esc(w.by)}</p>`:""}
+  <div class="map-wrap"><div class="map" id="d-map"></div><button class="map-toggle" type="button">${tileMode==="sat"?"Map view":"Satellite"}</button></div>
+  <div class="statgrid"><div><b>${fmtKm(st.dist)}</b><span>km</span></div><div><b>${fmtMin(st.walkMin)}</b><span>walking</span></div><div><b>${fmtMin(st.runMin)}</b><span>running</span></div><div><b>${st.hasEle?st.gain+" m":"–"}</b><span>climb</span></div></div>
+  <button class="big go walk-it" type="button" id="d-walk"><svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4l13 8-13 8z" fill="currentColor"/></svg>Walk this route</button>
+  ${(lb=>`<div class="section"><h3>Leaderboard</h3>${lb.length?`<ol class="ladder">${lb.slice(0,3).map((r,i)=>`<li class="top ${["g","s","b"][i]}"><span class="rank">${medalSvg(i+1,30)}</span><span class="who"><strong>${esc(r.by)}</strong><small>${r.n>1?r.n+" attempts":"1 attempt"}</small></span><span class="t">${fmtClock(r.ms)}</span></li>`).join("")}</ol><button class="btn" type="button" id="d-ladder">See the full ladder${lb.length>3?" ("+lb.length+")":""}</button>`:`<p style="margin:0;color:var(--muted)">No times yet. Walk this route from start to finish to set the first one.</p>`}</div>`)(ladder(w))}
+  ${w.dur?`<p class="sub" style="color:var(--muted);margin:10px 0 0;font-size:.9rem">Recorded in <b class="num" style="color:var(--ink)">${fmtClock(w.dur)}</b> moving time${w.created?` on ${new Date(w.created).toLocaleDateString("en-AU",{day:"numeric",month:"short",year:"numeric"})}`:""}. Estimates use ${WALK_KMH} km/h walking and ${RUN_KMH} km/h running, plus time for the climbs.</p>`:""}
+  ${w.desc?`<div class="section"><h3>What to expect</h3><p class="desc">${esc(w.desc)}</p></div>`:""}
+  ${(w.tags||[]).length||(w.good||[]).length?`<div class="section"><h3>Terrain and suits</h3><div class="tags">${(w.tags||[]).map(t=>`<span class="tag">${esc(t)}</span>`).join("")}${(w.good||[]).map(t=>`<span class="tag" style="border-color:var(--accent);color:var(--accent)">${esc(t)}</span>`).join("")}</div></div>`:""}
+  ${(w.pins||[]).length?`<div class="section"><h3>Spots along the way</h3><ul class="spots">${w.pins.map(p=>{let bi=0,bd=Infinity;w.pts.forEach((q,i)=>{const d=hav(q,[p.lat,p.lon]);if(d<bd){bd=d;bi=i}});return{p,at:st.c[bi]}}).sort((a,b)=>a.at-b.at).map(({p,at},k)=>`<li>${p.photo?`<button type="button" class="spot-photo" data-pi="${w.pins.indexOf(p)}" aria-label="View photo of ${esc(p.label)}"><img src="${p.photo}" alt=""></button>`:`<span class="dot" style="margin-top:6px"></span>`}<div class="spot-txt"><strong>${esc(p.label)}</strong>${p.note?`<p>${esc(p.note)}</p>`:""}</div><small class="num">${(at/1000).toFixed(1)} km</small></li>`).join("")}</ul></div>`:""}
+  ${st.hasEle?`<div class="section"><h3>Elevation</h3>${profileSVG(w,st)}</div>`:""}
+  ${sp.length>1?`<div class="section"><h3>Splits</h3><div style="overflow-x:auto"><table class="splits"><thead><tr><th>km</th><th>Pace</th><th></th></tr></thead><tbody>${sp.map(s=>`<tr><td class="num">${s.partial?s.km:s.km}</td><td class="num">${fmtPace(s.ms)} /km</td><td><span class="bar" style="width:${Math.round(s.ms/maxMs*120)}px"></span></td></tr>`).join("")}</tbody></table></div></div>`:""}
+  <div class="foot-actions">
+    <button class="btn" type="button" id="d-share">Share link</button>
+    <button class="btn" type="button" id="d-gpx">Save GPX</button>
+    ${shared?"":`<button class="btn danger" type="button" id="d-del">Delete</button>`}
+  </div>`;
+  $("#d-back").onclick=()=>go("");
+  if($("#d-ladder"))$("#d-ladder").onclick=()=>openLadder(w);
+  el.querySelectorAll(".spot-photo").forEach(b=>b.onclick=()=>{const p=w.pins[+b.dataset.pi];openPhoto(p.photo,p.label+(p.note?" · "+p.note:""))});
+  $("#d-walk").onclick=()=>{follow=w;go("record")};
+  $("#d-share").onclick=()=>shareWalks([w]);
+  $("#d-gpx").onclick=()=>exportGPX(w);
+  if(shared)$("#d-keep").onclick=()=>{w.id=uid(w.name);store.walks.push(w);save();sharedPending=null;toast("Added to your walks");go("walk-"+w.id)};
+  else $("#d-del").onclick=()=>{$("#confirm-h").textContent=`Delete “${w.name}”?`;openSheet("#sheet-confirm");$("#confirm-yes").onclick=()=>{store.walks=store.walks.filter(x=>x!==w);save();closeSheets();toast("Walk deleted");go("")}};
+  const mapEl=$("#d-map");if(maps.detail){maps.detail.remove();delete maps.detail}
+  requestAnimationFrame(()=>{const m=makeMap(mapEl,"detail");if(m)drawRoute(m,w,st);else fallbackRoute(mapEl,w)})}
+
+/* ---------- recording ---------- */
+let rec=null,follow=null,watchId=null,tick=null,wake=null,meMarker=null,trackLine=null,lastFix=null;
+function newRec(){return{state:"idle",nextKm:0,nextMin:0,pts:[],pins:[],acc:0,segStart:0,dist:0,demo:false,simT:Date.now(),newSeg:true,demoPath:null,demoAt:0,demoC:null}}
+const now=()=>rec&&rec.demo?rec.simT:Date.now();
+const elapsed=()=>rec.acc+(rec.state==="running"?now()-rec.segStart:0);
+function openRecord(){if(!rec||rec.state==="idle"||rec.state==="stopped")rec=newRec();
+  $("#rec-title").textContent=follow?follow.name:"New walk";
+  $("#follow-bar").hidden=!follow;$("#r-left-l").textContent=follow?"min to go":"spots";
+  const m=makeMap($("#rec-map"),"rec");
+  if(m){m._over.clearLayers();setTimeout(()=>m.invalidateSize(),60);if(follow){drawRoute(m,follow,stats(follow),{faint:true})}else m.setView([-37.15,145.34],15);
+    trackLine=L.polyline([],{color:getCss("--route"),weight:6,lineJoin:"round"}).addTo(m._over);meMarker=null;redrawTrack()}
+  else{$("#rec-map").innerHTML=""}
+  setRecView(recView);voiceLabel();startGPS();updateUI()}
+function startGPS(){const note=$("#gps-note");
+  if(rec.demo)return;
+  if(!("geolocation" in navigator)){showGPSNote("This browser can't share your location.");return}
+  if(watchId!=null)return;
+  try{watchId=navigator.geolocation.watchPosition(onFix,err=>{watchId=null;showGPSNote(err.code===1?"Location is switched off for Have a Crack. Allow location in your browser settings to record real walks.":"Can't get a GPS fix here.")},{enableHighAccuracy:true,maximumAge:0,timeout:30000})}
+  catch(e){showGPSNote("Location isn't available in this view.")}}
+function showGPSNote(msg){if(rec.demo)return;$("#gps-msg").textContent=msg+" You can still try the buttons with a demo walk.";$("#gps-note").hidden=false}
+function onFix(pos){$("#gps-note").hidden=true;const c=pos.coords;lastFix=[c.latitude,c.longitude,c.altitude];addPoint(c.latitude,c.longitude,c.altitude,c.accuracy)}
+function addPoint(lat,lon,ele,acc){const m=maps.rec;
+  if(m&&window.L){if(!meMarker)meMarker=L.marker([lat,lon],{icon:L.divIcon({className:"",html:'<div class="me-dot"></div>',iconSize:[18,18]}),interactive:false}).addTo(m._over);else meMarker.setLatLng([lat,lon]);
+    if(rec.state!=="running"&&!rec.pts.length&&!follow)m.setView([lat,lon],17)}
+  if(rec.state!=="running")return;
+  if(acc!=null&&acc>35)return;
+  const p=[lat,lon,ele==null?null:+(+ele).toFixed(1),now(),rec.newSeg?1:0];const last=rec.pts[rec.pts.length-1];
+  if(last&&!rec.newSeg){const d=hav(last,p);if(d<4)return;rec.dist+=d}
+  if(!rec.pts.length)p[4]=0;
+  rec.pts.push(p);rec.newSeg=false;redrawTrack();if(m&&window.L)m.panTo([lat,lon],{animate:true})}
+function redrawTrack(){if(!trackLine)return;const segs=[];let cur=[];rec.pts.forEach(p=>{if(p[4]&&cur.length){segs.push(cur);cur=[]}cur.push([p[0],p[1]])});if(cur.length)segs.push(cur);trackLine.setLatLngs(segs)}
+function setState(s){rec.state=s;updateUI()}
+function updateUI(){if(!rec)return;const s=rec.state;
+  $("#b-go").disabled=s==="running";$("#b-pause").disabled=s!=="running";$("#b-stop").disabled=s==="idle"||!rec.pts.length&&s!=="running"&&s!=="paused";$("#b-mark").disabled=s==="idle"||!(lastFix||rec.pts.length);
+  $("#b-go").lastChild.textContent=s==="paused"?"RESUME":"GO";$("#b-go").style.fontSize=s==="paused"?"2.1rem":"";
+  const st=$("#rec-status");st.className="status "+(s==="running"?"running":s==="paused"?"paused":"");st.textContent=s==="running"?(rec.demo?"Demo · live":"Recording"):s==="paused"?"Paused":rec.demo?"Demo":"Ready";
+  const el=elapsed();$("#r-clock").textContent=fmtClock(el);$("#r-dist").textContent=(rec.dist/1000).toFixed(2);
+  $("#r-pace").textContent=rec.dist>50?fmtPace(el/(rec.dist/1000)):"–";$("#r-climb").textContent=climb(rec.pts).gain;
+  if(follow){const fs=stats(follow);let done=0;if(rec.pts.length){const me=rec.pts[rec.pts.length-1];let bi=0,bd=Infinity;follow.pts.forEach((q,i)=>{const d=hav(q,me);if(d<bd){bd=d;bi=i}});done=bd<150?fs.c[bi]:Math.min(rec.dist,fs.dist)}
+    const frac=Math.min(1,done/(fs.dist||1));$("#follow-fill").style.width=(frac*100).toFixed(1)+"%";$("#r-left").textContent=Math.max(0,Math.round(fs.walkMin*(1-frac)))}
+  else $("#r-left").textContent=rec.pins.length}
+function goPressed(){const first=rec.state==="idle";if(first){rec.acc=0;rec.nextKm=(voice.km||1)*1000;rec.nextMin=(voice.min||5)*60000}
+  if(voice.km||voice.min)coach(first?[rndClip("wstart")]:[rndClip("wresume")],first?(follow?"Off you go on "+follow.name+". Have a crack!":"Walk started. Have a crack!"):"Back on the move.",null,talk);rec.segStart=now();rec.newSeg=true;setState("running");
+  stayAwake(true);
+  if(navigator.vibrate)try{navigator.vibrate(40)}catch(e){}
+  if(!tick)tick=setInterval(onTick,250);if(lastFix&&!rec.demo)addPoint(lastFix[0],lastFix[1],lastFix[2],null)}
+function pausePressed(){rec.acc=elapsed();setState("paused");if(voice.km||voice.min)coach([rndClip("wpause")],"Paused.",null,talk);if(navigator.vibrate)try{navigator.vibrate([30,60,30])}catch(e){}}
+function stopPressed(){if(rec.state==="running")rec.acc=elapsed();setState("stopped");
+  stayAwake(false);
+  if((voice.km||voice.min)&&rec.pts.length>1)coach([rndClip("wdone")],`Finished. ${spokenKm(rec.dist)} in ${spokenTime(rec.acc)}. Great walk.`,SET.stats?`${spokenKm(rec.dist)} in ${spokenTime(rec.acc)}.`:null,talk);
+  if(rec.pts.length<2){toast("Not enough of a track to save yet. Walk a little further.");setState("paused");return}
+  const c=cumDist(rec.pts);$("#s-dist").textContent=(c[c.length-1]/1000).toFixed(2);$("#s-time").textContent=fmtClock(rec.acc);$("#s-climb").textContent=climb(rec.pts).gain;
+  const lbox=$("#save-ladder"),lbtn=$("#save-ladder-btn");let cov=follow?coverage(follow,rec.pts):0;rec.cov=cov;
+  if(follow&&cov>=.85){lbox.className="ladder-box";lbox.innerHTML=`You finished <strong>${esc(follow.name)}</strong> in ${fmtClock(rec.acc)}. Add your time to the ladder.`;lbox.hidden=false;lbtn.hidden=false;$("#save-newfields").hidden=true;$("#save-submit").hidden=true}
+  else{lbtn.hidden=true;$("#save-newfields").hidden=false;$("#save-submit").hidden=false;if(follow){lbox.className="ladder-box miss";lbox.innerHTML=`You covered ${Math.round(cov*100)}% of ${esc(follow.name)}. Times go on the ladder when you finish the full route, but you can save this as its own walk.`;lbox.hidden=false}else lbox.hidden=true}
+  $("#save-name").value=follow?follow.name+" (my time)":"";let lw="";try{lw=localStorage.getItem("walkies.by")||""}catch(e){}$("#save-by").value=lw;$("#walkers").innerHTML=[...new Set(store.walks.map(w=>w.by).filter(Boolean))].map(n=>`<option value="${esc(n)}">`).join("");$("#save-desc").value=follow?follow.desc||"":"";
+  pickChips("#save-tags",TERRAIN,follow?follow.tags:[]);pickChips("#save-good",GOOD,follow?follow.good:[]);discardArmed=false;$("#save-discard").textContent="Discard";
+  openSheet("#sheet-save");setTimeout(()=>$("#save-name").focus(),50)}
+$("#b-go").addEventListener("click",goPressed);$("#b-pause").addEventListener("click",pausePressed);$("#b-stop").addEventListener("click",stopPressed);
+function onTick(){if(!rec)return;if(rec.demo&&rec.state==="running")demoStep();checkVoice();updateUI()}
+function pickChips(sel,opts,on){const el=$(sel);el.innerHTML=opts.map(o=>`<button type="button" class="chip" aria-pressed="${(on||[]).includes(o)}">${esc(o)}</button>`).join("");
+  el.onclick=e=>{const b=e.target.closest(".chip");if(b)b.setAttribute("aria-pressed",String(b.getAttribute("aria-pressed")!=="true"))}}
+const picked=sel=>[...document.querySelectorAll(sel+" .chip[aria-pressed=true]")].map(b=>b.textContent);
+let discardArmed=false;
+$("#save-resume").addEventListener("click",()=>{$("#sheet-save").hidden=true;rec.state="paused";updateUI()});
+$("#save-discard").addEventListener("click",e=>{if(!discardArmed){discardArmed=true;e.target.textContent="Tap again to discard";return}
+  $("#sheet-save").hidden=true;endRecording();toast("Walk discarded");go(follow?"walk-"+follow.id:"")});
+$("#save-ladder-btn").addEventListener("click",()=>{const by=$("#save-by").value.trim();if(!by){$("#save-by").focus();toast("Add your name so it shows on the ladder");return}
+  try{localStorage.setItem("walkies.by",by)}catch(e){}let w=byId(follow.id)===follow?follow:store.walks.find(x=>x.name===follow.name&&x.pts.length===follow.pts.length);
+  if(!w){w=follow;w.id=uid(w.name);store.walks.push(w)}w.results=w.results||[];w.results.push({by,ms:rec.acc,at:Date.now()});save();
+  const lb=ladder(w),pos=lb.findIndex(r=>r.by.toLowerCase()===by.toLowerCase())+1;$("#sheet-save").hidden=true;endRecording();follow=null;go("walk-"+w.id);
+  setTimeout(()=>{openLadder(w,by);toast(pos===1?"New record! You've got the gold medal.":pos<=3?`Onto the podium in position ${pos}!`:`You're number ${pos} on the ladder`);if(pos===1)coach([rndClip("wdone")],"New record! Gold medal. Now that's having a crack!",null,talk)},300)});
+$("#save-form").addEventListener("submit",e=>{e.preventDefault();const name=$("#save-name").value.trim()||"Untitled walk";
+  let pts=simplify(rec.pts,2.5);if(pts.length>1800)pts=simplify(rec.pts,6);
+  const by=$("#save-by").value.trim();if(!by){$("#save-by").focus();toast("Add who did the walk");return}try{localStorage.setItem("walkies.by",by)}catch(e){}
+  const w={id:uid(name),name,by,desc:$("#save-desc").value.trim(),tags:picked("#save-tags"),good:picked("#save-good"),pts,pins:rec.pins.slice(),dur:rec.acc,created:Date.now()};
+  store.walks.push(w);save();$("#sheet-save").hidden=true;endRecording();toast("Saved “"+name+"”");follow=null;go("walk-"+w.id)});
+function endRecording(){if(watchId!=null)try{navigator.geolocation.clearWatch(watchId)}catch(e){}watchId=null;clearInterval(tick);tick=null;rec=null;lastFix=null}
+$("#rec-close").addEventListener("click",()=>{if(rec&&(rec.state==="running"||rec.state==="paused")){toast("Tap STOP to finish or save this walk first");return}endRecording();go(follow?"walk-"+follow.id:"")});
+
+/* voice updates */
+let voice={km:1,min:0};try{const v=JSON.parse(localStorage.getItem("walkies.voice")||"null");if(v)voice=v}catch(e){}
+const KM_OPTS=[[0,"Off"],[0.5,"500 m"],[1,"1 km"],[2,"2 km"]],MIN_OPTS=[[0,"Off"],[5,"5 min"],[10,"10 min"],[15,"15 min"]];
+function voiceLabel(){const a=[];if(voice.km)a.push(voice.km<1?"500 m":voice.km+" km");if(voice.min)a.push(voice.min+" min");$("#voice-lbl").textContent=a.length?"Voice: "+a.join(" · "):"Voice off"}
+function renderVoice(){const mk=(sel,opts,key)=>{const el=$(sel);el.innerHTML=opts.map(([v,l])=>`<button type="button" class="chip" data-v="${v}" aria-pressed="${voice[key]===v}">${l}</button>`).join("");
+  el.onclick=e=>{const b=e.target.closest(".chip");if(!b)return;voice[key]=+b.dataset.v;try{localStorage.setItem("walkies.voice",JSON.stringify(voice))}catch(e){}renderVoice();voiceLabel()}};
+  mk("#v-km",KM_OPTS,"km");mk("#v-min",MIN_OPTS,"min")}
+$("#b-voice").addEventListener("click",()=>{renderVoice();openSheet("#sheet-voice")});
+$("#v-test").addEventListener("click",()=>{audio();coach([kmClip(1),rndClip("wcheer")],"You've just completed 1 kilometre. Time, 11 minutes 20. Pace, 11 minutes 20 per kilometre.",SET.stats?"Time, 11 minutes 20. Pace, 11 minutes 20 per kilometre.":null,talk)});
+let auVoice=null;function pickVoice(){try{const vs=speechSynthesis.getVoices();auVoice=vs.find(v=>/en-AU/i.test(v.lang))||vs.find(v=>/^en/i.test(v.lang))||null}catch(e){}}
+if(window.speechSynthesis){pickVoice();try{speechSynthesis.onvoiceschanged=pickVoice}catch(e){}}
+function say(t,o){if(!window.speechSynthesis){toast(t);return}try{const u=new SpeechSynthesisUtterance(t);const v=(o&&o.voice)||auVoice;if(v)u.voice=v;u.lang=v?v.lang:"en-AU";u.rate=(o&&o.rate)||1;u.pitch=(o&&o.pitch)||1;u.volume=1;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){toast(t)}}
+/* boxing coach: deepest male voice on the phone, pitched down and pushed fast */
+const MALE=/(daniel|lee|gordon|aaron|arthur|fred|alex|rishi|oliver|thomas|male|guy|james|william|liam|ryan|christopher|eric|tom|reed|ralph|rocko|grandpa|bruce|matthew|russell|jacob|nathan|evan)/i,FEMALE=/(female|karen|samantha|catherine|kate|serena|moira|tessa|fiona|victoria|zoe|allison|ava|susan|nicky|siri female|google uk english female|libby|sonia|natasha)/i;
+let coachVoice=null;function pickCoach(){try{const vs=speechSynthesis.getVoices().filter(v=>/^en/i.test(v.lang));const score=v=>(MALE.test(v.name)?10:0)-(FEMALE.test(v.name)?20:0)+(/en-AU/i.test(v.lang)?3:/en-GB/i.test(v.lang)?2:0)+(/enhanced|premium|neural/i.test(v.name)?2:0);coachVoice=vs.sort((a,b)=>score(b)-score(a))[0]||null}catch(e){}}
+if(window.speechSynthesis){pickCoach();try{speechSynthesis.addEventListener("voiceschanged",pickCoach)}catch(e){}}
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+function shout(t){say(t,{voice:coachVoice,pitch:.8,rate:1.05})}
+function talk(t){say(t,{voice:coachVoice,pitch:.92,rate:1})}
+function spokenTime(ms){const s=Math.round(ms/1000),h=Math.floor(s/3600),m=Math.floor(s/60)%60,ss=s%60;return(h?h+(h>1?" hours ":" hour "):"")+m+(m===1?" minute":" minutes")+(h?"":" "+ss+(ss===1?" second":" seconds"))}
+function spokenPace(ms){if(!isFinite(ms)||ms<=0)return"";const s=Math.round(ms/1000);return Math.floor(s/60)+" minutes "+(s%60)+" per kilometre"}
+function spokenKm(m){const k=Math.round(m/100)/10;return(k%1?k.toFixed(1):String(k))+(k===1?" kilometre":" kilometres")}
+function checkVoice(){if(!rec||rec.state!=="running")return;const el=elapsed();let msg="",statsMsg="",kmDone=0;
+  if(voice.km&&rec.dist>=rec.nextKm){const d=rec.nextKm;rec.nextKm=(Math.floor(rec.dist/(voice.km*1000))+1)*voice.km*1000;
+    kmDone=Math.round(d);msg=`You've just completed ${spokenKm(d)}. Time, ${spokenTime(el)}. Pace, ${spokenPace(el/(rec.dist/1000))}.`;statsMsg=`${kmClip(Math.round(d/1000))&&d%1000===0?"":spokenKm(d)+". "}Time, ${spokenTime(el)}. Pace, ${spokenPace(el/(rec.dist/1000))}.`;
+    if(follow){const left=Math.max(0,stats(follow).dist-rec.dist);if(left>100){msg+=` ${spokenKm(left)} to go.`;statsMsg+=` ${spokenKm(left)} to go.`}}}
+  else if(voice.min&&el>=rec.nextMin){rec.nextMin=(Math.floor(el/(voice.min*60000))+1)*voice.min*60000;msg=`${spokenTime(el)} done. You've covered ${spokenKm(rec.dist)}.`;statsMsg=msg}
+  if(msg){const whole=kmDone&&kmDone%1000===0?kmClip(kmDone/1000):null;
+    coach(kmDone?[whole,rndClip("wcheer")]:[rndClip("wcheer")],msg,SET.stats?statsMsg:null,talk);toast(msg.split(". ")[0])}}
+
+/* time / map toggle */
+let recView="map";try{recView=localStorage.getItem("walkies.rv")||"map"}catch(e){}
+function setRecView(v){recView=v;$("#view-record").dataset.rv=v;document.querySelectorAll("[data-rv]").forEach(b=>{if(b.tagName==="BUTTON")b.setAttribute("aria-pressed",String(b.dataset.rv===v))});try{localStorage.setItem("walkies.rv",v)}catch(e){}
+  if(v==="map"&&maps.rec)setTimeout(()=>{maps.rec.invalidateSize();centreMe()},50)}
+document.querySelectorAll(".seg [data-rv]").forEach(b=>b.addEventListener("click",()=>setRecView(b.dataset.rv)));
+function centreMe(){const m=maps.rec;if(!m)return;const p=lastFix||rec&&rec.pts[rec.pts.length-1];if(p)m.setView([p[0],p[1]],Math.max(m.getZoom()||16,16));else toast("Waiting for your location")}
+$("#b-locate").addEventListener("click",centreMe);
+
+/* spot photos: shrunk on the phone before saving so storage lasts */
+let pendingPhoto=null;
+async function shrinkPhoto(file){const url=URL.createObjectURL(file);try{const img=await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=url});
+  const max=720,k=Math.min(1,max/Math.max(img.naturalWidth,img.naturalHeight));const c=document.createElement("canvas");c.width=Math.round(img.naturalWidth*k);c.height=Math.round(img.naturalHeight*k);
+  c.getContext("2d").drawImage(img,0,0,c.width,c.height);return c.toDataURL("image/jpeg",.68)}finally{URL.revokeObjectURL(url)}}
+function setPhoto(d){pendingPhoto=d;$("#photo-prev").hidden=!d;if(d)$("#photo-img").src=d;$("#photo-btn-l").textContent=d?"Change photo":"Take or add a photo"}
+$("#mark-photo").addEventListener("change",async e=>{const f=e.target.files[0];e.target.value="";if(!f)return;try{setPhoto(await shrinkPhoto(f))}catch(err){toast("Couldn't read that photo. Try another one.")}});
+$("#photo-x").addEventListener("click",()=>setPhoto(null));
+function openPhoto(src,cap){$("#lb-img").src=src;$("#lb-cap").textContent=cap||"";$("#lightbox").hidden=false}
+$("#lb-close").addEventListener("click",()=>$("#lightbox").hidden=true);
+$("#lightbox").addEventListener("click",e=>{if(e.target.id==="lightbox")$("#lightbox").hidden=true});
+function pinPopup(p){return`<div class="pop">${p.photo?`<img src="${p.photo}" alt="">`:""}<strong>${esc(p.label)}</strong>${p.note?`<p>${esc(p.note)}</p>`:""}</div>`}
+
+/* mark a spot */
+$("#b-mark").addEventListener("click",()=>{const q=$("#mark-quick");q.innerHTML=QUICK.map(o=>`<button type="button" class="chip">${o}</button>`).join("");q.onclick=e=>{const b=e.target.closest(".chip");if(b)$("#mark-label").value=b.textContent};$("#mark-label").value="";$("#mark-note").value="";setPhoto(null);openSheet("#sheet-mark")});
+$("#mark-form").addEventListener("submit",e=>{e.preventDefault();const label=$("#mark-label").value.trim();if(!label){$("#mark-label").focus();return}
+  const p=rec.pts[rec.pts.length-1]||lastFix;if(!p)return;const pin={lat:p[0],lon:p[1],label,note:$("#mark-note").value.trim()};if(pendingPhoto)pin.photo=pendingPhoto;rec.pins.push(pin);
+  if(maps.rec&&window.L)L.circleMarker([p[0],p[1]],{radius:7,color:"#fff",weight:2.5,fillColor:getCss("--pin"),fillOpacity:1}).addTo(maps.rec._over).bindTooltip(esc(label),{permanent:true,direction:"top",offset:[0,-6],className:"spot-tip"}).bindPopup(pinPopup(pin));setPhoto(null);
+  $("#sheet-mark").hidden=true;toast("Spot marked: "+label);updateUI()});
+
+/* demo walk: replays a route at 20x so the buttons can be tried anywhere */
+$("#btn-demo").addEventListener("click",()=>{if(watchId!=null)try{navigator.geolocation.clearWatch(watchId)}catch(e){}watchId=null;
+  rec.demo=true;rec.simT=Date.now();const path=follow?follow.pts:makeLoop([-37.1505,145.3402],300,7,120,0,14);rec.demoPath=path;rec.demoC=cumDist(path);rec.demoAt=0;
+  $("#gps-note").hidden=true;const p=path[0];lastFix=[p[0],p[1],p[2]];addPoint(p[0],p[1],p[2],null);if(maps.rec&&!follow)maps.rec.setView([p[0],p[1]],16);updateUI();toast("Demo ready. Tap GO.")});
+function demoStep(){rec.simT+=5000;rec.demoAt+=7;const c=rec.demoC,P=rec.demoPath;if(rec.demoAt>=c[c.length-1]){rec.demoAt=c[c.length-1];}
+  let i=1;while(i<c.length-1&&c[i]<rec.demoAt)i++;const f=(rec.demoAt-c[i-1])/((c[i]-c[i-1])||1);const a=P[i-1],b=P[i];
+  const j=(Math.sin(rec.simT/7000)*1.2e-5);const lat=a[0]+(b[0]-a[0])*f+j,lon=a[1]+(b[1]-a[1])*f-j,ele=a[2]==null?null:a[2]+((b[2]??a[2])-a[2])*f;lastFix=[lat,lon,ele];addPoint(lat,lon,ele,5);
+  if(rec.demoAt>=c[c.length-1]&&rec.state==="running"){toast("Demo route finished. Tap STOP to save it.");pausePressed()}}
+
+/* ---------- GPX ---------- */
+function toGPX(w){const t=v=>v?`<time>${new Date(v).toISOString()}</time>`:"";
+  return`<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="Have a Crack" xmlns="http://www.topografix.com/GPX/1/1">\n<metadata><name>${esc(w.name)}</name>${w.desc?`<desc>${esc(w.desc)}</desc>`:""}</metadata>\n${(w.pins||[]).map(p=>`<wpt lat="${p.lat}" lon="${p.lon}"><name>${esc(p.label)}</name>${p.note?`<desc>${esc(p.note)}</desc>`:""}</wpt>`).join("\n")}\n<trk><name>${esc(w.name)}</name><trkseg>\n${w.pts.map((p,i)=>(p[4]&&i?"</trkseg><trkseg>\n":"")+`<trkpt lat="${p[0]}" lon="${p[1]}">${p[2]!=null?`<ele>${p[2]}</ele>`:""}${t(p[3])}</trkpt>`).join("\n")}\n</trkseg></trk>\n</gpx>\n`}
+async function exportGPX(w){const data=toGPX(w),filename=(w.name||"walk").replace(/[^\w\- ]+/g,"").trim().replace(/\s+/g,"-")+".gpx";
+  if(IN_CLAUDE){try{const dl=await window.claude.use("downloads");if(dl){await dl.save({filename,data});return}}catch(e){if(e&&e.code==="cancelled")return}toast("Saving files isn't available in this view.");return}
+  const url=URL.createObjectURL(new Blob([data],{type:"application/gpx+xml"}));const a=document.createElement("a");a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),4000)}
+function parseGPX(text){const doc=new DOMParser().parseFromString(text,"application/xml");if(doc.querySelector("parsererror"))throw new Error("bad");
+  const name=(doc.querySelector("metadata > name")||doc.querySelector("trk > name")||doc.querySelector("rte > name")||{}).textContent;
+  const desc=(doc.querySelector("metadata > desc")||doc.querySelector("trk > desc")||{}).textContent;
+  const pts=[];doc.querySelectorAll("trkseg").forEach((seg,si)=>{seg.querySelectorAll("trkpt").forEach((p,i)=>{const e=p.querySelector("ele"),t=p.querySelector("time");pts.push([+p.getAttribute("lat"),+p.getAttribute("lon"),e?+e.textContent:null,t?Date.parse(t.textContent)||null:null,si&&!i?1:0])})});
+  if(!pts.length)doc.querySelectorAll("rtept").forEach(p=>{const e=p.querySelector("ele");pts.push([+p.getAttribute("lat"),+p.getAttribute("lon"),e?+e.textContent:null,null,0])});
+  if(pts.length<2)throw new Error("empty");
+  const pins=[...doc.querySelectorAll("wpt")].map(p=>({lat:+p.getAttribute("lat"),lon:+p.getAttribute("lon"),label:(p.querySelector("name")||{}).textContent||"Spot",note:((p.querySelector("desc")||{}).textContent||"").trim()}));
+  let dur=0;if(pts.every(p=>p[3])){for(let i=1;i<pts.length;i++){const dt=pts[i][3]-pts[i-1][3];if(!pts[i][4]&&dt<120000)dur+=dt}}
+  return{name:(name||"Imported walk").trim(),desc:(desc||"").trim(),pts:simplify(pts,2.5),pins,dur:dur||null,tags:[],good:[],created:pts[0][3]||Date.now()}}
+$("#gpx-in").addEventListener("change",async e=>{const f=e.target.files[0];e.target.value="";if(!f)return;
+  try{const w=parseGPX(await f.text());w.id=uid(w.name);store.walks.push(w);save();toast("Imported “"+w.name+"”");go("walk-"+w.id)}catch(err){toast("That file doesn't look like a GPX track. Export a .gpx from Strava, Garmin or your watch and try again.")}});
+
+/* ---------- share links (the whole walk travels inside the link) ---------- */
+function packWalk(w){const flat=[];let pl=0,po=0,pe=0;w.pts.forEach(p=>{const la=Math.round(p[0]*1e5),lo=Math.round(p[1]*1e5),el=p[2]==null?-9999:Math.round(p[2]);flat.push(la-pl,lo-po,el===-9999?-99999:el-pe,p[4]?1:0);pl=la;po=lo;if(el!==-9999)pe=el});
+  return{n:w.name,b:w.by||"",r:(w.results||[]).map(x=>[x.by,x.ms,x.at||0]),d:w.desc||"",t:w.tags||[],g:w.good||[],u:w.dur||0,c:w.created||0,i:(w.pins||[]).map(p=>[Math.round(p.lat*1e5),Math.round(p.lon*1e5),p.label,p.note||""]),p:flat}}
+function unpackWalk(o){const pts=[];let la=0,lo=0,el=0;for(let k=0;k<o.p.length;k+=4){la+=o.p[k];lo+=o.p[k+1];let e=null;if(o.p[k+2]!==-99999){el+=o.p[k+2];e=el}pts.push([la/1e5,lo/1e5,e,null,o.p[k+3]])}
+  return{name:String(o.n||"Shared walk").slice(0,80),by:String(o.b||"").slice(0,60),results:(o.r||[]).map(([b,m,a])=>({by:String(b).slice(0,60),ms:+m,at:+a||null})).filter(x=>x.by&&x.ms>0),desc:String(o.d||"").slice(0,800),tags:(o.t||[]).map(String),good:(o.g||[]).map(String),dur:+o.u||null,created:+o.c||null,pins:(o.i||[]).map(p=>({lat:p[0]/1e5,lon:p[1]/1e5,label:String(p[2]).slice(0,40),note:String(p[3]||"").slice(0,400)})),pts}}
+const b64u={enc:u8=>{let s="";u8.forEach(b=>s+=String.fromCharCode(b));return btoa(s).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"")},dec:s=>{s=s.replace(/-/g,"+").replace(/_/g,"/");const b=atob(s);return Uint8Array.from(b,c=>c.charCodeAt(0))}};
+async function zip(str){const u=new TextEncoder().encode(str);if(!window.CompressionStream)return"j"+b64u.enc(u);const cs=new Blob([u]).stream().pipeThrough(new CompressionStream("deflate-raw"));return"z"+b64u.enc(new Uint8Array(await new Response(cs).arrayBuffer()))}
+async function unzip(s){const kind=s[0],u=b64u.dec(s.slice(1));if(kind==="j")return new TextDecoder().decode(u);const ds=new Blob([u]).stream().pipeThrough(new DecompressionStream("deflate-raw"));return await new Response(ds).text()}
+async function shareWalks(ws){const payload=await zip(JSON.stringify(ws.map(packWalk)));const base=location.href.split("#")[0];const link=base+"#share="+payload;
+  $("#share-h").textContent=ws.length>1?"Share all "+ws.length+" walks":"Share “"+ws[0].name+"”";
+  $("#share-sub").textContent=ws.length>1?"Send this link to visitors. It opens Have a Crack with every walk, map, distance and time loaded.":"Send this link. It opens the walk with its map, distance and times.";
+  const note=$("#share-note");note.hidden=!IN_CLAUDE;note.textContent="Share links open the walks once Have a Crack is running on its own web address. Inside this preview, use the Share button at the top of the page instead.";
+  $("#share-link").value=link;openSheet("#sheet-share")}
+$("#share-copy").addEventListener("click",()=>{const t=$("#share-link");const done=()=>toast("Link copied");
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t.value).then(done,()=>{t.select();toast("Link selected. Copy it from the box.")});else{t.select();toast("Link selected. Copy it from the box.")}});
+$("#btn-share-all").addEventListener("click",()=>{const ws=store.walks.filter(w=>!w.sample);if(!ws.length){toast("Record or import a walk first. Sample walks aren't shared.");return}shareWalks(ws)});
+
+/* ---------- coach voice clips (kept in IndexedDB on this phone) ---------- */
+const NUMW=["one","two","three","four","five","six","seven","eight","nine","ten","eleven","twelve"];
+const CATS=[
+ {k:"prep",g:"box",t:"Get ready",when:"Before the first round",sug:["Gloves on. Let's get to work!"]},
+ {k:"round",g:"box",t:"Round numbers",when:"Straight after the bell",fixed:true,sug:NUMW.map(n=>"Round "+n+"!")},
+ {k:"start",g:"box",t:"Start of a round",when:"After the round number. One plays at random.",sug:["Come on, have a crack!","Come on, have a crack!","Come on, have a crack!"]},
+ {k:"last",g:"box",t:"Last round",when:"Start of the final round",sug:["Last round! Everything you've got. Come on, have a crack!"]},
+ {k:"half",g:"box",t:"Halfway",when:"Midway through each round. One plays at random.",sug:["Hands up! Keep moving!","Work that jab!","Stay on your toes. Keep punching!"]},
+ {k:"ten",g:"box",t:"10-second warning",when:"10 seconds before the bell",sug:["Ten seconds! Finish strong!","Ten seconds! Let your hands go!"]},
+ {k:"rest",g:"box",t:"The break",when:"Between rounds",sug:["Good round. Breathe. Get ready for the next one.","Shake it out. Recover. You're not done yet."]},
+ {k:"pause",g:"box",t:"Pause",when:"When you tap PAUSE",sug:["Take a breather. We go again when you're ready."]},
+ {k:"done",g:"box",t:"Finished",when:"After the last round",sug:["That's it, workout done! Now that's having a crack!"]},
+ {k:"wstart",g:"walk",t:"Start of a walk",when:"When you tap GO",sug:["Right, let's go. Have a crack!"]},
+ {k:"wkm",g:"walk",t:"Kilometre numbers",when:"Each time you finish a whole kilometre",fixed:true,sug:NUMW.slice(0,10).map((n,i)=>`That's ${n} kilometre${i?"s":""} done!`)},
+ {k:"wcheer",g:"walk",t:"Encouragement",when:"With each distance or time update. One plays at random.",sug:["Good work, keep it going!","Looking strong. Keep that pace up!","You're flying. Keep having a crack!"]},
+ {k:"wpause",g:"walk",t:"Pause",when:"When you tap PAUSE on a walk",sug:["Quick breather. Hit GO when you're ready."]},
+ {k:"wresume",g:"walk",t:"Back on the move",when:"When you tap GO after a pause",sug:["Back on the move. Let's go!"]},
+ {k:"wdone",g:"walk",t:"Finished",when:"When you tap STOP",sug:["Walk done! Now that's having a crack!"]}];
+let clips=[];const bufCache=new Map();
+const idb={db:null,open(){return this.db?Promise.resolve(this.db):new Promise((res,rej)=>{try{const r=indexedDB.open("hac",1);r.onupgradeneeded=()=>r.result.createObjectStore("clips",{keyPath:"id"});r.onsuccess=()=>{this.db=r.result;res(this.db)};r.onerror=()=>rej(r.error)}catch(e){rej(e)}})},
+ async tx(mode,fn){const db=await this.open();return new Promise((res,rej)=>{const t=db.transaction("clips",mode),st=t.objectStore("clips");const out=fn(st);t.oncomplete=()=>res(out&&out.result);t.onerror=()=>rej(t.error)})},
+ all(){return this.tx("readonly",st=>st.getAll())},put(c){return this.tx("readwrite",st=>st.put(c))},del(id){return this.tx("readwrite",st=>st.delete(id))}};
+idb.all().then(a=>{clips=a||[]}).catch(()=>{clips=[]});
+const clipsIn=k=>clips.filter(c=>c.cat===k);
+const roundClip=n=>clips.find(c=>c.cat==="round"&&c.sug===n-1);
+async function bufFor(c){if(bufCache.has(c.id))return bufCache.get(c.id);const a=audio();if(!a)throw 0;const b=await a.decodeAudioData(await c.blob.arrayBuffer());bufCache.set(c.id,b);return b}
+async function playClip(c){const a=audio();const b=await bufFor(c);return new Promise(res=>{const src=a.createBufferSource(),g=a.createGain();g.gain.value=1.6;src.buffer=b;src.connect(g).connect(a.destination);src.onended=res;src.start()})}
+let coachQueue=Promise.resolve();
+function coach(list,fallback,after,speak){speak=speak||shout;if(SET.coach==="off")return;const cl=SET.coach==="mine"?list.filter(Boolean):[];
+  if(cl.length){try{speechSynthesis.cancel()}catch(e){}coachQueue=coachQueue.then(()=>cl.reduce((p,c)=>p.then(()=>playClip(c).catch(()=>{})),Promise.resolve())).then(()=>{if(after)speak(after)});return}
+  if(fallback)speak(fallback)}
+const kmClip=n=>clips.find(c=>c.cat==="wkm"&&c.sug===n-1);
+const rndClip=k=>{const a=clipsIn(k);return a.length?pick(a):null};
+
+/* recorder */
+let rc={queue:[],cur:null,blob:null,mr:null,stream:null,timer:null};
+function openRecorder(queue){rc.queue=queue.slice();nextRec();openSheet("#sheet-rec")}
+function nextRec(){stopStream();rc.cur=rc.queue.shift()||null;rc.blob=null;if(!rc.cur){$("#sheet-rec").hidden=true;renderSettings();return}
+  const c=rc.cur,cat=CATS.find(x=>x.k===c.cat);$("#rc-step").textContent=cat.t+(rc.queue.length?` · ${rc.queue.length} more after this`:"");
+  $("#rc-prompt").textContent=c.custom?"Say your own line":"“"+c.text+"”";$("#rc-when").textContent="Plays: "+cat.when.toLowerCase();
+  $("#rc-custom").hidden=!c.custom;$("#rc-text").value="";$("#rc-btn").classList.remove("on");$("#rc-btn-l").textContent="Tap to record";
+  $("#rc-msg").textContent=c.custom?"Type the line, then record it with plenty of feeling.":"Say it like you mean it. Tap again to stop.";
+  $("#rc-play").hidden=$("#rc-keep").hidden=true;$("#rc-skip").hidden=!rc.queue.length}
+function stopStream(){clearTimeout(rc.timer);try{rc.mr&&rc.mr.state!=="inactive"&&rc.mr.stop()}catch(e){}try{rc.stream&&rc.stream.getTracks().forEach(t=>t.stop())}catch(e){}rc.stream=null}
+function gotClip(blob){rc.blob=blob;$("#rc-play").hidden=$("#rc-keep").hidden=false;$("#rc-btn").classList.remove("on");$("#rc-btn-l").textContent="Record again";$("#rc-msg").textContent="Have a listen. Keep it, or record again.";
+  const tmp={id:"tmp"+Date.now(),blob};bufCache.delete(tmp.id);playClip(tmp).catch(()=>{})}
+$("#rc-btn").addEventListener("click",async()=>{audio();if(rc.mr&&rc.mr.state==="recording"){rc.mr.stop();return}
+  if(!navigator.mediaDevices||!window.MediaRecorder){$("#rc-msg").textContent="This browser can't record. Upload a voice memo instead.";return}
+  try{rc.stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}})}
+  catch(e){$("#rc-msg").textContent=IN_CLAUDE?"The microphone is blocked in this preview. It works once the app is on its own web address. You can upload a voice memo instead.":"Allow the microphone for Have a Crack in your browser settings, or upload a voice memo instead.";return}
+  const chunks=[];rc.mr=new MediaRecorder(rc.stream);rc.mr.ondataavailable=e=>e.data.size&&chunks.push(e.data);
+  rc.mr.onstop=()=>{const b=new Blob(chunks,{type:rc.mr.mimeType||"audio/webm"});stopStream();if(b.size)gotClip(b)};
+  rc.mr.start();$("#rc-btn").classList.add("on");$("#rc-btn-l").textContent="Tap to stop";$("#rc-msg").textContent="Recording… (stops by itself after 10 seconds)";rc.timer=setTimeout(()=>{try{rc.mr.stop()}catch(e){}},10000)});
+$("#rc-file").addEventListener("change",e=>{const f=e.target.files[0];e.target.value="";if(!f)return;if(f.size>2e6){$("#rc-msg").textContent="That clip is too long. Keep it under about 15 seconds.";return}gotClip(f)});
+$("#rc-play").addEventListener("click",()=>{if(rc.blob)playClip({id:"tmp"+Date.now(),blob:rc.blob}).catch(()=>{$("#rc-msg").textContent="Couldn't play that clip. Try recording it again."})});
+$("#rc-keep").addEventListener("click",async()=>{const c=rc.cur;if(!rc.blob||!c)return;let text=c.text;if(c.custom){text=$("#rc-text").value.trim()||"My line";}
+  try{await bufFor({id:"chk"+Date.now(),blob:rc.blob})}catch(e){$("#rc-msg").textContent="That file isn't a sound this phone can play. Try another one.";return}
+  const old=c.cat==="round"||!c.custom?clips.find(x=>x.cat===c.cat&&x.sug===c.sug&&!x.custom):null;
+  const rec={id:old?old.id:"c"+Date.now()+Math.random().toString(36).slice(2,6),cat:c.cat,sug:c.sug,custom:!!c.custom,text,blob:rc.blob,created:Date.now()};
+  try{await idb.put(rec)}catch(e){toast("Couldn't save the clip on this phone.");return}
+  bufCache.delete(rec.id);clips=clips.filter(x=>x.id!==rec.id).concat(rec);toast("Saved: "+text);nextRec()});
+$("#rc-skip").addEventListener("click",nextRec);
+$("#rc-close").addEventListener("click",()=>{rc.queue=[];stopStream();$("#sheet-rec").hidden=true;renderSettings()});
+function todoList(g){const q=[];CATS.filter(c=>!g||c.g===g).forEach(c=>c.sug.forEach((t,i)=>{if(!clips.some(x=>x.cat===c.k&&x.sug===i&&!x.custom))q.push({cat:c.k,sug:i,text:t})}));return q}
+
+function renderSettings(){const el=$("#view-settings");const ic={play:'<svg width="16" height="16" viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z" fill="currentColor"/></svg>',rec:'<svg width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7" fill="currentColor"/></svg>',del:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>'};
+  const chipRow=(id,opts,val)=>`<div class="pickchips" id="${id}">${opts.map(([v,l])=>`<button type="button" class="chip" data-v="${v}" aria-pressed="${String(val)===String(v)}">${l}</button>`).join("")}</div>`;
+  el.innerHTML=`<div class="topbar"><a class="back" href="#" aria-label="Back to home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></a><h1 class="detail-title" style="margin:0">Settings</h1></div>
+  <section class="set-sec"><h2>Coach voice</h2><p>Record the call-outs in your own voice, for walks and the boxing timer. Fire it up, angry or encouraging, whatever gets people going. Anyone using the app can record their own and add extra lines.</p>
+    <div class="set-row"><span class="label">Which voice to use</span>${chipRow("s-coach",[["mine","My recordings"],["phone","Phone voice"],["off","Sounds only"]],SET.coach)}</div>
+    <div class="set-row"><span class="label">On walks, read out time and pace after my clip</span>${chipRow("s-stats",[["1","Yes"],["0","No, just my voice"]],SET.stats?1:0)}</div>
+    ${["walk","box"].map(g=>{const todo=todoList(g);return`<h3 style="font-family:var(--f-display);font-weight:800;font-size:1.15rem;margin:18px 0 8px">${g==="walk"?"Walks":"Boxing timer"}</h3>
+    ${todo.length?`<button class="big go" type="button" data-recall="${g}" style="width:100%;min-height:68px;font-size:1.2rem;margin-bottom:12px;letter-spacing:.02em"><svg width="22" height="22" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="currentColor"/></svg>Record the ${g==="walk"?"walk":"boxing"} lines · ${todo.length} to go</button>`:`<p class="set-row" style="color:var(--ink);margin:0 0 12px"><strong>All suggested ${g==="walk"?"walk":"boxing"} lines recorded.</strong> Add your own below to mix it up.</p>`}
+    ${CATS.filter(c=>c.g===g).map(c=>{const mine=clipsIn(c.k);return`<div class="cat"><div class="cat-h"><strong>${c.t}</strong><small>${c.when}</small></div><ul class="lines">
+      ${c.sug.map((t,i)=>{const cl=mine.find(x=>x.sug===i&&!x.custom);return`<li class="${cl?"":"todo"}"><span>${esc(t)}</span>${cl?`<button class="ib ok" type="button" data-play="${cl.id}" aria-label="Play">${ic.play}</button><button class="ib" type="button" data-rec="${c.k}:${i}" aria-label="Record again">${ic.rec}</button>`:`<button class="ib rec" type="button" data-rec="${c.k}:${i}" aria-label="Record">${ic.rec}</button>`}</li>`}).join("")}
+      ${mine.filter(x=>x.custom).map(x=>`<li><span>${esc(x.text)} <small style="color:var(--accent);font-weight:700">Your line</small></span><button class="ib ok" type="button" data-play="${x.id}" aria-label="Play">${ic.play}</button><button class="ib" type="button" data-del="${x.id}" aria-label="Delete">${ic.del}</button></li>`).join("")}
+      </ul>${c.fixed?"":`<button class="btn small add-line" type="button" data-add="${c.k}">+ Add your own line</button>`}</div>`}).join("")}`}).join("")}
+  </section>
+  <section class="set-sec"><h2>Walks</h2><p>These set the walking and running times shown on every walk, and the spoken updates while you record.</p>
+    <div class="set-row"><span class="label">Walking pace for time estimates</span>${chipRow("s-walk",[[3.5,"Easy 3.5 km/h"],[4.5,"Steady 4.5 km/h"],[5.5,"Brisk 5.5 km/h"]],SET.walkKmh)}</div>
+    <div class="set-row"><span class="label">Running pace for time estimates</span>${chipRow("s-run",[[7.5,"Jog 7.5 km/h"],[9,"Run 9 km/h"],[11,"Fast 11 km/h"]],SET.runKmh)}</div>
+    <div class="set-row"><span class="label">Voice update every distance</span>${chipRow("s-vkm",KM_OPTS,voice.km)}</div>
+    <div class="set-row"><span class="label">Voice update every time</span>${chipRow("s-vmin",MIN_OPTS,voice.min)}</div>
+    <div class="set-row"><span class="label">Map style</span>${chipRow("s-map",[["sat","Satellite"],["map","Street map"]],tileMode)}</div>
+    <div class="set-row field" style="margin-bottom:10px"><label for="s-name">Your name, filled in for “Who did the walk”</label><input id="s-name" maxlength="60" placeholder="e.g. Matt"></div>
+  </section>
+  <div class="foot-actions"><a class="btn" href="#">Done</a></div>`;
+  try{$("#s-name").value=localStorage.getItem("walkies.by")||""}catch(e){}
+  $("#s-name").onchange=e=>{try{localStorage.setItem("walkies.by",e.target.value.trim())}catch(err){}toast("Name saved")};
+  const bind=(id,fn)=>{$(id).onclick=e=>{const b=e.target.closest(".chip");if(!b)return;fn(b.dataset.v);renderSettings()}};
+  bind("#s-coach",v=>{SET.coach=v;saveSet()});bind("#s-walk",v=>{SET.walkKmh=+v;saveSet()});bind("#s-run",v=>{SET.runKmh=+v;saveSet()});
+  bind("#s-vkm",v=>{voice.km=+v;try{localStorage.setItem("walkies.voice",JSON.stringify(voice))}catch(e){}});bind("#s-vmin",v=>{voice.min=+v;try{localStorage.setItem("walkies.voice",JSON.stringify(voice))}catch(e){}});
+  bind("#s-map",v=>{if(window.L)setTiles(v);else{tileMode=v;try{localStorage.setItem("walkies.tiles",v)}catch(e){}}});
+  el.querySelectorAll("[data-recall]").forEach(b=>b.onclick=()=>openRecorder(todoList(b.dataset.recall)));
+  bind("#s-stats",v=>{SET.stats=v==="1";saveSet()});
+  el.querySelectorAll("[data-rec]").forEach(b=>b.onclick=()=>{const[k,i]=b.dataset.rec.split(":");const c=CATS.find(x=>x.k===k);openRecorder([{cat:k,sug:+i,text:c.sug[+i]}])});
+  el.querySelectorAll("[data-play]").forEach(b=>b.onclick=()=>{const c=clips.find(x=>x.id===b.dataset.play);if(c)playClip(c).catch(()=>toast("Couldn't play that clip"))});
+  el.querySelectorAll("[data-del]").forEach(b=>b.onclick=async()=>{try{await idb.del(b.dataset.del)}catch(e){}clips=clips.filter(x=>x.id!==b.dataset.del);renderSettings();toast("Line deleted")});
+  el.querySelectorAll("[data-add]").forEach(b=>b.onclick=()=>openRecorder([{cat:b.dataset.add,sug:null,custom:true,text:""}]))}
+
+/* ---------- keep running with the screen off ----------
+   1) screen wake lock, re-requested every time the app comes back into view (phones drop it when the screen sleeps)
+   2) a silent looping sound while a walk or timer runs, which keeps the page alive in the background on most phones
+   3) lock-screen title showing the round or walk */
+let awake=false,wakeLock=null,keepAlive=null;
+function silentWav(){const n=8000,b=new ArrayBuffer(44+n),v=new DataView(b),w=(o,t)=>[...t].forEach((c,i)=>v.setUint8(o+i,c.charCodeAt(0)));
+  w(0,"RIFF");v.setUint32(4,36+n,true);w(8,"WAVEfmt ");v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);v.setUint32(24,8000,true);v.setUint32(28,8000,true);v.setUint16(32,1,true);v.setUint16(34,8,true);w(36,"data");v.setUint32(40,n,true);
+  for(let i=0;i<n;i++)v.setUint8(44+i,128);return URL.createObjectURL(new Blob([b],{type:"audio/wav"}))}
+function requestWake(){try{if(navigator.wakeLock&&document.visibilityState==="visible")navigator.wakeLock.request("screen").then(l=>{wakeLock=l}).catch(()=>{})}catch(e){}}
+function stayAwake(on){awake=on;if(on){requestWake();try{if(!keepAlive){keepAlive=new Audio(silentWav());keepAlive.loop=true;keepAlive.setAttribute("playsinline","")}keepAlive.play().catch(()=>{})}catch(e){}}
+  else{try{wakeLock&&wakeLock.release()}catch(e){}wakeLock=null;try{keepAlive&&keepAlive.pause()}catch(e){}try{navigator.mediaSession&&(navigator.mediaSession.playbackState="none")}catch(e){}}}
+function lockScreenInfo(){try{if(!("mediaSession" in navigator)||!window.MediaMetadata)return;const t=$("#view-box").hidden?(follow?follow.name:"Recording a walk"):(bt.phase==="rest"?`Rest before round ${bt.round+1}`:bt.phase==="prep"?"Get ready":`Round ${bt.round} of ${box.rounds}`);
+  navigator.mediaSession.metadata=new MediaMetadata({title:t,artist:"Have a Crack",artwork:[{src:$(".logo").src,sizes:"256x256",type:"image/jpeg"}]});navigator.mediaSession.playbackState="playing"}catch(e){}}
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState!=="visible"||!awake)return;requestWake();try{keepAlive&&keepAlive.paused&&keepAlive.play().catch(()=>{})}catch(e){}
+  if(audio())try{ac.resume()}catch(e){}if(typeof boxTick==="function")boxTick();if(rec)updateUI()});
+
+/* ---------- boxing timer ---------- */
+let box={round:180,rest:60,rounds:6,prep:10};try{const b=JSON.parse(localStorage.getItem("hac.box")||"null");if(b)box=Object.assign(box,b)}catch(e){}
+const LIM={round:[15,600],rest:[0,300],rounds:[1,30],prep:[0,30]};
+const mmss=s=>Math.floor(s/60)+":"+String(Math.max(0,s)%60).padStart(2,"0");
+function renderBox(){$("#v-round").textContent=mmss(box.round);$("#v-rest").textContent=box.rest?mmss(box.rest):"None";$("#v-rounds").textContent=box.rounds;$("#v-prep").textContent=box.prep?mmss(box.prep):"None";
+  $("#v-total").textContent=mmss(box.prep+box.round*box.rounds+box.rest*(box.rounds-1));
+  document.querySelectorAll("[data-p]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.p===[box.round,box.rest,box.rounds].join(","))));
+  try{localStorage.setItem("hac.box",JSON.stringify(box))}catch(e){}}
+document.querySelectorAll("[data-s]").forEach(b=>b.addEventListener("click",()=>{const k=b.dataset.s;box[k]=Math.min(LIM[k][1],Math.max(LIM[k][0],box[k]+ +b.dataset.d));renderBox()}));
+document.querySelectorAll("[data-p]").forEach(b=>b.addEventListener("click",()=>{const[r,re,n]=b.dataset.p.split(",").map(Number);Object.assign(box,{round:r,rest:re,rounds:n});renderBox()}));
+let ac=null;function audio(){try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();if(ac.state==="suspended")ac.resume()}catch(e){ac=null}return ac}
+function tone(freq,start,dur,vol,type){const a=audio();if(!a)return;const o=a.createOscillator(),g=a.createGain();o.type=type||"sine";o.frequency.value=freq;g.gain.setValueAtTime(0,a.currentTime+start);g.gain.linearRampToValueAtTime(vol,a.currentTime+start+.005);g.gain.exponentialRampToValueAtTime(.0001,a.currentTime+start+dur);o.connect(g).connect(a.destination);o.start(a.currentTime+start);o.stop(a.currentTime+start+dur+.05)}
+function bell(times){for(let k=0;k<(times||1);k++){const t=k*.45;[[880,.5],[1320,.25],[1760,.18],[2640,.08]].forEach(([f,v])=>tone(f,t,1.6,v*.6))}}
+function clapper(){for(let k=0;k<6;k++)tone(1800,k*.13,.06,.5,"square")}
+function beep(){tone(1000,0,.15,.4,"square")}
+let bt={state:"idle",phase:"prep",round:1,endsAt:0,remaining:0,warned:false,lastSec:-1},bTick=null,bWake=null;
+const pnow=()=>Date.now();
+function startPhase(ph,base,quiet){bt.phase=ph;bt.warned=false;bt.mid=false;bt.lastSec=-1;const dur=ph==="prep"?box.prep:ph==="work"?box.round:box.rest;bt.endsAt=(base||pnow())+dur*1000;lockScreenInfo();
+  if(quiet){}else if(ph==="work"){bell(1);setTimeout(()=>{const last=bt.round===box.rounds&&box.rounds>1;coach([roundClip(bt.round),last?(rndClip("last")||rndClip("start")):rndClip("start")],last?`Last round! This is what you trained for. Come on, have a crack!`:`Round ${bt.round}! Come on, have a crack!`)},650)}
+  else if(ph==="rest"){bell(2);setTimeout(()=>coach([rndClip("rest")],pick(["Great round. Breathe deep and recover.","Good work. Shake out the arms and slow your breathing.","That's the way. Drink some water and reset."])+` ${box.rounds-bt.round} ${box.rounds-bt.round===1?"round":"rounds"} to go!`),900)}
+  else if(ph==="prep"){coach([rndClip("prep")],"Gloves on. Let's get to work!")}
+  paintBox()}
+function nextPhase(q){const b=bt.endsAt;if(bt.phase==="prep")return startPhase("work",b,q);
+  if(bt.phase==="work"){if(bt.round>=box.rounds){finishBox();return}if(box.rest>0)return startPhase("rest",b,q);bt.round++;return startPhase("work",b,q)}
+  if(bt.phase==="rest"){bt.round++;return startPhase("work",b,q)}}
+function finishBox(){bt.state="done";bt.phase="done";stayAwake(false);clearInterval(bTick);bTick=null;bell(3);setTimeout(()=>coach([rndClip("done")],`That's ${box.rounds} ${box.rounds===1?"round":"rounds"} done! Brilliant effort. Be proud of that. That's having a crack!`),1400);try{bWake&&bWake.release()}catch(e){}bWake=null;paintBox()}
+function boxTick(){if(bt.state!=="running")return;
+  /* if the phone froze the timer, step through the missed phases quietly and ring once for where we are now */
+  let missed=0;while(bt.state==="running"&&pnow()>=bt.endsAt){const late=pnow()-bt.endsAt>2500;nextPhase(late);if(late)missed++}
+  if(missed&&bt.state==="running"){bell(bt.phase==="rest"?2:1);bt.warned=bt.endsAt-pnow()<=10000;bt.mid=true;toast(bt.phase==="rest"?`Caught up: resting before round ${bt.round+1}`:`Caught up: round ${bt.round} of ${box.rounds}`)}
+  if(bt.state!=="running")return;const rem=bt.endsAt-pnow();
+  const sec=Math.ceil(rem/1000);
+  if(bt.phase==="work"&&!bt.warned&&rem<=10000&&box.round>15){bt.warned=true;clapper();setTimeout(()=>coach([rndClip("ten")],pick(["Ten seconds! Finish strong!","Ten seconds! Let your hands go!","Ten seconds! Big finish, you've got this!"])),700)}
+  if(bt.phase==="work"&&!bt.mid&&box.round>=60&&rem<=box.round*500&&rem>12000){bt.mid=true;coach([rndClip("half")],pick(["Halfway there. Hands up, keep moving!","Looking good. Work that jab!","Stay light on your feet. You're doing great!","Keep breathing, keep punching. Good work!"]))}
+  if(sec!==bt.lastSec){bt.lastSec=sec;if((bt.phase==="rest"||bt.phase==="prep")&&sec<=3)beep()}
+  paintBox()}
+function paintBox(){const v=$("#view-box"),idle=bt.state==="idle";$("#box-setup").hidden=!idle;$("#box-run").hidden=idle;
+  let ph=idle?"idle":bt.phase;const rem=bt.state==="paused"?bt.remaining:bt.endsAt-pnow();if(ph==="work"&&rem<=10000&&bt.state!=="done")ph="warn";v.dataset.phase=ph;
+  $("#b-phase").textContent=bt.state==="done"?"Done!":bt.phase==="prep"?"Get ready":bt.phase==="rest"?"Rest":ph==="warn"?"10 seconds!":"Fight";
+  $("#b-clock").textContent=bt.state==="done"?mmss(box.round*box.rounds):mmss(Math.ceil(Math.max(0,rem)/1000));
+  $("#b-round").textContent=bt.state==="done"?`${box.rounds} rounds complete`:`Round ${bt.round} of ${box.rounds}`;
+  $("#b-pips").innerHTML=Array.from({length:box.rounds},(_,k)=>`<i class="${k+1<bt.round||bt.state==="done"?"done":k+1===bt.round&&bt.phase==="work"?"now":""}"></i>`).join("");
+  $("#b-next").textContent=bt.state==="done"?"":bt.phase==="rest"||bt.phase==="prep"?`Next: round ${bt.phase==="prep"?1:bt.round+1}, ${mmss(box.round)}`:bt.round<box.rounds?`Then ${box.rest?mmss(box.rest)+" rest":"straight into the next round"}`:"Final round";
+  const st=$("#box-status");st.className="status";st.textContent=bt.state==="running"?"Live":bt.state==="paused"?"Paused":bt.state==="done"?"Finished":"Ready";
+  $("#x-go").disabled=bt.state==="running";$("#x-go").querySelector("span").textContent=bt.state==="paused"?"RESUME":bt.state==="done"?"AGAIN":"GO";
+  $("#x-pause").disabled=bt.state!=="running";$("#x-stop").disabled=bt.state==="idle"}
+$("#x-go").addEventListener("click",()=>{audio();
+  if(bt.state==="paused"){bt.endsAt=pnow()+bt.remaining;bt.state="running";shout("Let's go. Back into it!")}
+  else{bt={state:"running",phase:"prep",round:1,endsAt:0,remaining:0,warned:false,lastSec:-1};if(box.prep>0)startPhase("prep");else startPhase("work")}
+  stayAwake(true);lockScreenInfo();
+  if(!bTick)bTick=setInterval(boxTick,100);paintBox()});
+$("#x-pause").addEventListener("click",()=>{bt.remaining=bt.endsAt-pnow();bt.state="paused";coach([rndClip("pause")],pick(["Take a moment. We go again when you're ready.","Paused. Catch your breath."]));paintBox()});
+$("#x-stop").addEventListener("click",()=>{clearInterval(bTick);bTick=null;stayAwake(false);try{bWake&&bWake.release()}catch(e){}bWake=null;try{speechSynthesis.cancel()}catch(e){}const was=bt;bt={state:"idle",phase:"prep",round:1};paintBox();if(was.state!=="done")toast(`Stopped in round ${was.round} of ${box.rounds}`)});
+$("#box-close").addEventListener("click",()=>{if(bt.state==="running"||bt.state==="paused"){toast("Tap STOP to end the workout first");return}bt={state:"idle",phase:"prep",round:1};go("")});
+$("#box-test").addEventListener("click",()=>{audio();bell(1);setTimeout(()=>coach([roundClip(1),rndClip("start")],"Round 1! Come on, have a crack!"),650)});
+function openBox(){renderBox();paintBox()}
+
+/* ---------- routing ---------- */
+function go(h){if(location.hash.slice(1)===h)route();else location.hash=h}
+async function route(){const h=decodeURIComponent(location.hash.slice(1));
+  if(h.startsWith("share=")){try{const arr=JSON.parse(await unzip(h.slice(6))).map(unpackWalk);
+      if(arr.length===1){const ex=store.walks.find(x=>x.name===arr[0].name&&x.pts.length===arr[0].pts.length);if(ex){mergeResults(ex,arr[0]);save();toast("Ladder updated with the shared times");go("walk-"+ex.id);return}sharedPending=arr[0];show("detail");renderDetail(arr[0],true);return}
+      const same=w=>store.walks.find(x=>x.name===w.name&&x.pts.length===w.pts.length);arr.forEach(w=>{const ex=same(w);if(ex)mergeResults(ex,w)});
+      const fresh=arr.filter(w=>!same(w));fresh.forEach(w=>{w.id=uid(w.name);store.walks.push(w)});save();
+      toast(fresh.length?`Added ${fresh.length} walk${fresh.length>1?"s":""} from the link`:"You already have these walks");history.replaceState(null,"",location.pathname+location.search);show("home");renderList();return}
+    catch(e){toast("That share link is incomplete. Ask for it to be sent again.");show("home");renderList();return}}
+  if(h==="record"){show("record");openRecord();return}
+  if(h==="boxing"){show("box");openBox();return}
+  if(h==="settings"){show("settings");renderSettings();return}
+  if(h.startsWith("walk-")){const w=byId(h.slice(5));if(w){show("detail");renderDetail(w,false);return}}
+  show("home");renderList()}
+function show(v){$("#view-settings").hidden=v!=="settings";$("#view-box").hidden=v!=="box";$("#view-home").hidden=v!=="home";$("#view-detail").hidden=v!=="detail";$("#view-record").hidden=v!=="record";if(v!=="record")window.scrollTo(0,0)}
+window.addEventListener("hashchange",route);
+
+load();if(store.initialised){delete store.initialised;save()}
+document.querySelectorAll(".map-toggle").forEach(b=>b.textContent=tileMode==="sat"?"Map view":"Satellite");
+route();
+})();
+</script>

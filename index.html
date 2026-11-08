@@ -781,6 +781,22 @@ button{cursor:pointer}
 .rc-msg{min-height:1.4em;color:var(--muted);margin:0 0 10px}
 .rc .sheet-actions{justify-content:center}
 
+/* leaderboard */
+.medal-chip{display:inline-flex;align-items:center;gap:6px;margin:2px 0 4px;padding:3px 10px 3px 4px;border-radius:999px;background:#fff4cc;color:#5c4300;font-size:.82rem;font-weight:700;border:1px solid #f0d36b;cursor:pointer;max-width:100%}
+.medal-chip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.medal-chip:hover,.medal-chip:focus-visible{background:#ffe999}
+.medal{flex:none;display:block}
+.ladder{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:6px}
+.ladder li{display:grid;grid-template-columns:34px 1fr auto;align-items:center;gap:10px;padding:9px 12px;border-radius:14px;background:var(--surface-2);border:1px solid var(--line)}
+.ladder li.top{background:var(--surface);border-width:2px}
+.ladder li.g{border-color:#e2b93b}.ladder li.s{border-color:#a9b4bf}.ladder li.b{border-color:#c98a4b}
+.ladder .rank{font-weight:800;text-align:center;color:var(--muted);font-variant-numeric:tabular-nums}
+.ladder .who{min-width:0}.ladder .who strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ladder .who small{color:var(--muted)}
+.ladder .t{font-family:var(--f-display);font-weight:800;font-size:1.15rem;font-variant-numeric:tabular-nums}
+.ladder li.me{outline:3px solid var(--go);outline-offset:1px}
+.ladder-box{padding:12px 14px;border-radius:14px;background:#fff4cc;color:#5c4300;border:1px solid #f0d36b;margin-bottom:12px;font-weight:600}
+.ladder-box.miss{background:var(--surface-2);color:var(--muted);border-color:var(--line);font-weight:500}
+
 /* detail */
 .topbar{display:flex;align-items:center;gap:10px;padding-block:14px 6px}
 .gear{color:var(--ink);width:46px;height:46px}
@@ -964,15 +980,19 @@ button{cursor:pointer}
       <h2>Nice walk!</h2>
       <p class="sub">Name it so visitors can pick it from the list.</p>
       <div class="summary"><div><b id="s-dist">0</b><span>km</span></div><div><b id="s-time">0</b><span>time</span></div><div><b id="s-climb">0</b><span>m climb</span></div></div>
+      <div class="ladder-box" id="save-ladder" hidden></div>
+      <div class="field"><label for="save-by">Who did the walk</label><input id="save-by" maxlength="60" list="walkers" placeholder="e.g. Matt and Jo" autocomplete="name"><datalist id="walkers"></datalist></div>
+      <div id="save-newfields">
       <div class="field"><label for="save-name">Walk name</label><input id="save-name" required maxlength="60" placeholder="e.g. Dam loop"></div>
-      <div class="field"><label for="save-by">Who did the walk</label><input id="save-by" required maxlength="60" list="walkers" placeholder="e.g. Matt and Jo" autocomplete="name"><datalist id="walkers"></datalist></div>
       <div class="field"><label for="save-desc">What to expect</label><textarea id="save-desc" maxlength="600" placeholder="Where it starts, what you'll see, anything to watch for"></textarea></div>
       <span class="label">Terrain</span>
       <div class="pickchips" id="save-tags"></div>
       <span class="label">Good for</span>
       <div class="pickchips" id="save-good"></div>
+      </div>
       <div class="sheet-actions">
-        <button class="btn primary" type="submit">Save walk</button>
+        <button class="btn primary" type="button" id="save-ladder-btn" hidden>Add my time to the ladder</button>
+        <button class="btn primary" type="submit" id="save-submit">Save walk</button>
         <button class="btn" type="button" id="save-resume">Keep going</button>
         <button class="btn danger" type="button" id="save-discard">Discard</button>
       </div>
@@ -1044,6 +1064,15 @@ button{cursor:pointer}
       </div>
     </div>
   </div>
+  <div class="scrim" id="sheet-ladder" hidden>
+    <div class="sheet">
+      <p class="label">Leaderboard</p>
+      <h2 id="ld-title">Ladder</h2>
+      <p class="sub" id="ld-sub">Best time for each person on the full route.</p>
+      <ol class="ladder" id="ld-list"></ol>
+      <div class="sheet-actions"><button class="btn primary" type="button" id="ld-walk">Have a crack at it</button><button class="btn" type="button" id="ld-share">Share the ladder</button><button class="btn" type="button" data-close>Close</button></div>
+    </div>
+  </div>
   <div class="lightbox" id="lightbox" hidden role="dialog" aria-label="Photo"><img id="lb-img" alt=""><p id="lb-cap"></p><button class="btn" type="button" id="lb-close">Close</button></div>
   <div class="toast" id="toast" hidden role="status"></div>
 </div>
@@ -1101,8 +1130,8 @@ function makeLoop(c,rM,seed,n,startT,hill){const r=rnd(seed),pts=[];const k1=1+M
   let t=startT,cum=0;for(let i=0;i<pts.length;i++){if(i)cum=hav(pts[i-1],pts[i]);t+=cum/1.3*1000;pts[i][3]=Math.round(t)}
   return pts}
 function samples(){const c=[-37.1505,145.3402],t0=Date.UTC(2026,9,4,21,0);
-  const mk=(id,name,desc,rM,seed,n,hill,tags,good,pinsAt)=>{const pts=makeLoop(c,rM,seed,n,t0,hill);
-    return{id,name,by:"Sample",desc,tags,good,sample:true,created:t0,pts,dur:pts[pts.length-1][3]-pts[0][3],pins:pinsAt.map(([i,l,n])=>({lat:pts[i][0],lon:pts[i][1],label:l,note:n||""}))}};
+  const mk=(id,name,desc,rM,seed,n,hill,tags,good,pinsAt)=>{const pts=makeLoop(c,rM,seed,n,t0,hill);const D=pts[pts.length-1][3]-pts[0][3];const res=[[.78,"Sample runner"],[.93,"Sample walker"],[1.12,"Sample family"]].map(([f,b],i)=>({by:b,ms:Math.round(D*f),at:t0+86400000*(i+2)}));
+    return{id,name,by:"Sample",results:res,desc,tags,good,sample:true,created:t0,pts,dur:pts[pts.length-1][3]-pts[0][3],pins:pinsAt.map(([i,l,n])=>({lat:pts[i][0],lon:pts[i][1],label:l,note:n||""}))}};
   return[
     mk("dam-loop","Dam Loop","Sample walk. Shows how a short, flat loop appears to visitors. Starts at the house gate, follows the fence line down to the dam and back past the shearing shed.",290,7,120,14,["Grass paddock","Farm track"],["Dogs on lead","Kids"],[[30,"Gate","Sample comment. Close it behind you, the sheep are in the next paddock."],[62,"Dam","Sample comment. Ducks most mornings."],[95,"Shed"]]),
     mk("ridge-track","Ridge Track","Sample walk. A longer loop with a proper climb to the lookout. Bring water on warm days.",640,19,200,70,["Farm track","Steep hills","Bush"],["Runners"],[[18,"Gate"],[80,"Lookout"],[140,"Creek"]]),
@@ -1174,12 +1203,30 @@ function renderList(){const list=$("#list");const ws=store.walks.map(w=>({w,st:s
   $("#btn-clear-samples").hidden=!store.walks.some(w=>w.sample);
   if(!store.walks.length){list.innerHTML=`<div class="empty"><strong>No walks yet.</strong><br>Tap “Record a new walk”, or import a GPX file from Strava, Apple Watch or Garmin.</div>`;return}
   if(!ws.length){list.innerHTML=`<div class="empty">No walks in this length range yet.</div>`;return}
-  list.innerHTML=ws.map(({w,st})=>`<button class="card" type="button" data-id="${esc(w.id)}"><div class="thumb">${thumbSVG(w)}</div><div class="card-body"><h3>${esc(w.name)}</h3>${w.by?`<div class="by">Walked by ${esc(w.by)}</div>`:""}
+  list.innerHTML=ws.map(({w,st})=>`<button class="card" type="button" data-id="${esc(w.id)}"><div class="thumb">${thumbSVG(w)}</div><div class="card-body"><h3>${esc(w.name)}</h3>${(lb=>lb.length?`<span class="medal-chip" data-ladder="${esc(w.id)}" role="button" tabindex="0" aria-label="See the ladder for ${esc(w.name)}">${medalSvg(1,20)}<span>${esc(lb[0].by)} · ${fmtClock(lb[0].ms)}</span></span>`:(w.by?`<div class="by">Walked by ${esc(w.by)}</div>`:""))(ladder(w))}
     <div class="meta"><span><b class="num">${fmtKm(st.dist)}</b> km</span><span>Walk <b class="num">${fmtMin(st.walkMin)}</b></span><span>Run <b class="num">${fmtMin(st.runMin)}</b></span>${st.hasEle?`<span><b class="num">${st.gain}</b> m climb</span>`:""}</div>
     <div class="tags"><span class="tag diff ${st.diff}">${DIFF[st.diff]}</span>${st.loop?'<span class="tag">Loop</span>':""}${(w.good||[]).slice(0,2).map(t=>`<span class="tag">${esc(t)}</span>`).join("")}${w.sample?'<span class="tag sample">Sample</span>':""}</div></div></button>`).join("")}
-$("#list").addEventListener("click",e=>{const c=e.target.closest(".card");if(c)go("walk-"+c.dataset.id)});
+$("#list").addEventListener("click",e=>{const m=e.target.closest("[data-ladder]");if(m){e.stopPropagation();openLadder(byId(m.dataset.ladder));return}const c=e.target.closest(".card");if(c)go("walk-"+c.dataset.id)});
+$("#list").addEventListener("keydown",e=>{const m=e.target.closest("[data-ladder]");if(m&&(e.key==="Enter"||e.key===" ")){e.preventDefault();e.stopPropagation();openLadder(byId(m.dataset.ladder))}});
 $("#btn-new").addEventListener("click",()=>{follow=null;go("record")});
 $("#btn-clear-samples").addEventListener("click",()=>{store.walks=store.walks.filter(w=>!w.sample);save();renderList();toast("Sample walks removed")});
+
+/* ---------- leaderboard ---------- */
+function medalSvg(rank,size){size=size||22;const c=rank===1?["#f5c518","#b8860b"]:rank===2?["#d6dde4","#7b8794"]:["#e0a46a","#8a5426"];
+  return`<svg class="medal" width="${size}" height="${size}" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 1h4l2 6H9zM13 1h4l-2 6h-4z" fill="${rank===1?"#2f6b3a":rank===2?"#3a6fb8":"#c8352a"}"/><circle cx="12" cy="15" r="7.5" fill="${c[0]}" stroke="${c[1]}" stroke-width="1.6"/><text x="12" y="18.6" text-anchor="middle" font-size="9.5" font-weight="800" font-family="system-ui,sans-serif" fill="${c[1]}">${rank}</text></svg>`}
+function ladder(w){const all=[...(w.dur&&w.by?[{by:w.by,ms:w.dur,at:w.created}]:[]),...(w.results||[])].filter(r=>r.by&&r.ms>0);const best=new Map();
+  all.forEach(r=>{const k=r.by.trim().toLowerCase();const b=best.get(k);if(!b){best.set(k,{by:r.by.trim(),ms:r.ms,at:r.at,n:1})}else{b.n++;if(r.ms<b.ms){b.ms=r.ms;b.at=r.at}}});
+  return[...best.values()].sort((a,b)=>a.ms-b.ms)}
+function mergeResults(t,src){t.results=t.results||[];(src.results||[]).forEach(r=>{if(!t.results.some(x=>x.by===r.by&&Math.abs(x.ms-r.ms)<1000))t.results.push(r)})}
+let ladderWalk=null,ladderMe=null;
+function openLadder(w,me){ladderWalk=w;ladderMe=me||null;const lb=ladder(w);$("#ld-title").textContent=w.name;
+  $("#ld-sub").textContent=lb.length?`Best time for each person on the full ${fmtKm(stats(w).dist)} km route.`:"No times yet. Tap “Walk this route”, finish the loop and your time goes up here.";
+  $("#ld-list").innerHTML=lb.map((r,i)=>`<li class="${i<3?"top "+["g","s","b"][i]:""}${me&&r.by.toLowerCase()===me.toLowerCase()?" me":""}"><span class="rank">${i<3?medalSvg(i+1,30):i+1}</span><span class="who"><strong>${esc(r.by)}</strong><small>${r.n>1?r.n+" attempts · ":""}${r.at?new Date(r.at).toLocaleDateString("en-AU",{day:"numeric",month:"short"}):""}</small></span><span class="t">${fmtClock(r.ms)}</span></li>`).join("");
+  $("#ld-share").hidden=!lb.length;openSheet("#sheet-ladder")}
+$("#ld-walk").addEventListener("click",()=>{$("#sheet-ladder").hidden=true;follow=ladderWalk;go("record")});
+$("#ld-share").addEventListener("click",()=>{$("#sheet-ladder").hidden=true;shareWalks([ladderWalk])});
+function coverage(route,pts){if(!pts.length)return 0;const step=Math.max(1,Math.floor(route.pts.length/150));let hit=0,n=0;
+  for(let i=0;i<route.pts.length;i+=step){n++;const q=route.pts[i];for(let j=0;j<pts.length;j+=1){if(hav(q,pts[j])<45){hit++;break}}}return hit/n}
 
 /* ---------- detail ---------- */
 let sharedPending=null;
@@ -1190,6 +1237,7 @@ function renderDetail(w,shared){const st=stats(w);const el=$("#view-detail");con
   <div class="map-wrap"><div class="map" id="d-map"></div><button class="map-toggle" type="button">${tileMode==="sat"?"Map view":"Satellite"}</button></div>
   <div class="statgrid"><div><b>${fmtKm(st.dist)}</b><span>km</span></div><div><b>${fmtMin(st.walkMin)}</b><span>walking</span></div><div><b>${fmtMin(st.runMin)}</b><span>running</span></div><div><b>${st.hasEle?st.gain+" m":"–"}</b><span>climb</span></div></div>
   <button class="big go walk-it" type="button" id="d-walk"><svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4l13 8-13 8z" fill="currentColor"/></svg>Walk this route</button>
+  ${(lb=>`<div class="section"><h3>Leaderboard</h3>${lb.length?`<ol class="ladder">${lb.slice(0,3).map((r,i)=>`<li class="top ${["g","s","b"][i]}"><span class="rank">${medalSvg(i+1,30)}</span><span class="who"><strong>${esc(r.by)}</strong><small>${r.n>1?r.n+" attempts":"1 attempt"}</small></span><span class="t">${fmtClock(r.ms)}</span></li>`).join("")}</ol><button class="btn" type="button" id="d-ladder">See the full ladder${lb.length>3?" ("+lb.length+")":""}</button>`:`<p style="margin:0;color:var(--muted)">No times yet. Walk this route from start to finish to set the first one.</p>`}</div>`)(ladder(w))}
   ${w.dur?`<p class="sub" style="color:var(--muted);margin:10px 0 0;font-size:.9rem">Recorded in <b class="num" style="color:var(--ink)">${fmtClock(w.dur)}</b> moving time${w.created?` on ${new Date(w.created).toLocaleDateString("en-AU",{day:"numeric",month:"short",year:"numeric"})}`:""}. Estimates use ${WALK_KMH} km/h walking and ${RUN_KMH} km/h running, plus time for the climbs.</p>`:""}
   ${w.desc?`<div class="section"><h3>What to expect</h3><p class="desc">${esc(w.desc)}</p></div>`:""}
   ${(w.tags||[]).length||(w.good||[]).length?`<div class="section"><h3>Terrain and suits</h3><div class="tags">${(w.tags||[]).map(t=>`<span class="tag">${esc(t)}</span>`).join("")}${(w.good||[]).map(t=>`<span class="tag" style="border-color:var(--accent);color:var(--accent)">${esc(t)}</span>`).join("")}</div></div>`:""}
@@ -1202,6 +1250,7 @@ function renderDetail(w,shared){const st=stats(w);const el=$("#view-detail");con
     ${shared?"":`<button class="btn danger" type="button" id="d-del">Delete</button>`}
   </div>`;
   $("#d-back").onclick=()=>go("");
+  if($("#d-ladder"))$("#d-ladder").onclick=()=>openLadder(w);
   el.querySelectorAll(".spot-photo").forEach(b=>b.onclick=()=>{const p=w.pins[+b.dataset.pi];openPhoto(p.photo,p.label+(p.note?" · "+p.note:""))});
   $("#d-walk").onclick=()=>{follow=w;go("record")};
   $("#d-share").onclick=()=>shareWalks([w]);
@@ -1263,6 +1312,9 @@ function stopPressed(){if(rec.state==="running")rec.acc=elapsed();setState("stop
   if((voice.km||voice.min)&&rec.pts.length>1)coach([rndClip("wdone")],`Finished. ${spokenKm(rec.dist)} in ${spokenTime(rec.acc)}. Great walk.`,SET.stats?`${spokenKm(rec.dist)} in ${spokenTime(rec.acc)}.`:null,talk);
   if(rec.pts.length<2){toast("Not enough of a track to save yet. Walk a little further.");setState("paused");return}
   const c=cumDist(rec.pts);$("#s-dist").textContent=(c[c.length-1]/1000).toFixed(2);$("#s-time").textContent=fmtClock(rec.acc);$("#s-climb").textContent=climb(rec.pts).gain;
+  const lbox=$("#save-ladder"),lbtn=$("#save-ladder-btn");let cov=follow?coverage(follow,rec.pts):0;rec.cov=cov;
+  if(follow&&cov>=.85){lbox.className="ladder-box";lbox.innerHTML=`You finished <strong>${esc(follow.name)}</strong> in ${fmtClock(rec.acc)}. Add your time to the ladder.`;lbox.hidden=false;lbtn.hidden=false;$("#save-newfields").hidden=true;$("#save-submit").hidden=true}
+  else{lbtn.hidden=true;$("#save-newfields").hidden=false;$("#save-submit").hidden=false;if(follow){lbox.className="ladder-box miss";lbox.innerHTML=`You covered ${Math.round(cov*100)}% of ${esc(follow.name)}. Times go on the ladder when you finish the full route, but you can save this as its own walk.`;lbox.hidden=false}else lbox.hidden=true}
   $("#save-name").value=follow?follow.name+" (my time)":"";let lw="";try{lw=localStorage.getItem("walkies.by")||""}catch(e){}$("#save-by").value=lw;$("#walkers").innerHTML=[...new Set(store.walks.map(w=>w.by).filter(Boolean))].map(n=>`<option value="${esc(n)}">`).join("");$("#save-desc").value=follow?follow.desc||"":"";
   pickChips("#save-tags",TERRAIN,follow?follow.tags:[]);pickChips("#save-good",GOOD,follow?follow.good:[]);discardArmed=false;$("#save-discard").textContent="Discard";
   openSheet("#sheet-save");setTimeout(()=>$("#save-name").focus(),50)}
@@ -1275,9 +1327,14 @@ let discardArmed=false;
 $("#save-resume").addEventListener("click",()=>{$("#sheet-save").hidden=true;rec.state="paused";updateUI()});
 $("#save-discard").addEventListener("click",e=>{if(!discardArmed){discardArmed=true;e.target.textContent="Tap again to discard";return}
   $("#sheet-save").hidden=true;endRecording();toast("Walk discarded");go(follow?"walk-"+follow.id:"")});
+$("#save-ladder-btn").addEventListener("click",()=>{const by=$("#save-by").value.trim();if(!by){$("#save-by").focus();toast("Add your name so it shows on the ladder");return}
+  try{localStorage.setItem("walkies.by",by)}catch(e){}let w=byId(follow.id)===follow?follow:store.walks.find(x=>x.name===follow.name&&x.pts.length===follow.pts.length);
+  if(!w){w=follow;w.id=uid(w.name);store.walks.push(w)}w.results=w.results||[];w.results.push({by,ms:rec.acc,at:Date.now()});save();
+  const lb=ladder(w),pos=lb.findIndex(r=>r.by.toLowerCase()===by.toLowerCase())+1;$("#sheet-save").hidden=true;endRecording();follow=null;go("walk-"+w.id);
+  setTimeout(()=>{openLadder(w,by);toast(pos===1?"New record! You've got the gold medal.":pos<=3?`Onto the podium in position ${pos}!`:`You're number ${pos} on the ladder`);if(pos===1)coach([rndClip("wdone")],"New record! Gold medal. Now that's having a crack!",null,talk)},300)});
 $("#save-form").addEventListener("submit",e=>{e.preventDefault();const name=$("#save-name").value.trim()||"Untitled walk";
   let pts=simplify(rec.pts,2.5);if(pts.length>1800)pts=simplify(rec.pts,6);
-  const by=$("#save-by").value.trim();try{localStorage.setItem("walkies.by",by)}catch(e){}
+  const by=$("#save-by").value.trim();if(!by){$("#save-by").focus();toast("Add who did the walk");return}try{localStorage.setItem("walkies.by",by)}catch(e){}
   const w={id:uid(name),name,by,desc:$("#save-desc").value.trim(),tags:picked("#save-tags"),good:picked("#save-good"),pts,pins:rec.pins.slice(),dur:rec.acc,created:Date.now()};
   store.walks.push(w);save();$("#sheet-save").hidden=true;endRecording();toast("Saved “"+name+"”");follow=null;go("walk-"+w.id)});
 function endRecording(){if(watchId!=null)try{navigator.geolocation.clearWatch(watchId)}catch(e){}watchId=null;clearInterval(tick);tick=null;rec=null;lastFix=null}
@@ -1370,9 +1427,9 @@ $("#gpx-in").addEventListener("change",async e=>{const f=e.target.files[0];e.tar
 
 /* ---------- share links (the whole walk travels inside the link) ---------- */
 function packWalk(w){const flat=[];let pl=0,po=0,pe=0;w.pts.forEach(p=>{const la=Math.round(p[0]*1e5),lo=Math.round(p[1]*1e5),el=p[2]==null?-9999:Math.round(p[2]);flat.push(la-pl,lo-po,el===-9999?-99999:el-pe,p[4]?1:0);pl=la;po=lo;if(el!==-9999)pe=el});
-  return{n:w.name,b:w.by||"",d:w.desc||"",t:w.tags||[],g:w.good||[],u:w.dur||0,c:w.created||0,i:(w.pins||[]).map(p=>[Math.round(p.lat*1e5),Math.round(p.lon*1e5),p.label,p.note||""]),p:flat}}
+  return{n:w.name,b:w.by||"",r:(w.results||[]).map(x=>[x.by,x.ms,x.at||0]),d:w.desc||"",t:w.tags||[],g:w.good||[],u:w.dur||0,c:w.created||0,i:(w.pins||[]).map(p=>[Math.round(p.lat*1e5),Math.round(p.lon*1e5),p.label,p.note||""]),p:flat}}
 function unpackWalk(o){const pts=[];let la=0,lo=0,el=0;for(let k=0;k<o.p.length;k+=4){la+=o.p[k];lo+=o.p[k+1];let e=null;if(o.p[k+2]!==-99999){el+=o.p[k+2];e=el}pts.push([la/1e5,lo/1e5,e,null,o.p[k+3]])}
-  return{name:String(o.n||"Shared walk").slice(0,80),by:String(o.b||"").slice(0,60),desc:String(o.d||"").slice(0,800),tags:(o.t||[]).map(String),good:(o.g||[]).map(String),dur:+o.u||null,created:+o.c||null,pins:(o.i||[]).map(p=>({lat:p[0]/1e5,lon:p[1]/1e5,label:String(p[2]).slice(0,40),note:String(p[3]||"").slice(0,400)})),pts}}
+  return{name:String(o.n||"Shared walk").slice(0,80),by:String(o.b||"").slice(0,60),results:(o.r||[]).map(([b,m,a])=>({by:String(b).slice(0,60),ms:+m,at:+a||null})).filter(x=>x.by&&x.ms>0),desc:String(o.d||"").slice(0,800),tags:(o.t||[]).map(String),good:(o.g||[]).map(String),dur:+o.u||null,created:+o.c||null,pins:(o.i||[]).map(p=>({lat:p[0]/1e5,lon:p[1]/1e5,label:String(p[2]).slice(0,40),note:String(p[3]||"").slice(0,400)})),pts}}
 const b64u={enc:u8=>{let s="";u8.forEach(b=>s+=String.fromCharCode(b));return btoa(s).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"")},dec:s=>{s=s.replace(/-/g,"+").replace(/_/g,"/");const b=atob(s);return Uint8Array.from(b,c=>c.charCodeAt(0))}};
 async function zip(str){const u=new TextEncoder().encode(str);if(!window.CompressionStream)return"j"+b64u.enc(u);const cs=new Blob([u]).stream().pipeThrough(new CompressionStream("deflate-raw"));return"z"+b64u.enc(new Uint8Array(await new Response(cs).arrayBuffer()))}
 async function unzip(s){const kind=s[0],u=b64u.dec(s.slice(1));if(kind==="j")return new TextDecoder().decode(u);const ds=new Blob([u]).stream().pipeThrough(new DecompressionStream("deflate-raw"));return await new Response(ds).text()}
@@ -1562,8 +1619,9 @@ function openBox(){renderBox();paintBox()}
 function go(h){if(location.hash.slice(1)===h)route();else location.hash=h}
 async function route(){const h=decodeURIComponent(location.hash.slice(1));
   if(h.startsWith("share=")){try{const arr=JSON.parse(await unzip(h.slice(6))).map(unpackWalk);
-      if(arr.length===1){sharedPending=arr[0];show("detail");renderDetail(arr[0],true);return}
-      const fresh=arr.filter(w=>!store.walks.some(x=>x.name===w.name&&x.pts.length===w.pts.length));fresh.forEach(w=>{w.id=uid(w.name);store.walks.push(w)});save();
+      if(arr.length===1){const ex=store.walks.find(x=>x.name===arr[0].name&&x.pts.length===arr[0].pts.length);if(ex){mergeResults(ex,arr[0]);save();toast("Ladder updated with the shared times");go("walk-"+ex.id);return}sharedPending=arr[0];show("detail");renderDetail(arr[0],true);return}
+      const same=w=>store.walks.find(x=>x.name===w.name&&x.pts.length===w.pts.length);arr.forEach(w=>{const ex=same(w);if(ex)mergeResults(ex,w)});
+      const fresh=arr.filter(w=>!same(w));fresh.forEach(w=>{w.id=uid(w.name);store.walks.push(w)});save();
       toast(fresh.length?`Added ${fresh.length} walk${fresh.length>1?"s":""} from the link`:"You already have these walks");history.replaceState(null,"",location.pathname+location.search);show("home");renderList();return}
     catch(e){toast("That share link is incomplete. Ask for it to be sent again.");show("home");renderList();return}}
   if(h==="record"){show("record");openRecord();return}
