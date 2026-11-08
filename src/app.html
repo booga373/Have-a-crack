@@ -41,7 +41,7 @@ button{cursor:pointer}
 .brand p{margin:2px 0 0;color:var(--muted);font-size:.9rem}
 
 .start-grid{display:grid;grid-template-columns:1fr;grid-auto-rows:1fr;gap:12px;margin-top:14px}
-@media (min-width:760px){.start-grid{grid-template-columns:repeat(3,1fr)}}
+@media (min-width:760px){.start-grid{grid-template-columns:repeat(2,1fr)}}
 
 .hero-pick{display:flex;align-items:center;gap:14px;padding:18px 20px;border-radius:20px;background:var(--surface);border:2px solid var(--line);color:var(--ink);text-decoration:none;box-shadow:var(--shadow)}
 .hero-pick:hover{border-color:var(--accent)}
@@ -231,6 +231,38 @@ button{cursor:pointer}
 .ladder-box{padding:12px 14px;border-radius:14px;background:#fff4cc;color:#5c4300;border:1px solid #f0d36b;margin-bottom:12px;font-weight:600}
 .ladder-box.miss{background:var(--surface-2);color:var(--muted);border-color:var(--line);font-weight:500}
 
+/* meditate: one calm, deep-water look in both themes */
+.med-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+.med-card{display:flex;flex-direction:column;gap:4px;text-align:left;padding:14px 16px;border-radius:18px;border:1px solid var(--line);background:var(--surface);box-shadow:var(--shadow);min-width:0}
+.med-card:hover{border-color:#3d8fa3}
+.med-card strong{font-family:var(--f-display);font-weight:800;font-size:1.08rem}
+.med-card span{color:var(--muted);font-size:.88rem}
+.med-card small{color:#2f7d91;font-weight:700;font-size:.78rem;letter-spacing:.04em;text-transform:uppercase}
+.mm-board{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.mm-board li{display:grid;grid-template-columns:44px 1fr auto auto;gap:12px;align-items:center;padding:8px 12px;border-radius:14px;background:var(--surface);border:1px solid var(--line)}
+.mm-board li.me{border:2px solid #3d8fa3}
+.mm-board strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.mm-board small{color:var(--muted)}
+.mm-n{text-align:center;font-variant-numeric:tabular-nums;min-width:52px}.mm-n b{display:block;font-family:var(--f-display);font-weight:800;font-size:1.2rem;line-height:1.1}.mm-n span{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+.mm-streak b{color:#d9771f}
+#view-med{position:fixed;inset:0;z-index:1000;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);background:radial-gradient(120% 80% at 50% 30%,#1d4a57 0%,#0f2b35 55%,#0a1d24 100%);color:#e6f3f5;color-scheme:dark}
+#view-med[hidden]{display:none}
+#view-med .back{background:rgba(255,255,255,.1);border-color:transparent;color:#e6f3f5}
+#view-med .status{background:rgba(255,255,255,.12);color:#cfe6ea}
+#view-med .rec-panel{background:transparent;border-top:1px solid rgba(255,255,255,.12)}
+#view-med .chip{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2);color:#cfe6ea}
+#view-med .chip[aria-pressed="true"]{background:#e6f3f5;color:#0f2b35;border-color:#e6f3f5}
+#view-med .big.go{box-shadow:0 7px 0 #127336}
+.med-body{flex:1 1 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;overflow:auto;text-align:center;padding-block:8px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.med-desc{margin:0;max-width:46ch;color:#a9c9cf;font-size:.95rem}
+.med-len{justify-content:center;margin:0}
+.med-stage{position:relative;width:min(68vw,300px);aspect-ratio:1;max-width:100%;display:grid;place-items:center;margin:6px 0}
+.med-ring{position:absolute;inset:0;border-radius:50%;border:2px solid rgba(230,243,245,.18)}
+.med-circle{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 40% 35%,#8fe0dc 0%,#3ba3a8 45%,#1f6f80 100%);box-shadow:0 0 60px rgba(120,220,215,.35);transform:scale(.5);transition-property:transform;transition-timing-function:ease-in-out}
+.med-word{position:relative;font-family:var(--f-display);font-weight:800;font-size:clamp(1.4rem,6vw,2rem);color:#06252c;text-shadow:0 1px 0 rgba(255,255,255,.3)}
+.med-time{font-family:var(--f-display);font-weight:800;font-size:2.2rem;letter-spacing:-.01em}
+.med-line{margin:0;min-height:3em;max-width:40ch;color:#cfe6ea;font-size:1rem}
+@media (prefers-reduced-motion:reduce){.med-circle{transition-duration:0s!important}}
+
 /* detail */
 .topbar{display:flex;align-items:center;gap:10px;padding-block:14px 6px}
 .gear{color:var(--ink);width:46px;height:46px}
@@ -313,6 +345,7 @@ button{cursor:pointer}
       </button>
       <a class="hero-pick" href="#list-top"><div><strong>Pick a walk</strong><span>Browse the farm's walks, times, maps and who holds gold.</span></div><img class="tile-img" src="TILE_WALK" alt="" style="object-position:50% 12%"></a>
       <a class="hero-pick box-tile" href="#boxing"><div><strong>Boxing timer</strong><span>Rounds, rest, the bell and a shout to have a crack.</span></div><img class="tile-img" src="TILE_BOX" alt="" style="object-position:50% 20%"></a>
+      <a class="hero-pick med-tile" href="#meditate"><div><strong>Meditate</strong><span>Breathing, quiet sits and calm guided sessions.</span></div><img class="tile-img" src="TILE_MED" alt=""></a>
     </div>
     <div class="toolbar" id="list-top">
       <h2>Pick a walk</h2>
@@ -369,6 +402,28 @@ button{cursor:pointer}
     </div>
   </section>
 
+  <main id="view-medhome" class="wrap" hidden></main>
+  <section id="view-med" hidden aria-label="Meditation">
+    <div class="rec-top">
+      <button class="back" type="button" id="med-close" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <h2 id="med-title">Breathe</h2>
+      <span class="status" id="med-status">Ready</span>
+    </div>
+    <div class="med-body">
+      <p class="med-desc" id="med-desc"></p>
+      <div class="pickchips med-len" id="med-len"></div>
+      <div class="med-stage"><div class="med-ring"></div><div class="med-circle" id="med-circle"></div><div class="med-word" id="med-word">Ready</div></div>
+      <div class="med-time num" id="med-time">5:00</div>
+      <p class="med-line" id="med-line"></p>
+    </div>
+    <div class="rec-panel">
+      <div class="controls">
+        <button class="big go" type="button" id="m-go"><svg width="34" height="34" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4l13 8-13 8z" fill="currentColor"/></svg><span>GO</span></button>
+        <button class="big pause" type="button" id="m-pause" disabled><svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="5" height="16" rx="1.5" fill="currentColor"/><rect x="14" y="4" width="5" height="16" rx="1.5" fill="currentColor"/></svg>PAUSE</button>
+        <button class="big stop" type="button" id="m-stop" disabled><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2.5" fill="currentColor"/></svg>STOP</button>
+      </div>
+    </div>
+  </section>
   <section id="view-box" hidden aria-label="Boxing timer" data-phase="idle">
     <div class="rec-top">
       <button class="back" type="button" id="box-close" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button>
@@ -1089,6 +1144,95 @@ $("#box-close").addEventListener("click",()=>{if(bt.state==="running"||bt.state=
 $("#box-test").addEventListener("click",()=>{audio();bell(1);setTimeout(()=>coach([roundClip(1),rndClip("start")],"Round 1! Come on, have a crack!"),650)});
 function openBox(){renderBox();paintBox();activeClips().forEach(c=>c.url&&bufFor(c).catch(()=>{}))}
 
+/* ---------- meditate ---------- */
+const MED={
+ breath:[
+  {id:"box",t:"Box breathing",d:"In 4, hold 4, out 4, hold 4. Steadies you and sharpens focus.",tag:"Focus",pat:[["in",4],["hold",4],["out",4],["hold",4]],len:[2,5,10],def:5},
+  {id:"478",t:"4-7-8 wind down",d:"In 4, hold 7, out 8. A long out-breath that tells your body it's time to rest.",tag:"Relax",pat:[["in",4],["hold",7],["out",8]],len:[2,5,10],def:5},
+  {id:"sigh",t:"Calming sigh",d:"Two breaths in through the nose, one long sigh out. The quickest way to settle nerves.",tag:"Quick calm",pat:[["in",2],["more",1],["out",6]],len:[1,2,5],def:2},
+  {id:"recover",t:"Recovery breath",d:"In 4, out 6. Brings your heart rate down after a walk, run or boxing.",tag:"After training",pat:[["in",4],["out",6]],len:[2,5,10],def:5}],
+ guided:[
+  {id:"afterbell",t:"After the bell",d:"A five-minute cool-down after boxing. Bring your heart rate down and let the session settle.",tag:"5 min · after boxing",min:5,cues:[[0,"Welcome. Gloves off. Find somewhere to sit or lie down, and let your arms hang heavy."],[16,"Your heart is still working hard. That's good. We'll bring it down together."],[32,"Breathe in slowly through your nose... and let it out through your mouth, a little longer than the breath in."],[58,"Again. In through the nose... and a long, slow breath out."],[84,"Let your shoulders drop away from your ears. Unclench your jaw. Open your hands."],[114,"Notice your heartbeat. Don't try to change it. Just notice it slowing, a little with every breath."],[154,"If your mind replays the rounds, that's fine. Let each thought pass, and come back to your breath."],[194,"Feel the ground holding you up. There's nothing you need to do right now."],[232,"Take one big breath in... hold it at the top... and let it all go."],[262,"You trained hard today. Be proud of that."],[284,"When you're ready, open your eyes, and take that calm with you."]]},
+  {id:"bodyscan",t:"Body scan",d:"Eight minutes moving slowly from your feet to your head, letting go of tension as you go.",tag:"8 min · relax",min:8,cues:[[0,"Settle into a comfortable position, sitting or lying down. Let your eyes close, or rest your gaze on the ground."],[20,"Take three slow breaths. In... and out."],[46,"Bring your attention to your feet. Notice any warmth, coolness or pressure where they touch the ground."],[86,"Move up to your calves and knees. If there's tightness, breathe into it, and let it soften."],[126,"Now your thighs and hips. Let them feel heavy."],[166,"Your stomach rises and falls with each breath. Let it move freely."],[206,"Notice your chest, and your back resting against the chair or the floor."],[246,"Your shoulders. Let them drop. Then your arms, all the way down to your fingertips."],[292,"Your neck, and your jaw. Let your teeth part slightly. Soften the muscles around your eyes."],[336,"Now feel your whole body at once. Breathing, resting, here."],[392,"If your mind wanders, that's normal. Gently bring it back to the feeling of your body."],[440,"Begin to wriggle your fingers and toes."],[462,"When you're ready, open your eyes."]]},
+  {id:"dam",t:"Sit at the dam",d:"Six minutes outside on the farm. Best by the water, but any quiet spot works.",tag:"6 min · outdoors",min:6,cues:[[0,"Find a spot by the water, or anywhere outside on the farm. Sit comfortably and let your hands rest."],[20,"Look out across the water for a moment. Notice the light, the colours, any movement."],[50,"Now let your eyes close, or soften your gaze."],[66,"Listen. Birds, the wind in the trees, water, maybe stock in the distance. Let the sounds come and go."],[112,"You don't need to name them. Just hear them."],[150,"Feel the air on your skin. Is it warm or cool? Is there a breeze?"],[190,"Breathe in the smell of the paddocks... and breathe out slowly."],[230,"Let any busy thoughts drift away like ripples on the dam, spreading out and disappearing."],[290,"Take one more slow breath, and notice how still you feel."],[330,"When you're ready, open your eyes and look out over the water again."]]},
+  {id:"sleep",t:"Wind down for sleep",d:"Ten minutes in bed to let the day go. No bell at the end, so you can drift off.",tag:"10 min · bedtime",min:10,sleep:true,cues:[[0,"Get comfortable in bed and let the day go. There's nothing left to do tonight."],[22,"Breathe in for four... and out for six. Let your body sink a little deeper with each breath out."],[62,"In for four... and out for six."],[102,"Let your forehead relax. Your eyes. Your cheeks. Your jaw."],[142,"Let your shoulders melt into the mattress. Your arms grow heavy."],[192,"Your legs are heavy and warm. Your feet completely relaxed."],[242,"If a thought about tomorrow comes up, picture putting it on a shelf. It will still be there in the morning."],[302,"Keep breathing slowly. In... and a long, soft breath out."],[372,"Imagine a quiet evening on the farm. The light fading over the hills. Everything settling for the night."],[452,"You're safe, you're warm, and you can let go."],[522,"Keep resting here as long as you like. Goodnight."]]}],
+ timer:{id:"sit",t:"Quiet timer",d:"Just you and the bell. A soft chime at the start and the end.",tag:"Silent",len:[3,5,10,20],def:5}};
+const WORD={in:"Breathe in",more:"A little more",hold:"Hold",out:"Breathe out"};
+const SOUNDS=[["none","Silence"],["rain","Rain"],["wind","Wind"],["ocean","Ocean"],["hum","Soft hum"]];
+if(!SET.medSound)SET.medSound="rain";if(SET.medVoice==null)SET.medVoice=true;
+/* calm female guide voice: the most natural female voice on the phone, slow and gentle */
+let calmVoice=null;function pickCalm(){try{const vs=speechSynthesis.getVoices().filter(v=>/^en/i.test(v.lang));const fem=/(female|karen|samantha|catherine|kate|serena|moira|tessa|fiona|victoria|zoe|allison|ava|susan|nicky|libby|sonia|natasha|hazel|emma|olivia|amy|joanna|aria|jenny|clara|isla|matilda)/i;
+  const score=v=>(fem.test(v.name)?20:0)-(/\b(male|daniel|lee|gordon|fred|alex|thomas|oliver|arthur|james|guy|ryan|william)\b/i.test(v.name)?30:0)+(/en-AU/i.test(v.lang)?4:/en-GB|en-IE|en-NZ/i.test(v.lang)?3:0)+(/enhanced|premium|neural|natural/i.test(v.name)?5:0);calmVoice=vs.sort((a,b)=>score(b)-score(a))[0]||null}catch(e){}}
+if(window.speechSynthesis){pickCalm();try{speechSynthesis.addEventListener("voiceschanged",pickCalm)}catch(e){}}
+function calm(t){if(!SET.medVoice)return;say(t,{voice:calmVoice,rate:.82,pitch:1.03})}
+function bowl(){[[196,.35],[392,.18],[588,.1],[784,.05]].forEach(([f,v])=>tone(f,0,6,v))}
+let amb=null;function ambient(kind){try{if(amb){amb.stop();amb=null}if(kind==="none")return;const a=audio();if(!a)return;const out=a.createGain();out.gain.value=0;out.connect(a.destination);out.gain.linearRampToValueAtTime(kind==="hum"?.05:.16,a.currentTime+3);const nodes=[];
+  const noise=type=>{const len=a.sampleRate*4,b=a.createBuffer(1,len,a.sampleRate),d=b.getChannelData(0);let l=0,p0=0,p1=0,p2=0;for(let i=0;i<len;i++){const w=Math.random()*2-1;if(type==="brown"){l=(l+.02*w)/1.02;d[i]=l*3.5}else{p0=.99765*p0+w*.099046;p1=.963*p1+w*.2965164;p2=.57*p2+w*1.0526913;d[i]=(p0+p1+p2+w*.1848)*.11}}
+    const s=a.createBufferSource();s.buffer=b;s.loop=true;s.start();nodes.push(s);return s};
+  if(kind==="rain"){const n=noise("pink"),hp=a.createBiquadFilter();hp.type="highpass";hp.frequency.value=400;const lp=a.createBiquadFilter();lp.type="lowpass";lp.frequency.value=6000;n.connect(hp).connect(lp).connect(out)}
+  else if(kind==="wind"){const n=noise("brown"),bp=a.createBiquadFilter();bp.type="bandpass";bp.frequency.value=500;bp.Q.value=.6;const lfo=a.createOscillator(),lg=a.createGain();lfo.frequency.value=.07;lg.gain.value=300;lfo.connect(lg).connect(bp.frequency);lfo.start();nodes.push(lfo);n.connect(bp).connect(out)}
+  else if(kind==="ocean"){const n=noise("brown"),lp=a.createBiquadFilter();lp.type="lowpass";lp.frequency.value=900;const g=a.createGain();g.gain.value=.5;const lfo=a.createOscillator(),lg=a.createGain();lfo.frequency.value=.09;lg.gain.value=.45;lfo.connect(lg).connect(g.gain);lfo.start();nodes.push(lfo);n.connect(lp).connect(g).connect(out)}
+  else if(kind==="hum"){[110,164.8,220].forEach((f,i)=>{const o=a.createOscillator();o.frequency.value=f;const g=a.createGain();g.gain.value=[.5,.25,.12][i];o.connect(g).connect(out);o.start();nodes.push(o)})}
+  amb={stop(){try{out.gain.cancelScheduledValues(a.currentTime);out.gain.setValueAtTime(out.gain.value,a.currentTime);out.gain.linearRampToValueAtTime(0,a.currentTime+1.5);setTimeout(()=>nodes.forEach(n=>{try{n.stop()}catch(e){}}),1700)}catch(e){}}}}catch(e){}}
+function medEntries(){return(store.medLog||[]).concat((store.medLocal||[]).filter(x=>!x.synced))}
+const dayKey=t=>new Date(t).toLocaleDateString("en-CA");
+function medStats(name){const k=String(name||"").toLowerCase();const mine=medEntries().filter(e=>String(e.by).toLowerCase()===k);const days=new Set(mine.map(e=>dayKey(e.at)));
+  let d=new Date();if(!days.has(dayKey(d)))d.setDate(d.getDate()-1);let streak=0;while(days.has(dayKey(d))){streak++;d.setDate(d.getDate()-1)}
+  const week=mine.filter(e=>Date.now()-e.at<7*864e5).reduce((a,e)=>a+e.ms,0)/60000;return{streak,week:Math.round(week),total:Math.round(mine.reduce((a,e)=>a+e.ms,0)/60000),n:mine.length}}
+function renderMedHome(){const el=$("#view-medhome");const me=meName();const names=[...new Set(medEntries().map(e=>e.by).concat(me?[me]:[]))].filter(Boolean);
+  const board=names.map(n=>({n,...medStats(n)})).sort((a,b)=>b.week-a.week||b.streak-a.streak);
+  const card=(s,kind)=>`<button class="med-card" type="button" data-med="${kind}:${s.id}"><small>${esc(s.tag)}</small><strong>${esc(s.t)}</strong><span>${esc(s.d)}</span></button>`;
+  el.innerHTML=`<div class="topbar"><a class="back" href="#" aria-label="Back to home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></a><h1 class="detail-title" style="margin:0">Meditate</h1></div>
+  <p style="margin:6px 0 0;color:var(--muted);max-width:60ch">Slow down, breathe and recover. A calm voice guides you through each one. Headphones help.</p>
+  <section class="set-sec"><h2>Mindful minutes</h2>${board.length?`<ol class="mm-board">${board.map(r=>`<li class="${me&&r.n.toLowerCase()===me.toLowerCase()?"me":""}">${avatar(r.n,44)}<span style="min-width:0"><strong>${esc(r.n)}</strong><small>${r.total} min all time</small></span><span class="mm-n mm-streak"><b>${r.streak}</b><span>day streak</span></span><span class="mm-n"><b>${r.week}</b><span>min this week</span></span></li>`).join("")}</ol>`:`<p style="margin:0;color:var(--muted)">Do your first session and you'll show up here. Keep a streak going by doing at least one a day.</p>`}</section>
+  <section class="set-sec"><h2>Breathing</h2><div class="med-cards">${MED.breath.map(b=>card(b,"breath")).join("")}</div></section>
+  <section class="set-sec"><h2>Guided</h2><div class="med-cards">${MED.guided.map(g=>card(g,"guided")).join("")}</div></section>
+  <section class="set-sec"><h2>Quiet timer</h2><div class="med-cards">${card(MED.timer,"timer")}</div></section>
+  <section class="set-sec"><h2>Sound and voice</h2>
+    <div class="set-row"><span class="label">Background sound</span><div class="pickchips" id="md-sound">${SOUNDS.map(([v,l])=>`<button type="button" class="chip" data-v="${v}" aria-pressed="${SET.medSound===v}">${l}</button>`).join("")}</div></div>
+    <div class="set-row"><span class="label">Calm voice guide</span><div class="pickchips" id="md-voice"><button type="button" class="chip" data-v="1" aria-pressed="${!!SET.medVoice}">On</button><button type="button" class="chip" data-v="0" aria-pressed="${!SET.medVoice}">Off, just the bell</button></div>
+    <p style="margin:8px 0 0"><button class="btn small" type="button" id="md-test">Hear the voice</button></p></div></section>
+  <section class="set-sec"><h2>Want more?</h2><p>These free apps have hundreds of guided sessions, and open in their own app:</p><div class="foot-actions" style="margin-top:0"><a class="btn" href="https://www.smilingmind.com.au/" target="_blank" rel="noopener">Smiling Mind (free, Australian)</a><a class="btn" href="https://insighttimer.com/" target="_blank" rel="noopener">Insight Timer (free library)</a></div></section>
+  <div style="height:30px"></div>`;
+  el.querySelectorAll("[data-med]").forEach(b=>b.onclick=()=>{const[k,id]=b.dataset.med.split(":");openMed(k,k==="timer"?MED.timer:MED[k].find(x=>x.id===id))});
+  $("#md-sound").onclick=e=>{const b=e.target.closest(".chip");if(!b)return;SET.medSound=b.dataset.v;saveSet();renderMedHome();audio();ambient(SET.medSound);setTimeout(()=>ambient("none"),4000)};
+  $("#md-voice").onclick=e=>{const b=e.target.closest(".chip");if(!b)return;SET.medVoice=b.dataset.v==="1";saveSet();renderMedHome()};
+  $("#md-test").onclick=()=>{const v=SET.medVoice;SET.medVoice=true;calm("Breathe in slowly... and let it all go.");SET.medVoice=v}}
+let md={state:"idle"},mTick=null;
+function openMed(kind,s){md={state:"idle",kind,s,len:(s.def||s.min||5),acc:0,seg:0,cue:0,lastPhase:-1,cycles:0,chimeNext:0,interval:0};
+  $("#med-title").textContent=s.t;$("#med-desc").textContent=s.d;renderMedLen();$("#view-med").hidden=false;$("#med-line").textContent="";paintMed();setCircle(.5,0)}
+function renderMedLen(){const el=$("#med-len");const s=md.s;if(md.kind==="guided"||md.state!=="idle"){el.hidden=true;return}el.hidden=false;
+  el.innerHTML=s.len.map(m=>`<button type="button" class="chip" data-v="${m}" aria-pressed="${md.len===m}">${m} min</button>`).join("")+(md.kind==="timer"?`<button type="button" class="chip" data-i="1" aria-pressed="${md.interval===1}">Chime every minute</button>`:"");
+  el.onclick=e=>{const b=e.target.closest(".chip");if(!b)return;if(b.dataset.i)md.interval=md.interval?0:1;else md.len=+b.dataset.v;renderMedLen();paintMed()}}
+const medTotal=()=>(md.kind==="guided"?md.s.min:md.len)*60000;
+const medEl=()=>md.acc+(md.state==="running"?Date.now()-md.seg:0);
+function setCircle(scale,secs){const c=$("#med-circle");c.style.transitionDuration=secs+"s";c.style.transform=`scale(${scale})`}
+function paintMed(){const rem=Math.max(0,medTotal()-(md.state==="idle"?0:medEl()));$("#med-time").textContent=mmss(Math.ceil(rem/1000));
+  const st=$("#med-status");st.textContent=md.state==="running"?"Breathing":md.state==="paused"?"Paused":md.state==="done"?"Done":"Ready";
+  $("#m-go").disabled=md.state==="running";$("#m-go").querySelector("span").textContent=md.state==="paused"?"RESUME":md.state==="done"?"AGAIN":"GO";$("#m-pause").disabled=md.state!=="running";$("#m-stop").disabled=md.state==="idle"||md.state==="done";
+  if(md.state==="idle")$("#med-word").textContent=md.kind==="breath"?"Ready":"Settle in"}
+function medTick(){if(md.state!=="running")return;const el=medEl();
+  if(el>=medTotal()){finishMed(true);return}
+  if(md.kind==="breath"){const pat=md.s.pat,cyc=pat.reduce((a,p)=>a+p[1],0)*1000;const pos=el%cyc,cn=Math.floor(el/cyc);let t=0,pi=0;for(;pi<pat.length;pi++){t+=pat[pi][1]*1000;if(pos<t)break}
+    const key=cn*10+pi;if(key!==md.lastPhase){md.lastPhase=key;const[ph,sec]=pat[pi];$("#med-word").textContent=WORD[ph];
+      if(ph==="in")setCircle(.92,sec);else if(ph==="more")setCircle(1,sec);else if(ph==="out")setCircle(.5,sec);
+      if(cn<3)calm(WORD[ph].toLowerCase()==="hold"?"Hold":WORD[ph]+".");else if(cn===3&&pi===0)calm("Keep going at your own pace.")}}
+  else{const k=Math.floor(el/6000);if(k!==md.lastPhase){md.lastPhase=k;setCircle(k%2?.55:.85,6);$("#med-word").textContent=k%2?"and out":"Breathe"}
+    if(md.kind==="guided"){const cues=md.s.cues;while(md.cue<cues.length&&cues[md.cue][0]*1000<=el){const t=cues[md.cue][1];$("#med-line").textContent=t;calm(t);md.cue++}}
+    if(md.kind==="timer"&&md.interval&&el>=md.chimeNext){if(md.chimeNext>0)tone(528,0,3,.18);md.chimeNext+=60000}}
+  paintMed()}
+function finishMed(done){const el=Math.min(medEl(),medTotal());clearInterval(mTick);mTick=null;md.state="done";ambient("none");stayAwake(false);
+  if(done&&!(md.kind==="guided"&&md.s.sleep))bowl();if(done)setTimeout(()=>calm(md.kind==="guided"&&md.s.sleep?"":"That's your session. Well done."),1600);
+  $("#med-word").textContent=done?"Well done":"Stopped";setCircle(.5,2);
+  if(el>=60000){store.medLocal=store.medLocal||[];store.medLocal.push({id:uuid(),by:meName()||"Someone",ms:el,at:Date.now(),kind:md.s.id,synced:false});save();const st=medStats(meName()||"Someone");toast(`${Math.round(el/60000)} mindful minutes logged. ${st.streak>1?st.streak+" day streak!":"Streak started!"}`)}
+  else if(!done)toast("Sessions under a minute aren't counted");paintMed()}
+$("#m-go").addEventListener("click",()=>{audio();if(md.state==="paused"){md.seg=Date.now();md.state="running";ambient(SET.medSound)}
+  else{md.acc=0;md.cue=0;md.lastPhase=-1;md.chimeNext=0;md.seg=Date.now();md.state="running";renderMedLen();bowl();ambient(SET.medSound);if(md.kind!=="guided")setTimeout(()=>{if(md.kind==="breath")calm("Let's begin. Follow the circle.");else calm("Settle in. I'll ring the bell at the end.")},900)}
+  stayAwake(true);if(!mTick)mTick=setInterval(medTick,100);paintMed()});
+$("#m-pause").addEventListener("click",()=>{md.acc=medEl();md.state="paused";ambient("none");try{speechSynthesis.cancel()}catch(e){}paintMed()});
+$("#m-stop").addEventListener("click",()=>{try{speechSynthesis.cancel()}catch(e){}finishMed(false)});
+$("#med-close").addEventListener("click",()=>{if(md.state==="running"||md.state==="paused"){toast("Tap STOP to finish first");return}ambient("none");$("#view-med").hidden=true;md={state:"idle"};renderMedHome()});
+
 /* ---------- shared database (Supabase): one set of walks, ladder times, spot photos and coach voices for everyone ----------
    Each phone keeps working offline from its own copy, and syncs when it can. Walks are never truly deleted, only hidden. */
 const DB={url:"https://ovmmhlvhplkgblncustm.supabase.co",key:"sb_publishable_APks7xquzk6LXmumTowZ2g_QcGecGig"};
@@ -1108,6 +1252,9 @@ async function pushWalks(){for(const w of store.walks.slice()){if(w.sample||w.sy
 async function pushPeople(){for(const p of store.people||[]){if(p.synced||p.builtin)continue;
   if(p.photo&&p.photo.startsWith("data:")){p.photo=await upload(`people/${p.id}-${Date.now().toString(36)}.jpg`,dataUrlBlob(p.photo));saveQuiet()}
   await api("/rest/v1/walks",{method:"POST",headers:{Prefer:"resolution=merge-duplicates,return=minimal"},body:JSON.stringify([{id:p.id,data:{kind:"person",name:p.name,photo:p.photo||null},deleted:false,updated_at:new Date().toISOString()}])});p.synced=true;saveQuiet()}}
+async function pushMed(){const rows=(store.medLocal||[]).filter(x=>!x.synced);if(!rows.length)return;
+  await api("/rest/v1/results",{method:"POST",headers:{Prefer:"resolution=ignore-duplicates,return=minimal"},body:JSON.stringify(rows.map(x=>({id:x.id,walk_id:"med:"+x.kind,who:String(x.by).slice(0,60),ms:Math.round(x.ms),created_at:new Date(x.at).toISOString()})))});
+  rows.forEach(x=>x.synced=true);saveQuiet()}
 async function pushResults(){const rows=[];store.walks.forEach(w=>{if(w.sample)return;(w.results||[]).forEach(r=>{if(r.synced)return;r.id=r.id||uuid();rows.push([r,{id:r.id,walk_id:w.id,who:String(r.by).slice(0,60),ms:Math.round(r.ms),created_at:new Date(r.at||Date.now()).toISOString()}])})});
   if(!rows.length)return;await api("/rest/v1/results",{method:"POST",headers:{Prefer:"resolution=ignore-duplicates,return=minimal"},body:JSON.stringify(rows.map(x=>x[1]))});rows.forEach(x=>x[0].synced=true);saveQuiet()}
 async function pushClips(){for(const c of clips){if(c.path||!c.blob)continue;const t=c.blob.type||"";const ext=t.includes("mp4")||t.includes("m4a")||t.includes("aac")?"m4a":t.includes("mpeg")?"mp3":t.includes("wav")?"wav":t.includes("ogg")?"ogg":"webm";
@@ -1122,17 +1269,18 @@ async function pullAll(){const[ws,rs,cs]=await Promise.all([api("/rest/v1/walks?
     const i=store.walks.findIndex(x=>x.id===row.id);if(row.deleted){if(i>=0)store.walks.splice(i,1);return}if(dels.has(row.id))return;
     const local=i>=0?store.walks[i]:null;if(local&&!local.synced)return;const w=Object.assign({},row.data,{id:row.id,synced:true,results:local?local.results||[]:[]});if(i>=0)store.walks[i]=w;else store.walks.push(w)});
   const byWalk={};(rs||[]).forEach(r=>{(byWalk[r.walk_id]=byWalk[r.walk_id]||[]).push({id:r.id,by:r.who,ms:+r.ms,at:Date.parse(r.created_at),synced:true})});
+  store.medLog=(rs||[]).filter(r=>String(r.walk_id).startsWith("med:")).map(r=>({id:r.id,by:r.who,ms:+r.ms,at:Date.parse(r.created_at),kind:r.walk_id.slice(4),synced:true}));store.medLocal=(store.medLocal||[]).filter(x=>!x.synced);
   store.walks.forEach(w=>{if(w.sample)return;w.results=(byWalk[w.id]||[]).concat((w.results||[]).filter(r=>!r.synced))});
   store.people=store.people.filter(p=>!p.builtin||!store.people.some(q=>q!==p&&!q.builtin&&q.name.toLowerCase()===p.name.toLowerCase()));
   dropSamples();saveQuiet();
   remoteClips=(cs||[]).map(c=>({id:"r-"+c.id+"-"+c.path,cat:c.cat,sug:c.sug,custom:c.custom,text:c.line,who:c.who||"Someone",url:DB.url+"/storage/v1/object/public/media/"+c.path}))}
 function queueSync(){clearTimeout(syncTimer);syncTimer=setTimeout(sync,1200)}
 async function sync(){if(syncing){syncAgain=true;return}syncing=true;
-  try{await pushDeletes();await pushPeople();await pushWalks();await pushResults();await pushClips();await pullAll();syncOk=true;lastSync=Date.now()}catch(e){syncOk=false;try{console.warn("Sync failed",e)}catch(_){}}
+  try{await pushDeletes();await pushPeople();await pushMed();await pushWalks();await pushResults();await pushClips();await pullAll();syncOk=true;lastSync=Date.now()}catch(e){syncOk=false;try{console.warn("Sync failed",e)}catch(_){}}
   finally{syncing=false;syncStatus();refreshAfterSync();if(syncAgain){syncAgain=false;queueSync()}}}
 function syncStatus(){const el=$("#sync-status");if(!el)return;el.className="sync-status "+(syncOk?"ok":syncOk===false?"off":"");
   el.textContent=syncOk?`Shared with everyone · updated ${new Date(lastSync).toLocaleTimeString("en-AU",{hour:"numeric",minute:"2-digit"})}`:syncOk===false?(IN_CLAUDE?"Sharing works in the live app, not this preview.":"Offline right now. Your walks and times will share when you're back online."):"Connecting to the shared walks…"}
-function refreshAfterSync(){if(!$("#view-home").hidden)renderList();if(!$("#view-settings").hidden&&$("#sheet-rec").hidden)renderSettings()}
+function refreshAfterSync(){if(!$("#view-home").hidden)renderList();if(!$("#view-medhome").hidden)renderMedHome();if(!$("#view-settings").hidden&&$("#sheet-rec").hidden)renderSettings()}
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&Date.now()-lastSync>20000)queueSync()});
 window.addEventListener("online",queueSync);
 
@@ -1147,10 +1295,11 @@ async function route(){const h=decodeURIComponent(location.hash.slice(1));
     catch(e){toast("That share link is incomplete. Ask for it to be sent again.");show("home");renderList();return}}
   if(h==="record"){show("record");openRecord();return}
   if(h==="boxing"){show("box");openBox();return}
+  if(h==="meditate"){show("medhome");renderMedHome();return}
   if(h==="settings"){show("settings");renderSettings();return}
   if(h.startsWith("walk-")){const w=byId(h.slice(5));if(w){show("detail");renderDetail(w,false);return}}
   show("home");renderList()}
-function show(v){$("#view-settings").hidden=v!=="settings";$("#view-box").hidden=v!=="box";$("#view-home").hidden=v!=="home";$("#view-detail").hidden=v!=="detail";$("#view-record").hidden=v!=="record";if(v!=="record")window.scrollTo(0,0)}
+function show(v){$("#view-medhome").hidden=v!=="medhome";$("#view-settings").hidden=v!=="settings";$("#view-box").hidden=v!=="box";$("#view-home").hidden=v!=="home";$("#view-detail").hidden=v!=="detail";$("#view-record").hidden=v!=="record";if(v!=="record")window.scrollTo(0,0)}
 window.addEventListener("hashchange",route);
 
 load();if(store.initialised)delete store.initialised;ensurePeople();dropSamples();saveQuiet();

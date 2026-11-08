@@ -12,10 +12,12 @@ Matt Bailey's phone web app: farm walks and runs (GPS map, GO/PAUSE/STOP, spots 
 - Time/Map toggle on the recorder; voice updates each km; "Come on, have a crack!" at the start of each boxing round; 10-second warning.
 - Matt's Have a Crack picture as the logo and home-screen icon (`src/icon.jpg`).
 - Settings: coach voice recording for walks and boxing, walk paces, map style.
+- Meditate: breathing patterns with the animated circle, guided sessions, quiet timer, background sounds, calm FEMALE guide voice (Matt asked for a calming lady's voice, not his), shared mindful-minutes streak board.
 - Share links (`#share=`) stay backward compatible with older links.
 - Australian English, km and metres, plain friendly copy.
 
 ## Shared data (Supabase)
 - Project https://ovmmhlvhplkgblncustm.supabase.co, public publishable key is in src/app.html (`DB`). Tables: `walks` (id, data jsonb, deleted), `results` (walk_id, who, ms), `clips` (coach voice rows); storage bucket `media` (photos/, people/, clips/).
 - People profiles live in the `walks` table as rows with `data.kind = "person"` ({name, photo}). The walk list must always skip them.
-- Pictures used by the build: src/icon.jpg (logo/home-screen icon), src/tile-walk.jpg, src/tile-box.jpg (home tiles), src/avatar-matt.jpg (Matt's default profile picture).
+- Meditation sessions are logged in the `results` table with walk_id `med:<session id>` (ms = time spent). Walk ladders must ignore them.
+- Pictures used by the build: src/icon.jpg (logo/home-screen icon), src/tile-walk.jpg, src/tile-box.jpg (home tiles), src/avatar-matt.jpg (Matt's default profile picture), src/tile-med.jpg (placeholder Meditate tile; swap in a calm picture of Matt when he supplies one).
