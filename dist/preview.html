@@ -661,6 +661,9 @@ button{cursor:pointer}
 .btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 .btn.danger{color:var(--stop)}
 .btn.small{padding:7px 11px;font-size:.88rem}
+.sync-status{margin:-28px 0 40px;font-size:.82rem;color:var(--muted);display:flex;align-items:center;gap:6px}
+.sync-status::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--muted);flex:none}
+.sync-status.ok::before{background:var(--go)}.sync-status.off::before{background:var(--pause)}
 .etiquette{margin:6px 0 0;padding:14px 16px;border-radius:16px;background:var(--surface-2);border:1px solid var(--line);font-size:.9rem;color:var(--muted)}
 .etiquette strong{color:var(--ink)}
 
@@ -885,6 +888,7 @@ button{cursor:pointer}
       <input type="file" id="gpx-in" accept=".gpx,application/gpx+xml,application/xml,text/xml" hidden>
       <button class="btn" type="button" id="btn-clear-samples" hidden>Remove sample walks</button>
     </div>
+    <p class="sync-status" id="sync-status" role="status">Connecting to the shared walks…</p>
   </main>
 
   <main id="view-detail" class="wrap" hidden></main>
@@ -1072,7 +1076,7 @@ const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const IN_CLAUDE=!!(window.claude&&window.claude.use);
 const KEY="walkies.v1";
-let SET={walkKmh:4.5,runKmh:9,coach:"mine",stats:true};try{Object.assign(SET,JSON.parse(localStorage.getItem("hac.settings")||"{}"))}catch(e){}
+let SET={walkKmh:4.5,runKmh:9,coach:"mine",stats:true,coachWho:""};try{Object.assign(SET,JSON.parse(localStorage.getItem("hac.settings")||"{}"))}catch(e){}
 let WALK_KMH=SET.walkKmh, RUN_KMH=SET.runKmh;
 function saveSet(){WALK_KMH=SET.walkKmh;RUN_KMH=SET.runKmh;try{localStorage.setItem("hac.settings",JSON.stringify(SET))}catch(e){}}
 const TERRAIN=["Grass paddock","Farm track","Gravel","Bush","Creek crossing","Steep hills","Shade"];
@@ -1128,9 +1132,10 @@ function samples(){const c=[-37.1505,145.3402],t0=Date.UTC(2026,9,4,21,0);
 let store={walks:[],initialised:false};
 function load(){try{const s=JSON.parse(localStorage.getItem(KEY)||"null");if(s&&Array.isArray(s.walks)){store=s;return}}catch(e){}
   store={walks:samples(),initialised:true}}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){toast("Couldn't save on this phone. Storage may be full or blocked.")}}
+function save(){saveQuiet();queueSync()}
+function saveQuiet(){try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){toast("Couldn't save on this phone. Storage may be full or blocked.")}}
 const byId=id=>store.walks.find(w=>w.id===id);
-function uid(name){const b=(name||"walk").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,24)||"walk";let id=b,i=2;while(byId(id))id=b+"-"+i++;return id}
+function uid(name){const b=(name||"walk").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,24)||"walk";let id;do{id=b+"-"+Math.random().toString(36).slice(2,7)}while(byId(id));return id}
 
 /* ---------- toast & sheets ---------- */
 let tt;function toast(m){const t=$("#toast");t.textContent=m;t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>t.hidden=true,2800)}
@@ -1243,7 +1248,7 @@ function renderDetail(w,shared){const st=stats(w);const el=$("#view-detail");con
   $("#d-share").onclick=()=>shareWalks([w]);
   $("#d-gpx").onclick=()=>exportGPX(w);
   if(shared)$("#d-keep").onclick=()=>{w.id=uid(w.name);store.walks.push(w);save();sharedPending=null;toast("Added to your walks");go("walk-"+w.id)};
-  else $("#d-del").onclick=()=>{$("#confirm-h").textContent=`Delete “${w.name}”?`;openSheet("#sheet-confirm");$("#confirm-yes").onclick=()=>{store.walks=store.walks.filter(x=>x!==w);save();closeSheets();toast("Walk deleted");go("")}};
+  else $("#d-del").onclick=()=>{$("#confirm-h").textContent=`Delete “${w.name}”?`;openSheet("#sheet-confirm");$("#confirm-yes").onclick=()=>{store.walks=store.walks.filter(x=>x!==w);if(w.synced){store.deletes=store.deletes||[];store.deletes.push(w.id)}save();closeSheets();toast("Walk deleted");go("")}};
   const mapEl=$("#d-map");if(maps.detail){maps.detail.remove();delete maps.detail}
   requestAnimationFrame(()=>{const m=makeMap(mapEl,"detail");if(m)drawRoute(m,w,st);else fallbackRoute(mapEl,w)})}
 
@@ -1452,15 +1457,16 @@ const idb={db:null,open(){return this.db?Promise.resolve(this.db):new Promise((r
  async tx(mode,fn){const db=await this.open();return new Promise((res,rej)=>{const t=db.transaction("clips",mode),st=t.objectStore("clips");const out=fn(st);t.oncomplete=()=>res(out&&out.result);t.onerror=()=>rej(t.error)})},
  all(){return this.tx("readonly",st=>st.getAll())},put(c){return this.tx("readwrite",st=>st.put(c))},del(id){return this.tx("readwrite",st=>st.delete(id))}};
 idb.all().then(a=>{clips=a||[]}).catch(()=>{clips=[]});
-const clipsIn=k=>clips.filter(c=>c.cat===k);
-const roundClip=n=>clips.find(c=>c.cat==="round"&&c.sug===n-1);
-async function bufFor(c){if(bufCache.has(c.id))return bufCache.get(c.id);const a=audio();if(!a)throw 0;const b=await a.decodeAudioData(await c.blob.arrayBuffer());bufCache.set(c.id,b);return b}
+function activeClips(){if(SET.coachWho){const r=remoteClips.filter(c=>c.who===SET.coachWho);if(r.length)return r}return clips}
+const clipsIn=k=>activeClips().filter(c=>c.cat===k);
+const roundClip=n=>activeClips().find(c=>c.cat==="round"&&c.sug===n-1);
+async function bufFor(c){if(bufCache.has(c.id))return bufCache.get(c.id);const a=audio();if(!a)throw 0;const b=await a.decodeAudioData(c.blob?await c.blob.arrayBuffer():await(await fetch(c.url)).arrayBuffer());bufCache.set(c.id,b);return b}
 async function playClip(c){const a=audio();const b=await bufFor(c);return new Promise(res=>{const src=a.createBufferSource(),g=a.createGain();g.gain.value=1.6;src.buffer=b;src.connect(g).connect(a.destination);src.onended=res;src.start()})}
 let coachQueue=Promise.resolve();
 function coach(list,fallback,after,speak){speak=speak||shout;if(SET.coach==="off")return;const cl=SET.coach==="mine"?list.filter(Boolean):[];
   if(cl.length){try{speechSynthesis.cancel()}catch(e){}coachQueue=coachQueue.then(()=>cl.reduce((p,c)=>p.then(()=>playClip(c).catch(()=>{})),Promise.resolve())).then(()=>{if(after)speak(after)});return}
   if(fallback)speak(fallback)}
-const kmClip=n=>clips.find(c=>c.cat==="wkm"&&c.sug===n-1);
+const kmClip=n=>activeClips().find(c=>c.cat==="wkm"&&c.sug===n-1);
 const rndClip=k=>{const a=clipsIn(k);return a.length?pick(a):null};
 
 /* recorder */
@@ -1489,7 +1495,7 @@ $("#rc-keep").addEventListener("click",async()=>{const c=rc.cur;if(!rc.blob||!c)
   const old=c.cat==="round"||!c.custom?clips.find(x=>x.cat===c.cat&&x.sug===c.sug&&!x.custom):null;
   const rec={id:old?old.id:"c"+Date.now()+Math.random().toString(36).slice(2,6),cat:c.cat,sug:c.sug,custom:!!c.custom,text,blob:rc.blob,created:Date.now()};
   try{await idb.put(rec)}catch(e){toast("Couldn't save the clip on this phone.");return}
-  bufCache.delete(rec.id);clips=clips.filter(x=>x.id!==rec.id).concat(rec);toast("Saved: "+text);nextRec()});
+  bufCache.delete(rec.id);clips=clips.filter(x=>x.id!==rec.id).concat(rec);toast("Saved: "+text);queueSync();nextRec()});
 $("#rc-skip").addEventListener("click",nextRec);
 $("#rc-close").addEventListener("click",()=>{rc.queue=[];stopStream();$("#sheet-rec").hidden=true;renderSettings()});
 function todoList(g){const q=[];CATS.filter(c=>!g||c.g===g).forEach(c=>c.sug.forEach((t,i)=>{if(!clips.some(x=>x.cat===c.k&&x.sug===i&&!x.custom))q.push({cat:c.k,sug:i,text:t})}));return q}
@@ -1497,12 +1503,13 @@ function todoList(g){const q=[];CATS.filter(c=>!g||c.g===g).forEach(c=>c.sug.for
 function renderSettings(){const el=$("#view-settings");const ic={play:'<svg width="16" height="16" viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z" fill="currentColor"/></svg>',rec:'<svg width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7" fill="currentColor"/></svg>',del:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>'};
   const chipRow=(id,opts,val)=>`<div class="pickchips" id="${id}">${opts.map(([v,l])=>`<button type="button" class="chip" data-v="${v}" aria-pressed="${String(val)===String(v)}">${l}</button>`).join("")}</div>`;
   el.innerHTML=`<div class="topbar"><a class="back" href="#" aria-label="Back to home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></a><h1 class="detail-title" style="margin:0">Settings</h1></div>
-  <section class="set-sec"><h2>Coach voice</h2><p>Record the call-outs in your own voice, for walks and the boxing timer. Fire it up, angry or encouraging, whatever gets people going. Anyone using the app can record their own and add extra lines.</p>
-    <div class="set-row"><span class="label">Which voice to use</span>${chipRow("s-coach",[["mine","My recordings"],["phone","Phone voice"],["off","Sounds only"]],SET.coach)}</div>
+  <section class="set-sec"><h2>Coach voice</h2><p>Record the call-outs in your own voice, for walks and the boxing timer. Recordings are shared with everyone under the name in “Your name” below, so the family can pick your voice. Fire it up, angry or encouraging, whatever gets people going. Anyone using the app can record their own and add extra lines.</p>
+    <div class="set-row"><span class="label">Which voice to use</span>${chipRow("s-coach",[["mine","Recorded voice"],["phone","Phone voice"],["off","Sounds only"]],SET.coach)}</div>
+    ${(()=>{const names=[...new Set(remoteClips.map(c=>c.who))].filter(n=>n&&n!==myName());return names.length?`<div class="set-row"><span class="label">Whose recorded voice</span>${chipRow("s-who",[["","Mine"],...names.map(n=>[n,n])],SET.coachWho)}<p style="margin:8px 0 0;color:var(--muted);font-size:.85rem">Everyone's recordings are shared, so you can train with anyone's voice.</p></div>`:""})()}
     <div class="set-row"><span class="label">On walks, read out time and pace after my clip</span>${chipRow("s-stats",[["1","Yes"],["0","No, just my voice"]],SET.stats?1:0)}</div>
     ${["walk","box"].map(g=>{const todo=todoList(g);return`<h3 style="font-family:var(--f-display);font-weight:800;font-size:1.15rem;margin:18px 0 8px">${g==="walk"?"Walks":"Boxing timer"}</h3>
     ${todo.length?`<button class="big go" type="button" data-recall="${g}" style="width:100%;min-height:68px;font-size:1.2rem;margin-bottom:12px;letter-spacing:.02em"><svg width="22" height="22" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="currentColor"/></svg>Record the ${g==="walk"?"walk":"boxing"} lines · ${todo.length} to go</button>`:`<p class="set-row" style="color:var(--ink);margin:0 0 12px"><strong>All suggested ${g==="walk"?"walk":"boxing"} lines recorded.</strong> Add your own below to mix it up.</p>`}
-    ${CATS.filter(c=>c.g===g).map(c=>{const mine=clipsIn(c.k);return`<div class="cat"><div class="cat-h"><strong>${c.t}</strong><small>${c.when}</small></div><ul class="lines">
+    ${CATS.filter(c=>c.g===g).map(c=>{const mine=clips.filter(x=>x.cat===c.k);return`<div class="cat"><div class="cat-h"><strong>${c.t}</strong><small>${c.when}</small></div><ul class="lines">
       ${c.sug.map((t,i)=>{const cl=mine.find(x=>x.sug===i&&!x.custom);return`<li class="${cl?"":"todo"}"><span>${esc(t)}</span>${cl?`<button class="ib ok" type="button" data-play="${cl.id}" aria-label="Play">${ic.play}</button><button class="ib" type="button" data-rec="${c.k}:${i}" aria-label="Record again">${ic.rec}</button>`:`<button class="ib rec" type="button" data-rec="${c.k}:${i}" aria-label="Record">${ic.rec}</button>`}</li>`}).join("")}
       ${mine.filter(x=>x.custom).map(x=>`<li><span>${esc(x.text)} <small style="color:var(--accent);font-weight:700">Your line</small></span><button class="ib ok" type="button" data-play="${x.id}" aria-label="Play">${ic.play}</button><button class="ib" type="button" data-del="${x.id}" aria-label="Delete">${ic.del}</button></li>`).join("")}
       </ul>${c.fixed?"":`<button class="btn small add-line" type="button" data-add="${c.k}">+ Add your own line</button>`}</div>`}).join("")}`}).join("")}
@@ -1519,14 +1526,14 @@ function renderSettings(){const el=$("#view-settings");const ic={play:'<svg widt
   try{$("#s-name").value=localStorage.getItem("walkies.by")||""}catch(e){}
   $("#s-name").onchange=e=>{try{localStorage.setItem("walkies.by",e.target.value.trim())}catch(err){}toast("Name saved")};
   const bind=(id,fn)=>{$(id).onclick=e=>{const b=e.target.closest(".chip");if(!b)return;fn(b.dataset.v);renderSettings()}};
-  bind("#s-coach",v=>{SET.coach=v;saveSet()});bind("#s-walk",v=>{SET.walkKmh=+v;saveSet()});bind("#s-run",v=>{SET.runKmh=+v;saveSet()});
+  bind("#s-coach",v=>{SET.coach=v;saveSet()});if($("#s-who"))bind("#s-who",v=>{SET.coachWho=v;saveSet();activeClips().forEach(c=>c.url&&bufFor(c).catch(()=>{}))});bind("#s-walk",v=>{SET.walkKmh=+v;saveSet()});bind("#s-run",v=>{SET.runKmh=+v;saveSet()});
   bind("#s-vkm",v=>{voice.km=+v;try{localStorage.setItem("walkies.voice",JSON.stringify(voice))}catch(e){}});bind("#s-vmin",v=>{voice.min=+v;try{localStorage.setItem("walkies.voice",JSON.stringify(voice))}catch(e){}});
   bind("#s-map",v=>{if(window.L)setTiles(v);else{tileMode=v;try{localStorage.setItem("walkies.tiles",v)}catch(e){}}});
   el.querySelectorAll("[data-recall]").forEach(b=>b.onclick=()=>openRecorder(todoList(b.dataset.recall)));
   bind("#s-stats",v=>{SET.stats=v==="1";saveSet()});
   el.querySelectorAll("[data-rec]").forEach(b=>b.onclick=()=>{const[k,i]=b.dataset.rec.split(":");const c=CATS.find(x=>x.k===k);openRecorder([{cat:k,sug:+i,text:c.sug[+i]}])});
   el.querySelectorAll("[data-play]").forEach(b=>b.onclick=()=>{const c=clips.find(x=>x.id===b.dataset.play);if(c)playClip(c).catch(()=>toast("Couldn't play that clip"))});
-  el.querySelectorAll("[data-del]").forEach(b=>b.onclick=async()=>{try{await idb.del(b.dataset.del)}catch(e){}clips=clips.filter(x=>x.id!==b.dataset.del);renderSettings();toast("Line deleted")});
+  el.querySelectorAll("[data-del]").forEach(b=>b.onclick=async()=>{try{await idb.del(b.dataset.del)}catch(e){}api("/rest/v1/clips?id=eq."+encodeURIComponent(b.dataset.del),{method:"DELETE"}).catch(()=>{});clips=clips.filter(x=>x.id!==b.dataset.del);renderSettings();toast("Line deleted")});
   el.querySelectorAll("[data-add]").forEach(b=>b.onclick=()=>openRecorder([{cat:b.dataset.add,sug:null,custom:true,text:""}]))}
 
 /* ---------- keep running with the screen off ----------
@@ -1600,7 +1607,47 @@ $("#x-pause").addEventListener("click",()=>{bt.remaining=bt.endsAt-pnow();bt.sta
 $("#x-stop").addEventListener("click",()=>{clearInterval(bTick);bTick=null;stayAwake(false);try{bWake&&bWake.release()}catch(e){}bWake=null;try{speechSynthesis.cancel()}catch(e){}const was=bt;bt={state:"idle",phase:"prep",round:1};paintBox();if(was.state!=="done")toast(`Stopped in round ${was.round} of ${box.rounds}`)});
 $("#box-close").addEventListener("click",()=>{if(bt.state==="running"||bt.state==="paused"){toast("Tap STOP to end the workout first");return}bt={state:"idle",phase:"prep",round:1};go("")});
 $("#box-test").addEventListener("click",()=>{audio();bell(1);setTimeout(()=>coach([roundClip(1),rndClip("start")],"Round 1! Come on, have a crack!"),650)});
-function openBox(){renderBox();paintBox()}
+function openBox(){renderBox();paintBox();activeClips().forEach(c=>c.url&&bufFor(c).catch(()=>{}))}
+
+/* ---------- shared database (Supabase): one set of walks, ladder times, spot photos and coach voices for everyone ----------
+   Each phone keeps working offline from its own copy, and syncs when it can. Walks are never truly deleted, only hidden. */
+const DB={url:"https://ovmmhlvhplkgblncustm.supabase.co",key:"sb_publishable_APks7xquzk6LXmumTowZ2g_QcGecGig"};
+let remoteClips=[],syncing=false,syncAgain=false,lastSync=0,syncOk=null,syncTimer=null;
+const myName=()=>{try{return localStorage.getItem("walkies.by")||""}catch(e){return""}};
+const uuid=()=>crypto.randomUUID?crypto.randomUUID():"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,c=>{const r=Math.random()*16|0;return(c==="x"?r:(r&3|8)).toString(16)});
+async function api(path,opts){opts=opts||{};const h=Object.assign({apikey:DB.key},opts.body&&typeof opts.body==="string"?{"Content-Type":"application/json"}:{},opts.headers||{});
+  const r=await fetch(DB.url+path,Object.assign({},opts,{headers:h}));const t=await r.text();if(!r.ok)throw new Error(r.status+" "+t.slice(0,200));return t?JSON.parse(t):null}
+async function upload(path,blob){await api("/storage/v1/object/media/"+path,{method:"POST",body:blob,headers:{"Content-Type":blob.type||"application/octet-stream","cache-control":"31536000"}});return DB.url+"/storage/v1/object/public/media/"+path}
+function dataUrlBlob(d){const i=d.indexOf(","),mime=(d.slice(5,i).split(";")[0])||"image/jpeg",bin=atob(d.slice(i+1)),u=new Uint8Array(bin.length);for(let k=0;k<bin.length;k++)u[k]=bin.charCodeAt(k);return new Blob([u],{type:mime})}
+function walkData(w){const d=Object.assign({},w);delete d.results;delete d.synced;delete d.id;return d}
+async function pushDeletes(){const q=store.deletes||[];while(q.length){await api("/rest/v1/walks?id=eq."+encodeURIComponent(q[0]),{method:"PATCH",headers:{Prefer:"return=minimal"},body:JSON.stringify({deleted:true,updated_at:new Date().toISOString()})});q.shift();saveQuiet()}}
+async function pushWalks(){for(const w of store.walks.slice()){if(w.sample||w.synced)continue;
+  for(let i=0;i<(w.pins||[]).length;i++){const p=w.pins[i];if(p.photo&&p.photo.startsWith("data:")){p.photo=await upload(`photos/${w.id}-${i}-${Date.now().toString(36)}.jpg`,dataUrlBlob(p.photo));saveQuiet()}}
+  await api("/rest/v1/walks",{method:"POST",headers:{Prefer:"resolution=merge-duplicates,return=minimal"},body:JSON.stringify([{id:w.id,data:walkData(w),deleted:false,updated_at:new Date().toISOString()}])});
+  w.synced=true;saveQuiet()}}
+async function pushResults(){const rows=[];store.walks.forEach(w=>{if(w.sample)return;(w.results||[]).forEach(r=>{if(r.synced)return;r.id=r.id||uuid();rows.push([r,{id:r.id,walk_id:w.id,who:String(r.by).slice(0,60),ms:Math.round(r.ms),created_at:new Date(r.at||Date.now()).toISOString()}])})});
+  if(!rows.length)return;await api("/rest/v1/results",{method:"POST",headers:{Prefer:"resolution=ignore-duplicates,return=minimal"},body:JSON.stringify(rows.map(x=>x[1]))});rows.forEach(x=>x[0].synced=true);saveQuiet()}
+async function pushClips(){for(const c of clips){if(c.path||!c.blob)continue;const t=c.blob.type||"";const ext=t.includes("mp4")||t.includes("m4a")||t.includes("aac")?"m4a":t.includes("mpeg")?"mp3":t.includes("wav")?"wav":t.includes("ogg")?"ogg":"webm";
+  const path=`clips/${c.id}-${(c.created||Date.now()).toString(36)}.${ext}`;await upload(path,c.blob);
+  await api("/rest/v1/clips",{method:"POST",headers:{Prefer:"resolution=merge-duplicates,return=minimal"},body:JSON.stringify([{id:c.id,cat:c.cat,sug:c.sug==null?null:c.sug,custom:!!c.custom,line:c.text||"",who:myName()||"Someone",path}])});
+  c.path=path;try{await idb.put(c)}catch(e){}}}
+async function pullAll(){const[ws,rs,cs]=await Promise.all([api("/rest/v1/walks?select=id,data,deleted"),api("/rest/v1/results?select=id,walk_id,who,ms,created_at&limit=10000"),api("/rest/v1/clips?select=id,cat,sug,custom,line,who,path&order=created_at.asc")]);
+  const dels=new Set(store.deletes||[]);
+  (ws||[]).forEach(row=>{const i=store.walks.findIndex(x=>x.id===row.id);if(row.deleted){if(i>=0)store.walks.splice(i,1);return}if(dels.has(row.id))return;
+    const local=i>=0?store.walks[i]:null;if(local&&!local.synced)return;const w=Object.assign({},row.data,{id:row.id,synced:true,results:local?local.results||[]:[]});if(i>=0)store.walks[i]=w;else store.walks.push(w)});
+  const byWalk={};(rs||[]).forEach(r=>{(byWalk[r.walk_id]=byWalk[r.walk_id]||[]).push({id:r.id,by:r.who,ms:+r.ms,at:Date.parse(r.created_at),synced:true})});
+  store.walks.forEach(w=>{if(w.sample)return;w.results=(byWalk[w.id]||[]).concat((w.results||[]).filter(r=>!r.synced))});
+  saveQuiet();
+  remoteClips=(cs||[]).map(c=>({id:"r-"+c.id+"-"+c.path,cat:c.cat,sug:c.sug,custom:c.custom,text:c.line,who:c.who||"Someone",url:DB.url+"/storage/v1/object/public/media/"+c.path}))}
+function queueSync(){clearTimeout(syncTimer);syncTimer=setTimeout(sync,1200)}
+async function sync(){if(syncing){syncAgain=true;return}syncing=true;
+  try{await pushDeletes();await pushWalks();await pushResults();await pushClips();await pullAll();syncOk=true;lastSync=Date.now()}catch(e){syncOk=false;try{console.warn("Sync failed",e)}catch(_){}}
+  finally{syncing=false;syncStatus();refreshAfterSync();if(syncAgain){syncAgain=false;queueSync()}}}
+function syncStatus(){const el=$("#sync-status");if(!el)return;el.className="sync-status "+(syncOk?"ok":syncOk===false?"off":"");
+  el.textContent=syncOk?`Shared with everyone · updated ${new Date(lastSync).toLocaleTimeString("en-AU",{hour:"numeric",minute:"2-digit"})}`:syncOk===false?(IN_CLAUDE?"Sharing works in the live app, not this preview.":"Offline right now. Your walks and times will share when you're back online."):"Connecting to the shared walks…"}
+function refreshAfterSync(){if(!$("#view-home").hidden)renderList();if(!$("#view-settings").hidden&&$("#sheet-rec").hidden)renderSettings()}
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&Date.now()-lastSync>20000)queueSync()});
+window.addEventListener("online",queueSync);
 
 /* ---------- routing ---------- */
 function go(h){if(location.hash.slice(1)===h)route();else location.hash=h}
@@ -1619,8 +1666,9 @@ async function route(){const h=decodeURIComponent(location.hash.slice(1));
 function show(v){$("#view-settings").hidden=v!=="settings";$("#view-box").hidden=v!=="box";$("#view-home").hidden=v!=="home";$("#view-detail").hidden=v!=="detail";$("#view-record").hidden=v!=="record";if(v!=="record")window.scrollTo(0,0)}
 window.addEventListener("hashchange",route);
 
-load();if(store.initialised){delete store.initialised;save()}
+load();if(store.initialised){delete store.initialised;saveQuiet()}
 document.querySelectorAll(".map-toggle").forEach(b=>b.textContent=tileMode==="sat"?"Map view":"Satellite");
 route();
+idb.all().catch(()=>{}).then(()=>setTimeout(sync,400));
 })();
 </script>
