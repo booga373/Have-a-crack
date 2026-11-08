@@ -14,3 +14,8 @@ Matt Bailey's phone web app: farm walks and runs (GPS map, GO/PAUSE/STOP, spots 
 - Settings: coach voice recording for walks and boxing, walk paces, map style.
 - Share links (`#share=`) stay backward compatible with older links.
 - Australian English, km and metres, plain friendly copy.
+
+## Shared data (Supabase)
+- Project https://ovmmhlvhplkgblncustm.supabase.co, public publishable key is in src/app.html (`DB`). Tables: `walks` (id, data jsonb, deleted), `results` (walk_id, who, ms), `clips` (coach voice rows); storage bucket `media` (photos/, people/, clips/).
+- People profiles live in the `walks` table as rows with `data.kind = "person"` ({name, photo}). The walk list must always skip them.
+- Pictures used by the build: src/icon.jpg (logo/home-screen icon), src/tile-walk.jpg, src/tile-box.jpg (home tiles), src/avatar-matt.jpg (Matt's default profile picture).

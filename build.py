@@ -12,7 +12,9 @@ src = (root / "src/app.html").read_text()
 css = (root / "src/leaflet.css").read_text()
 icon = "data:image/jpeg;base64," + base64.b64encode((root / "src/icon.jpg").read_bytes()).decode()
 import time
-body = src.replace("/*LEAFLET_CSS*/", css).replace("ICON_DATA", icon).replace('const BUILD="BUILD_ID"', 'const BUILD="' + time.strftime("%Y%m%d%H%M%S") + '"')
+body = src.replace("/*LEAFLET_CSS*/", css).replace("ICON_DATA", icon)
+for ph, fn in {"TILE_WALK": "tile-walk.jpg", "TILE_BOX": "tile-box.jpg", "AVATAR_MATT": "avatar-matt.jpg"}.items():
+    body = body.replace(ph, "data:image/jpeg;base64," + base64.b64encode((root / "src" / fn).read_bytes()).decode()).replace('const BUILD="BUILD_ID"', 'const BUILD="' + time.strftime("%Y%m%d%H%M%S") + '"')
 head = f"""<!doctype html>
 <html lang="en">
 <head>
