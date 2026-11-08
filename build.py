@@ -29,6 +29,8 @@ head = f"""<!doctype html>
 </head>
 <body>
 """
+import json as _json
+body = body.replace("VOICE_MAP_JSON", _json.dumps(_json.load(open(root / "audio/med/manifest.json")), ensure_ascii=False))
 (root / "index.html").write_text(head + body + "\n</body>\n</html>\n")
 (root / "dist").mkdir(exist_ok=True)
 (root / "dist/preview.html").write_text(body)
