@@ -1182,7 +1182,7 @@ function medEntries(){return(store.medLog||[]).concat((store.medLocal||[]).filte
 const dayKey=t=>new Date(t).toLocaleDateString("en-CA");
 function medStats(name){const k=String(name||"").toLowerCase();const mine=medEntries().filter(e=>String(e.by).toLowerCase()===k);const days=new Set(mine.map(e=>dayKey(e.at)));
   let d=new Date();if(!days.has(dayKey(d)))d.setDate(d.getDate()-1);let streak=0;while(days.has(dayKey(d))){streak++;d.setDate(d.getDate()-1)}
-  const week=mine.filter(e=>Date.now()-e.at<7*864e5).reduce((a,e)=>a+e.ms,0)/60000;return{streak,week:Math.round(week),total:Math.round(mine.reduce((a,e)=>a+e.ms,0)/60000),n:mine.length}}
+  const week=mine.filter(e=>Date.now()-e.at<7*864e5).reduce((a,e)=>a+e.ms,0)/60000;return{streak,week:Math.round(week),total:Math.round(mine.reduce((a,e)=>a+e.ms,0)/60000),sessions:mine.length}}
 function renderMedHome(){const el=$("#view-medhome");const me=meName();const names=[...new Set(medEntries().map(e=>e.by).concat(me?[me]:[]))].filter(Boolean);
   const board=names.map(n=>({n,...medStats(n)})).sort((a,b)=>b.week-a.week||b.streak-a.streak);
   const card=(s,kind)=>`<button class="med-card" type="button" data-med="${kind}:${s.id}"><small>${esc(s.tag)}</small><strong>${esc(s.t)}</strong><span>${esc(s.d)}</span></button>`;
@@ -1310,6 +1310,7 @@ async function route(){const h=decodeURIComponent(location.hash.slice(1));
   show("home");renderList()}
 function show(v){$("#view-medhome").hidden=v!=="medhome";$("#view-settings").hidden=v!=="settings";$("#view-box").hidden=v!=="box";$("#view-home").hidden=v!=="home";$("#view-detail").hidden=v!=="detail";$("#view-record").hidden=v!=="record";if(v!=="record")window.scrollTo(0,0)}
 window.addEventListener("hashchange",route);
+let errShown=0;window.addEventListener("error",()=>{if(Date.now()-errShown>8000){errShown=Date.now();toast("Something didn't load properly. Close the app and open it again.")}});
 
 load();if(store.initialised)delete store.initialised;ensurePeople();dropSamples();saveQuiet();
 document.querySelectorAll(".map-toggle").forEach(b=>b.textContent=tileMode==="sat"?"Map view":"Satellite");
