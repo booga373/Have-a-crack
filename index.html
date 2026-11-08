@@ -1145,7 +1145,9 @@ function samples(){const c=[-37.1505,145.3402],t0=Date.UTC(2026,9,4,21,0);
 let store={walks:[],initialised:false};
 function load(){try{const s=JSON.parse(localStorage.getItem(KEY)||"null");if(s&&Array.isArray(s.walks)){store=s;return}}catch(e){}
   store={walks:samples(),initialised:true}}
-function save(){saveQuiet();queueSync()}
+function save(){dropSamples();saveQuiet();queueSync()}
+/* sample walks only show until the first real walk exists, on this phone or shared */
+function dropSamples(){if(store.walks.some(w=>!w.sample))store.walks=store.walks.filter(w=>!w.sample)}
 function saveQuiet(){try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){toast("Couldn't save on this phone. Storage may be full or blocked.")}}
 const byId=id=>store.walks.find(w=>w.id===id);
 function uid(name){const b=(name||"walk").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,24)||"walk";let id;do{id=b+"-"+Math.random().toString(36).slice(2,7)}while(byId(id));return id}
@@ -1650,7 +1652,7 @@ async function pullAll(){const[ws,rs,cs]=await Promise.all([api("/rest/v1/walks?
     const local=i>=0?store.walks[i]:null;if(local&&!local.synced)return;const w=Object.assign({},row.data,{id:row.id,synced:true,results:local?local.results||[]:[]});if(i>=0)store.walks[i]=w;else store.walks.push(w)});
   const byWalk={};(rs||[]).forEach(r=>{(byWalk[r.walk_id]=byWalk[r.walk_id]||[]).push({id:r.id,by:r.who,ms:+r.ms,at:Date.parse(r.created_at),synced:true})});
   store.walks.forEach(w=>{if(w.sample)return;w.results=(byWalk[w.id]||[]).concat((w.results||[]).filter(r=>!r.synced))});
-  saveQuiet();
+  dropSamples();saveQuiet();
   remoteClips=(cs||[]).map(c=>({id:"r-"+c.id+"-"+c.path,cat:c.cat,sug:c.sug,custom:c.custom,text:c.line,who:c.who||"Someone",url:DB.url+"/storage/v1/object/public/media/"+c.path}))}
 function queueSync(){clearTimeout(syncTimer);syncTimer=setTimeout(sync,1200)}
 async function sync(){if(syncing){syncAgain=true;return}syncing=true;
@@ -1679,7 +1681,7 @@ async function route(){const h=decodeURIComponent(location.hash.slice(1));
 function show(v){$("#view-settings").hidden=v!=="settings";$("#view-box").hidden=v!=="box";$("#view-home").hidden=v!=="home";$("#view-detail").hidden=v!=="detail";$("#view-record").hidden=v!=="record";if(v!=="record")window.scrollTo(0,0)}
 window.addEventListener("hashchange",route);
 
-load();if(store.initialised){delete store.initialised;saveQuiet()}
+load();if(store.initialised)delete store.initialised;dropSamples();saveQuiet();
 document.querySelectorAll(".map-toggle").forEach(b=>b.textContent=tileMode==="sat"?"Map view":"Satellite");
 route();
 idb.all().catch(()=>{}).then(()=>setTimeout(sync,400));
