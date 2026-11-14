@@ -144,6 +144,8 @@ button{cursor:pointer}
 .big:disabled{opacity:.28;filter:grayscale(.5);cursor:default;box-shadow:none}
 .off-route{display:flex;align-items:center;gap:10px;margin:0 0 10px;padding:10px 12px;border-radius:14px;background:var(--stop);color:var(--stop-ink);font-weight:700;font-size:.95rem;line-height:1.3}
 .off-route svg{flex:none}
+.vs-gold{display:flex;align-items:center;justify-content:center;gap:8px;margin:-2px 0 10px;font-weight:600;font-size:.95rem;text-align:center}
+.vs-gold b{font-variant-numeric:tabular-nums}.vs-gold.ahead b{color:var(--go)}.vs-gold.behind b{color:var(--stop)}
 .awake-tip{margin:10px 0 0;text-align:center;font-size:.8rem;color:var(--muted)}
 .extras{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
 .mark{width:100%;justify-content:center;min-width:0}
@@ -410,6 +412,7 @@ button{cursor:pointer}
         <div class="stat"><b id="r-left">–</b><span id="r-left-l">spots</span></div>
       </div>
       <div class="follow-bar" id="follow-bar" hidden><i id="follow-fill"></i></div>
+      <p class="vs-gold" id="vs-gold" hidden></p>
       <div class="controls">
         <button class="big go" type="button" id="b-go"><svg width="34" height="34" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4l13 8-13 8z" fill="currentColor"/></svg>GO</button>
         <button class="big pause" type="button" id="b-pause" disabled><svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="5" height="16" rx="1.5" fill="currentColor"/><rect x="14" y="4" width="5" height="16" rx="1.5" fill="currentColor"/></svg>PAUSE</button>
@@ -843,9 +846,19 @@ function updateUI(){if(!rec)return;const s=rec.state;
   const el=elapsed();$("#r-clock").textContent=fmtClock(el);$("#r-dist").textContent=(rec.dist/1000).toFixed(2);
   $("#r-pace").textContent=rec.dist>50?fmtPace(el/(rec.dist/1000)):"–";$("#r-climb").textContent=climb(rec.pts).gain;
   if(follow){const fs=followStats();const rp=routePos();const frac=rp?rp.frac:0;
-    $("#follow-fill").style.width=(frac*100).toFixed(1)+"%";$("#r-left").textContent=Math.max(0,Math.round(fs.walkMin*(1-frac)));checkRoute(rp)}
-  else $("#r-left").textContent=rec.pins.length;
+    $("#follow-fill").style.width=(frac*100).toFixed(1)+"%";$("#r-left").textContent=Math.max(0,Math.round(fs.walkMin*(1-frac)));checkRoute(rp);paintGold(rp)}
+  else{$("#vs-gold").hidden=true;$("#r-left").textContent=rec.pins.length}
   if(s!=="running")$("#off-route").hidden=true}
+/* race the gold medal: compares your time so far with the gold holder's pace over the same distance (Strava Live Segments style) */
+function goldGap(rp){if(!follow||!rp||rp.frac<.03||rec.state==="idle")return null;if(rec.goldFor!==follow){rec.gold=ladder(follow)[0]||null;rec.goldFor=follow}const g=rec.gold;if(!g)return null;
+  const me=meName();return{diff:elapsed()-g.ms*rp.frac,who:g.by,mine:!!me&&me.trim().toLowerCase()===g.by.trim().toLowerCase()}}
+const gapTxt=ms=>{const s=Math.round(Math.abs(ms)/1000);return s<60?s+" s":Math.floor(s/60)+":"+String(s%60).padStart(2,"0")};
+const goldWho=g=>g.mine?"your own":esc(firstName(g.who))+"\u2019s";
+function paintGold(rp){const el=$("#vs-gold"),g=goldGap(rp);if(!g){el.hidden=true;return}el.hidden=false;
+  const near=Math.abs(g.diff)<5000;el.className="vs-gold "+(near?"":g.diff<0?"ahead":"behind");
+  el.innerHTML=medalSvg(1,22)+(near?`<span>Right on ${goldWho(g)} gold pace</span>`:`<span><b>${gapTxt(g.diff)} ${g.diff<0?"ahead of":"behind"}</b> ${goldWho(g)} gold pace</span>`)}
+function spokenGap(rp){const g=goldGap(rp);if(!g)return"";const who=g.mine?"your own record":firstName(g.who)+"'s gold medal pace";if(Math.abs(g.diff)<5000)return` You're right on ${who}.`;
+  const s=Math.round(Math.abs(g.diff)/1000),t=s<60?s+(s===1?" second":" seconds"):spokenTime(s*1000);return` You're ${t} ${g.diff<0?"ahead of":"behind"} ${who}.`}
 /* where am I on the route I'm following? Measures to the line between route points (not just the points),
    and on loops or out-and-backs picks the stretch that matches how far I've walked, so the start of a loop isn't mistaken for the finish */
 function followStats(){if(!rec.fs||rec.fsFor!==follow){rec.fs=stats(follow);rec.fsFor=follow}return rec.fs}
@@ -935,7 +948,7 @@ function spokenKm(m){const k=Math.round(m/100)/10;return(k%1?k.toFixed(1):String
 function checkVoice(){if(!rec||rec.state!=="running")return;const el=elapsed();let msg="",statsMsg="",kmDone=0;
   if(voice.km&&rec.dist>=rec.nextKm){const d=rec.nextKm;rec.nextKm=(Math.floor(rec.dist/(voice.km*1000))+1)*voice.km*1000;
     kmDone=Math.round(d);msg=`You've just completed ${spokenKm(d)}. Time, ${spokenTime(el)}. Pace, ${spokenPace(el/(rec.dist/1000))}.`;statsMsg=`${kmClip(Math.round(d/1000))&&d%1000===0?"":spokenKm(d)+". "}Time, ${spokenTime(el)}. Pace, ${spokenPace(el/(rec.dist/1000))}.`;
-    if(follow){const left=Math.max(0,stats(follow).dist-rec.dist);if(left>100){msg+=` ${spokenKm(left)} to go.`;statsMsg+=` ${spokenKm(left)} to go.`}}}
+    if(follow){const rp=routePos(),left=Math.max(0,followStats().dist-(rp?rp.done:rec.dist));if(left>100){msg+=` ${spokenKm(left)} to go.`;statsMsg+=` ${spokenKm(left)} to go.`}const gs=spokenGap(rp);msg+=gs;statsMsg+=gs}}
   else if(voice.min&&el>=rec.nextMin){rec.nextMin=(Math.floor(el/(voice.min*60000))+1)*voice.min*60000;msg=`${spokenTime(el)} done. You've covered ${spokenKm(rec.dist)}.`;statsMsg=msg}
   if(msg){const whole=kmDone&&kmDone%1000===0?kmClip(kmDone/1000):null;
     coach(kmDone?[whole,rndClip("wcheer")]:[rndClip("wcheer")],msg,SET.stats?statsMsg:null,talk);toast(msg.split(". ")[0])}}
