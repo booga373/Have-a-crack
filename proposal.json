@@ -1,4 +1,29 @@
-{"date":"2026-11-14","status":"pending","items":[
-{"n":1,"title":"Wrong-turn alert","what":"When you follow a saved walk and stray more than 60 m off it, the phone buzzes, the coach tells you, and a red banner and dashed line on the map point you back to the track.","where":"Pick a walk, tap 'Walk this route', then GO (shows on the recording screen)","inspiredBy":"AllTrails wrong-turn alerts and Strava off-route alerts","commit":"cb5595258ee2e865f1847a5589aa6cc02bef4e00"},
-{"n":2,"title":"Race the gold medal","what":"While walking a saved route, a live line shows how many seconds you're ahead of or behind the gold medal holder's pace, and the km voice updates say it too.","where":"Pick a walk, tap 'Walk this route', then GO (under the green progress bar)","inspiredBy":"Strava Live Segments","commit":"7eddd53017d9e5c408827ec76f3c311655d1e45f"}],
-"handledReplies":[]}
+{
+ "date": "2026-11-14",
+ "status": "approved",
+ "items": [
+  {
+   "n": 1,
+   "title": "Wrong-turn alert",
+   "what": "When you follow a saved walk and stray more than 60 m off it, the phone buzzes, the coach tells you, and a red banner and dashed line on the map point you back to the track.",
+   "where": "Pick a walk, tap 'Walk this route', then GO (shows on the recording screen)",
+   "inspiredBy": "AllTrails wrong-turn alerts and Strava off-route alerts",
+   "commit": "cb5595258ee2e865f1847a5589aa6cc02bef4e00"
+  },
+  {
+   "n": 2,
+   "title": "Race the gold medal",
+   "what": "While walking a saved route, a live line shows how many seconds you're ahead of or behind the gold medal holder's pace, and the km voice updates say it too.",
+   "where": "Pick a walk, tap 'Walk this route', then GO (under the green progress bar)",
+   "inspiredBy": "Strava Live Segments",
+   "commit": "7eddd53017d9e5c408827ec76f3c311655d1e45f"
+  }
+ ],
+ "handledReplies": [
+  {
+   "date": "2026-11-14",
+   "reply": "Yes approved",
+   "action": "Applied items 1 and 2 to main"
+  }
+ ]
+}
