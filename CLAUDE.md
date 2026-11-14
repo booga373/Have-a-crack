@@ -9,6 +9,7 @@ Matt Bailey's phone web app: farm walks and runs (GPS map, GO/PAUSE/STOP, spots 
 
 ## Things that must keep working (check before pushing)
 - Big green GO, amber PAUSE, red STOP on both the walk recorder and the boxing timer.
+- When walking a saved route: wrong-turn alert (60 m off for 12 s: buzz, coach line, red banner, dashed line back; "Back on track" when rejoined) and the live "ahead/behind gold pace" line under the progress bar, also spoken with each km update.
 - Time/Map toggle on the recorder; voice updates each km; "Come on, have a crack!" at the start of each boxing round; 10-second warning.
 - Matt's Have a Crack picture as the logo and home-screen icon (`src/icon.jpg`).
 - Settings: coach voice recording for walks and boxing, walk paces, map style.

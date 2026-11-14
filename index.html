@@ -732,6 +732,10 @@ button{cursor:pointer}
 .big.stop{background:var(--stop);color:var(--stop-ink);box-shadow:0 6px 0 #9c2418}
 .big:active:not(:disabled){transform:translateY(4px);box-shadow:none}
 .big:disabled{opacity:.28;filter:grayscale(.5);cursor:default;box-shadow:none}
+.off-route{display:flex;align-items:center;gap:10px;margin:0 0 10px;padding:10px 12px;border-radius:14px;background:var(--stop);color:var(--stop-ink);font-weight:700;font-size:.95rem;line-height:1.3}
+.off-route svg{flex:none}
+.vs-gold{display:flex;align-items:center;justify-content:center;gap:8px;margin:-2px 0 10px;font-weight:600;font-size:.95rem;text-align:center}
+.vs-gold b{font-variant-numeric:tabular-nums}.vs-gold.ahead b{color:var(--go)}.vs-gold.behind b{color:var(--stop)}
 .awake-tip{margin:10px 0 0;text-align:center;font-size:.8rem;color:var(--muted)}
 .extras{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
 .mark{width:100%;justify-content:center;min-width:0}
@@ -989,6 +993,7 @@ button{cursor:pointer}
       <div class="gps-note" id="gps-note" hidden><p id="gps-msg"></p><button class="btn small primary" type="button" id="btn-demo">Play a demo walk</button></div>
     </div>
     <div class="rec-panel">
+      <div class="off-route" id="off-route" role="alert" hidden><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17h.01"/></svg><span id="off-route-t">Off the track</span></div>
       <div class="clock" id="r-clock">0:00:00</div>
       <div class="stats">
         <div class="stat"><b id="r-dist">0.00</b><span>km</span></div>
@@ -997,6 +1002,7 @@ button{cursor:pointer}
         <div class="stat"><b id="r-left">–</b><span id="r-left-l">spots</span></div>
       </div>
       <div class="follow-bar" id="follow-bar" hidden><i id="follow-fill"></i></div>
+      <p class="vs-gold" id="vs-gold" hidden></p>
       <div class="controls">
         <button class="big go" type="button" id="b-go"><svg width="34" height="34" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4l13 8-13 8z" fill="currentColor"/></svg>GO</button>
         <button class="big pause" type="button" id="b-pause" disabled><svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="5" height="16" rx="1.5" fill="currentColor"/><rect x="14" y="4" width="5" height="16" rx="1.5" fill="currentColor"/></svg>PAUSE</button>
@@ -1400,7 +1406,7 @@ function openRecord(){if(!rec||rec.state==="idle"||rec.state==="stopped")rec=new
   $("#rec-title").textContent=follow?follow.name:"New walk";
   $("#follow-bar").hidden=!follow;$("#r-left-l").textContent=follow?"min to go":"spots";
   const m=makeMap($("#rec-map"),"rec");
-  if(m){m._over.clearLayers();setTimeout(()=>m.invalidateSize(),60);if(follow){drawRoute(m,follow,stats(follow),{faint:true})}else m.setView([-37.15,145.34],15);
+  if(m){m._over.clearLayers();rec.offLine=null;setTimeout(()=>m.invalidateSize(),60);if(follow){drawRoute(m,follow,stats(follow),{faint:true})}else m.setView([-37.15,145.34],15);
     trackLine=L.polyline([],{color:getCss("--route"),weight:6,lineJoin:"round"}).addTo(m._over);meMarker=null;redrawTrack()}
   else{$("#rec-map").innerHTML=""}
   setRecView(recView);voiceLabel();startGPS();updateUI()}
@@ -1429,9 +1435,45 @@ function updateUI(){if(!rec)return;const s=rec.state;
   const st=$("#rec-status");st.className="status "+(s==="running"?"running":s==="paused"?"paused":"");st.textContent=s==="running"?(rec.demo?"Demo · live":"Recording"):s==="paused"?"Paused":rec.demo?"Demo":"Ready";
   const el=elapsed();$("#r-clock").textContent=fmtClock(el);$("#r-dist").textContent=(rec.dist/1000).toFixed(2);
   $("#r-pace").textContent=rec.dist>50?fmtPace(el/(rec.dist/1000)):"–";$("#r-climb").textContent=climb(rec.pts).gain;
-  if(follow){const fs=stats(follow);let done=0;if(rec.pts.length){const me=rec.pts[rec.pts.length-1];let bi=0,bd=Infinity;follow.pts.forEach((q,i)=>{const d=hav(q,me);if(d<bd){bd=d;bi=i}});done=bd<150?fs.c[bi]:Math.min(rec.dist,fs.dist)}
-    const frac=Math.min(1,done/(fs.dist||1));$("#follow-fill").style.width=(frac*100).toFixed(1)+"%";$("#r-left").textContent=Math.max(0,Math.round(fs.walkMin*(1-frac)))}
-  else $("#r-left").textContent=rec.pins.length}
+  if(follow){const fs=followStats();const rp=routePos();const frac=rp?rp.frac:0;
+    $("#follow-fill").style.width=(frac*100).toFixed(1)+"%";$("#r-left").textContent=Math.max(0,Math.round(fs.walkMin*(1-frac)));checkRoute(rp);paintGold(rp)}
+  else{$("#vs-gold").hidden=true;$("#r-left").textContent=rec.pins.length}
+  if(s!=="running")$("#off-route").hidden=true}
+/* race the gold medal: compares your time so far with the gold holder's pace over the same distance (Strava Live Segments style) */
+function goldGap(rp){if(!follow||!rp||rp.frac<.03||rec.state==="idle")return null;if(rec.goldFor!==follow){rec.gold=ladder(follow)[0]||null;rec.goldFor=follow}const g=rec.gold;if(!g)return null;
+  const me=meName();return{diff:elapsed()-g.ms*rp.frac,who:g.by,mine:!!me&&me.trim().toLowerCase()===g.by.trim().toLowerCase()}}
+const gapTxt=ms=>{const s=Math.round(Math.abs(ms)/1000);return s<60?s+" s":Math.floor(s/60)+":"+String(s%60).padStart(2,"0")};
+const goldWho=g=>g.mine?"your own":esc(firstName(g.who))+"\u2019s";
+function paintGold(rp){const el=$("#vs-gold"),g=goldGap(rp);if(!g){el.hidden=true;return}el.hidden=false;
+  const near=Math.abs(g.diff)<5000;el.className="vs-gold "+(near?"":g.diff<0?"ahead":"behind");
+  el.innerHTML=medalSvg(1,22)+(near?`<span>Right on ${goldWho(g)} gold pace</span>`:`<span><b>${gapTxt(g.diff)} ${g.diff<0?"ahead of":"behind"}</b> ${goldWho(g)} gold pace</span>`)}
+function spokenGap(rp){const g=goldGap(rp);if(!g)return"";const who=g.mine?"your own record":firstName(g.who)+"'s gold medal pace";if(Math.abs(g.diff)<5000)return` You're right on ${who}.`;
+  const s=Math.round(Math.abs(g.diff)/1000),t=s<60?s+(s===1?" second":" seconds"):spokenTime(s*1000);return` You're ${t} ${g.diff<0?"ahead of":"behind"} ${who}.`}
+/* where am I on the route I'm following? Measures to the line between route points (not just the points),
+   and on loops or out-and-backs picks the stretch that matches how far I've walked, so the start of a loop isn't mistaken for the finish */
+function followStats(){if(!rec.fs||rec.fsFor!==follow){rec.fs=stats(follow);rec.fsFor=follow}return rec.fs}
+function routePos(){if(!follow||!rec||!rec.pts.length)return null;const fs=followStats(),P=follow.pts,me=rec.pts[rec.pts.length-1];
+  const lat0=rad(me[0]),X=p=>rad(p[1]-me[1])*Math.cos(lat0)*R,Y=p=>rad(p[0]-me[0])*R;let best=null,match=null;
+  for(let i=1;i<P.length;i++){if(P[i][4])continue;const ax=X(P[i-1]),ay=Y(P[i-1]),bx=X(P[i]),by=Y(P[i]),dx=bx-ax,dy=by-ay,L=dx*dx+dy*dy;
+    let t=L?-(ax*dx+ay*dy)/L:0;t=Math.max(0,Math.min(1,t));const d=Math.hypot(ax+t*dx,ay+t*dy),along=fs.c[i-1]+t*(fs.c[i]-fs.c[i-1]);
+    const c={d,along,lat:P[i-1][0]+t*(P[i][0]-P[i-1][0]),lon:P[i-1][1]+t*(P[i][1]-P[i-1][1])};
+    if(!best||d<best.d)best=c;if(d<40&&(!match||Math.abs(along-rec.dist)<Math.abs(match.along-rec.dist)))match=c}
+  if(!best)return null;const on=match||best;const done=best.d<150?on.along:Math.min(rec.dist,fs.dist);
+  return{d:best.d,lat:best.lat,lon:best.lon,done,frac:Math.min(1,done/(fs.dist||1))}}
+/* wrong-turn alert: once you've joined the route, wandering more than 60 m off it for 12 seconds buzzes the phone,
+   says so, and draws a dashed line back to the nearest bit of track. A second buzz when you're back on it. */
+const OFF_M=60,BACK_M=35,OFF_WAIT=12000;
+function checkRoute(rp){const box=$("#off-route");if(!rp||rec.state!=="running"){box.hidden=true;return}
+  if(rp.d<BACK_M)rec.joined=true;if(!rec.joined)return;
+  if(!rec.off){if(rp.d>OFF_M){rec.offSince=rec.offSince||now();if(now()-rec.offSince>=OFF_WAIT){rec.off=true;
+        if(navigator.vibrate)try{navigator.vibrate([250,120,250,120,250])}catch(e){}
+        coach([],"Looks like you've wandered off the track. Head back to the dotted line.",null,talk)}}
+    else rec.offSince=0}
+  else if(rp.d<BACK_M){rec.off=false;rec.offSince=0;if(navigator.vibrate)try{navigator.vibrate(60)}catch(e){}coach([],"Back on track. Good stuff.",null,talk);toast("Back on track")}
+  box.hidden=!rec.off;if(rec.off)$("#off-route-t").textContent=`Off the track · ${Math.round(rp.d)} m away. Head back to the dotted line.`;
+  const m=maps.rec;if(!m||!window.L)return;const me=rec.pts[rec.pts.length-1];
+  if(rec.off){if(!rec.offLine)rec.offLine=L.polyline([],{color:getCss("--stop"),weight:4,dashArray:"4 8",opacity:.95}).addTo(m._over);rec.offLine.setLatLngs([[me[0],me[1]],[rp.lat,rp.lon]])}
+  else if(rec.offLine){m._over.removeLayer(rec.offLine);rec.offLine=null}}
 function goPressed(){const first=rec.state==="idle";if(first){rec.acc=0;rec.nextKm=(voice.km||1)*1000;rec.nextMin=(voice.min||5)*60000}
   if(voice.km||voice.min)coach(first?[rndClip("wstart")]:[rndClip("wresume")],first?(follow?"Off you go on "+follow.name+". Have a crack!":"Walk started. Have a crack!"):"Back on the move.",null,talk);rec.segStart=now();rec.newSeg=true;setState("running");
   stayAwake(true);
@@ -1496,7 +1538,7 @@ function spokenKm(m){const k=Math.round(m/100)/10;return(k%1?k.toFixed(1):String
 function checkVoice(){if(!rec||rec.state!=="running")return;const el=elapsed();let msg="",statsMsg="",kmDone=0;
   if(voice.km&&rec.dist>=rec.nextKm){const d=rec.nextKm;rec.nextKm=(Math.floor(rec.dist/(voice.km*1000))+1)*voice.km*1000;
     kmDone=Math.round(d);msg=`You've just completed ${spokenKm(d)}. Time, ${spokenTime(el)}. Pace, ${spokenPace(el/(rec.dist/1000))}.`;statsMsg=`${kmClip(Math.round(d/1000))&&d%1000===0?"":spokenKm(d)+". "}Time, ${spokenTime(el)}. Pace, ${spokenPace(el/(rec.dist/1000))}.`;
-    if(follow){const left=Math.max(0,stats(follow).dist-rec.dist);if(left>100){msg+=` ${spokenKm(left)} to go.`;statsMsg+=` ${spokenKm(left)} to go.`}}}
+    if(follow){const rp=routePos(),left=Math.max(0,followStats().dist-(rp?rp.done:rec.dist));if(left>100){msg+=` ${spokenKm(left)} to go.`;statsMsg+=` ${spokenKm(left)} to go.`}const gs=spokenGap(rp);msg+=gs;statsMsg+=gs}}
   else if(voice.min&&el>=rec.nextMin){rec.nextMin=(Math.floor(el/(voice.min*60000))+1)*voice.min*60000;msg=`${spokenTime(el)} done. You've covered ${spokenKm(rec.dist)}.`;statsMsg=msg}
   if(msg){const whole=kmDone&&kmDone%1000===0?kmClip(kmDone/1000):null;
     coach(kmDone?[whole,rndClip("wcheer")]:[rndClip("wcheer")],msg,SET.stats?statsMsg:null,talk);toast(msg.split(". ")[0])}}
@@ -1951,7 +1993,7 @@ document.querySelectorAll(".map-toggle").forEach(b=>b.textContent=tileMode==="sa
 route();
 idb.all().catch(()=>{}).then(()=>setTimeout(sync,400));
 /* auto-update: GitHub lets phones keep an old copy for ~10 minutes, so check for a newer build and reload when it's safe */
-const BUILD="20261108192202";
+const BUILD="20261114204416";
 async function checkUpdate(){if(IN_CLAUDE||BUILD==="BUILD_ID")return;try{const t=await(await fetch(location.pathname+"?v="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);
   if(m&&m[1]!==BUILD){const busy=(rec&&(rec.state==="running"||rec.state==="paused"))||bt.state==="running"||bt.state==="paused"||!$("#sheet-save").hidden||!$("#sheet-rec").hidden;
     if(busy){setTimeout(checkUpdate,60000);return}toast("Updating Have a Crack…");setTimeout(()=>location.reload(),800)}}catch(e){}}
