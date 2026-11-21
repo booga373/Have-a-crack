@@ -296,6 +296,8 @@ button{cursor:pointer}
 .section{margin-top:22px}
 .section h3{font-family:var(--f-display);font-weight:800;font-size:1.1rem;margin:0 0 8px}
 .desc{white-space:pre-wrap;margin:0;max-width:65ch}
+.daylight{display:flex;align-items:flex-start;gap:10px;margin:12px 0 0;padding:10px 14px;border-radius:14px;background:var(--surface);border:1px solid var(--line);font-size:.92rem}
+.daylight svg{flex:none;margin-top:2px;color:#e0900a}.daylight.dark{border-color:var(--mod)}
 .spots{list-style:none;margin:0;padding:0;display:grid;gap:6px}
 .spots li{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:12px;background:var(--surface);border:1px solid var(--line)}
 .dot{width:12px;height:12px;border-radius:50%;background:var(--pin);flex:none;box-shadow:0 0 0 2px var(--surface),0 0 0 3px var(--pin)}
@@ -695,6 +697,25 @@ function splits(w,st){if(!w.pts.every(p=>p[3]))return[];const out=[];let next=10
     while(st.c[i]>=next){const f=(next-st.c[i-1])/((st.c[i]-st.c[i-1])||1),t=w.pts[i-1][3]+f*(w.pts[i][3]-w.pts[i-1][3]);out.push({km:next/1000,ms:t-prevT});prevT=t;prevD=next;next+=1000}}
   const rest=st.dist-prevD;if(rest>150)out.push({km:+(st.dist/1000).toFixed(2),ms:(w.pts[w.pts.length-1][3]-prevT)/rest*1000,partial:true});return out}
 
+/* ---------- daylight: sunset worked out on the phone from the walk's position, no internet needed (AllTrails / Gaia GPS style) ---------- */
+function sunsetAt(lat,lon,day){const D=Math.PI/180,noon=new Date(day);noon.setHours(12,0,0,0);
+  const n=Math.round(noon.getTime()/864e5+2440587.5-2451545+lon/360),J=n-lon/360,M=(357.5291+.98560028*J)%360,C=1.9148*Math.sin(M*D)+.02*Math.sin(2*M*D)+.0003*Math.sin(3*M*D),
+    lam=(M+C+180+102.9372)%360,Jt=2451545+J+.0053*Math.sin(M*D)-.0069*Math.sin(2*lam*D),dec=Math.asin(Math.sin(lam*D)*Math.sin(23.4397*D)),
+    cw=(Math.sin(-.833*D)-Math.sin(lat*D)*Math.sin(dec))/(Math.cos(lat*D)*Math.cos(dec));
+  if(!isFinite(cw)||cw<-1||cw>1)return null;return(Jt+Math.acos(cw)/D/360-2440587.5)*864e5}
+const SUN_SVG='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M17 18a5 5 0 00-10 0M12 2v7M4.2 10.2l1.4 1.4M1 18h2M21 18h2M18.4 11.6l1.4-1.4M23 22H1"/></svg>';
+function daylightLine(w,st){if(!w.pts.length)return"";const set=sunsetAt(w.pts[0][0],w.pts[0][1],new Date());if(!set)return"";
+  const t=x=>new Date(x).toLocaleTimeString("en-AU",{hour:"numeric",minute:"2-digit"}),need=st.walkMin*60000,leave=set-need,nowT=Date.now();let msg,dark=false;
+  if(nowT>set){dark=true;msg=`The sun set at <b>${t(set)}</b>. If you go now, take a torch and tell someone at the house.`}
+  else if(nowT>leave){dark=true;msg=`Sunset is <b>${t(set)}</b>. Walking takes about ${fmtMin(st.walkMin)}, so you'll finish after dark. Take a torch.`}
+  else msg=`Sunset today <b>${t(set)}</b>. Walking takes about ${fmtMin(st.walkMin)}, so head off by <b>${t(leave)}</b> to finish in daylight.`;
+  return`<p class="daylight${dark?" dark":""}">${SUN_SVG}<span>${msg}</span></p>`}
+/* while recording: one heads-up when about 30 minutes of daylight are left */
+function checkDaylight(){if(!rec||rec.state!=="running"||rec.sunWarned)return;const p=lastFix||rec.pts[rec.pts.length-1];if(!p)return;
+  if(rec.sunset===undefined)rec.sunset=sunsetAt(p[0],p[1],new Date());if(!rec.sunset)return;const left=rec.sunset-Date.now();
+  if(left<=30*60000&&left>0){rec.sunWarned=true;const m=Math.max(1,Math.round(left/60000));const msg=`Heads up, about ${m} minutes of daylight left. Sunset is at ${new Date(rec.sunset).toLocaleTimeString("en-AU",{hour:"numeric",minute:"2-digit"})}.`;
+    coach([],msg,null,talk);toast(msg)}}
+
 /* ---------- maps ---------- */
 const TILES={sat:["https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}","Imagery © Esri"],map:["https://tile.openstreetmap.org/{z}/{x}/{y}.png","© OpenStreetMap contributors"]};
 let tileMode="sat";try{tileMode=localStorage.getItem("walkies.tiles")||"sat"}catch(e){}
@@ -785,6 +806,7 @@ function renderDetail(w,shared){const st=stats(w);const el=$("#view-detail");con
   <div class="map-wrap"><div class="map" id="d-map"></div><button class="map-toggle" type="button">${tileMode==="sat"?"Map view":"Satellite"}</button></div>
   <div class="statgrid"><div><b>${fmtKm(st.dist)}</b><span>km</span></div><div><b>${fmtMin(st.walkMin)}</b><span>walking</span></div><div><b>${fmtMin(st.runMin)}</b><span>running</span></div><div><b>${st.hasEle?st.gain+" m":"–"}</b><span>climb</span></div></div>
   <button class="big go walk-it" type="button" id="d-walk"><svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4l13 8-13 8z" fill="currentColor"/></svg>Walk this route</button>
+  ${daylightLine(w,st)}
   ${(lb=>`<div class="section"><h3>Leaderboard</h3>${lb.length?`<ol class="ladder">${lb.slice(0,3).map((r,i)=>`<li class="top ${["g","s","b"][i]}"><span class="rank">${medalSvg(i+1,30)}</span>${avatar(r.by,40)}<span class="who"><strong>${esc(r.by)}</strong><small>${r.n>1?r.n+" attempts":"1 attempt"}</small></span><span class="t">${fmtClock(r.ms)}</span></li>`).join("")}</ol><button class="btn" type="button" id="d-ladder">See the full ladder${lb.length>3?" ("+lb.length+")":""}</button>`:`<p style="margin:0;color:var(--muted)">No times yet. Walk this route from start to finish to set the first one.</p>`}</div>`)(ladder(w))}
   ${w.dur?`<p class="sub" style="color:var(--muted);margin:10px 0 0;font-size:.9rem">Recorded in <b class="num" style="color:var(--ink)">${fmtClock(w.dur)}</b> moving time${w.created?` on ${new Date(w.created).toLocaleDateString("en-AU",{day:"numeric",month:"short",year:"numeric"})}`:""}. Estimates use ${WALK_KMH} km/h walking and ${RUN_KMH} km/h running, plus time for the climbs.</p>`:""}
   ${w.desc?`<div class="section"><h3>What to expect</h3><p class="desc">${esc(w.desc)}</p></div>`:""}
@@ -903,7 +925,7 @@ function stopPressed(){if(rec.state==="running")rec.acc=elapsed();setState("stop
   pickChips("#save-tags",TERRAIN,follow?follow.tags:[]);pickChips("#save-good",GOOD,follow?follow.good:[]);discardArmed=false;$("#save-discard").textContent="Discard";
   openSheet("#sheet-save");setTimeout(()=>$("#save-name").focus(),50)}
 $("#b-go").addEventListener("click",goPressed);$("#b-pause").addEventListener("click",pausePressed);$("#b-stop").addEventListener("click",stopPressed);
-function onTick(){if(!rec)return;if(rec.demo&&rec.state==="running")demoStep();checkVoice();updateUI()}
+function onTick(){if(!rec)return;if(rec.demo&&rec.state==="running")demoStep();checkVoice();checkDaylight();updateUI()}
 function pickChips(sel,opts,on){const el=$(sel);el.innerHTML=opts.map(o=>`<button type="button" class="chip" aria-pressed="${(on||[]).includes(o)}">${esc(o)}</button>`).join("");
   el.onclick=e=>{const b=e.target.closest(".chip");if(b)b.setAttribute("aria-pressed",String(b.getAttribute("aria-pressed")!=="true"))}}
 const picked=sel=>[...document.querySelectorAll(sel+" .chip[aria-pressed=true]")].map(b=>b.textContent);
