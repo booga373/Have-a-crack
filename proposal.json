@@ -1,0 +1,31 @@
+{
+ "date": "2026-11-22",
+ "status": "pending",
+ "items": [
+  {
+   "n": 1,
+   "title": "Tell someone where I'm going",
+   "what": "One tap sends a ready-made text saying which walk you're on, roughly when you'll be back, and a map link to where you are now, so the house knows where to look.",
+   "where": "Recording screen (Create a new walk, or a walk's 'Walk this route'): the 'Tell someone where I'm going' button under the controls",
+   "inspiredBy": "AllTrails Lifeline / Live Share and Strava Beacon",
+   "commit": "c32ac4c36eb599899401159905fcc8c306b898ed"
+  },
+  {
+   "n": 2,
+   "title": "Daylight check",
+   "what": "Each walk shows today's sunset and the latest time to head off to finish in daylight, and while you're walking the coach gives one heads-up when about 30 minutes of light are left.",
+   "where": "Pick a walk (under the green 'Walk this route' button), and on the recording screen near sunset",
+   "inspiredBy": "AllTrails and Gaia GPS sunset/daylight info",
+   "commit": "20393b44b44881b1f939ed47a33a57c421460690"
+  },
+  {
+   "n": 3,
+   "title": "Punch combo call-outs",
+   "what": "Optional Easy, Mixed or Hard combos (like '1-2-3: jab, cross, hook') called out every few seconds during each round and shown big on screen, kept quiet for the bell, halfway call and last 10 seconds.",
+   "where": "Boxing timer setup: 'Call out punch combos during rounds'",
+   "inspiredBy": "Precision Boxing Coach and Boxing Combo Timer",
+   "commit": "92841a8425458698b17b7783f2246ac962595323"
+  }
+ ],
+ "handledReplies": []
+}
